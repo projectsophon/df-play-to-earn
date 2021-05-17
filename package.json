@@ -4,11 +4,15 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@projectsophon/tsconfig": "^0.0.0",
+    "@typechain/ethers-v5": "^7.0.0",
+    "@typechain/hardhat": "^2.0.1",
     "@types/chai": "^4.2.18",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.3.0",
     "hardhat": "^2.3.0",
     "ts-node": "^9.1.1",
+    "typechain": "^5.0.0",
     "typescript": "^4.2.4"
   },
   "devDependencies": {
