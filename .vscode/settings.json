@@ -1,0 +1,10 @@
+{
+  "eslint.workingDirectories": ["./"],
+  "solidity.compileUsingRemoteVersion": "v0.7.6+commit.7338295f",
+  "solidity.solhintRules": {},
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "prettier.requireConfig": true,
+  "solidity.formatter": "none",
+  "files.insertFinalNewline": true
+}
