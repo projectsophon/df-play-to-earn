@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OwnableUpgradeable } from "./OwnableUpgradeable";
-export type { Greeter } from "./Greeter";
+export type { RevealMarket } from "./RevealMarket";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
-export { Greeter__factory } from "./factories/Greeter__factory";
+export { RevealMarket__factory } from "./factories/RevealMarket__factory";

@@ -1,16 +1,15 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract Greeter is OwnableUpgradeable {
+contract RevealMarket is OwnableUpgradeable {
     string private greeting;
 
     function initialize(string memory _greeting) public initializer {
         __Ownable_init();
 
-        console.log("Deploying a Greeter with greeting:", _greeting);
         greeting = _greeting;
     }
 
@@ -19,7 +18,6 @@ contract Greeter is OwnableUpgradeable {
     }
 
     function setGreeting(string memory _greeting) public onlyOwner {
-        console.log("Changing greeting from '%s' to '%s'", greeting, _greeting);
         greeting = _greeting;
     }
 }

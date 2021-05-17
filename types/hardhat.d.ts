@@ -17,9 +17,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OwnableUpgradeable__factory>;
     getContractFactory(
-      name: "Greeter",
+      name: "RevealMarket",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Greeter__factory>;
+    ): Promise<Contracts.RevealMarket__factory>;
 
     // default types
     getContractFactory(
