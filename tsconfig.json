@@ -1,6 +1,5 @@
 {
-    "extends": "@projectsophon/tsconfig",
-    "include": ["./tasks/**/*.ts", "./test/**/*.ts", "./types/**/*.ts"],
-    "files": ["./hardhat.config.ts"]
-  }
-  
+  "extends": "@projectsophon/tsconfig",
+  "include": ["./tasks/**/*.ts", "./test/**/*.ts", "./types/**/*.ts"],
+  "files": ["./hardhat.config.ts"]
+}

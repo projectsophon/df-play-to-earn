@@ -1,6 +1,6 @@
-import { HardhatUserConfig,task } from "hardhat/config";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
-import '@typechain/hardhat'
+import "@typechain/hardhat";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -15,14 +15,12 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
- const config: HardhatUserConfig = {
+const config: HardhatUserConfig = {
   solidity: "0.7.3",
   typechain: {
-    outDir: 'types',
-    target: 'ethers-v5',
+    outDir: "types",
+    target: "ethers-v5",
   },
-
 };
 
 export default config;
-
