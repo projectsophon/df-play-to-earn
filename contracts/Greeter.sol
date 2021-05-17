@@ -5,7 +5,7 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract Greeter is OwnableUpgradeable {
-    string greeting;
+    string private greeting;
 
     function initialize(string memory _greeting) public initializer {
         __Ownable_init();
