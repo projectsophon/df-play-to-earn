@@ -14,10 +14,15 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
   }
 });
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
-
 const config: HardhatUserConfig = {
+  networks: {
+    hardhat: {
+      forking: {
+        url: "https://xdai-archive.blockscout.com",
+        // blockNumber: 11095000,
+      },
+    },
+  },
   solidity: "0.8.4",
   typechain: {
     outDir: "types",
