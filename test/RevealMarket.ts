@@ -46,6 +46,10 @@ describe("RevealMarket", function () {
     ]);
     await revealMarket.deployTransaction.wait();
 
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
     const create = revealMarket.createRevealBounty(
       [
         "2314917398471075791412081768726178095305597292375298585677016379640178219521",
@@ -75,12 +79,19 @@ describe("RevealMarket", function () {
         "8192",
         "0",
         "0",
-      ]
+      ],
+      overrides
     );
 
     await expect(create)
       .to.emit(revealMarket, "RevealBountyAnnounced")
-      .withArgs(deployer.address, "1329179306606537017160072927171575336704451797191632288973401732155541798");
+      .withArgs(
+        deployer.address,
+        "1329179306606537017160072927171575336704451797191632288973401732155541798",
+        "21888242871839275222246405745257275088548364400416034343698204186575808477663",
+        "24663",
+        overrides.value
+      );
   });
 
   it("Should revert on invalid createRevealBounty", async function () {
@@ -233,5 +244,21 @@ describe("RevealMarket", function () {
       ]
     );
     await expect(create).to.be.revertedWith("Planet already revealed");
+  });
+
+  it("Should revert claiming bounty that doesnt exist", async function () {
+    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+
+    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
+      VERIFIER_LIBRARY_ADDRESS,
+      CORE_CONTRACT_ADDRESS,
+    ]);
+    await revealMarket.deployTransaction.wait();
+
+    const claimed = revealMarket.claimRevealBounty(
+      "1055489038200661028569388695857909186231371749064758227922792551724851607"
+    );
+
+    await expect(claimed).to.be.revertedWith("No Bounty at location");
   });
 });

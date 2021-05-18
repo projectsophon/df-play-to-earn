@@ -14,8 +14,8 @@ abstract contract Verifier {
 }
 
 abstract contract DarkForestCore {
-    /* solhint-disable var-name-mixedcase */
     struct SnarkConstants {
+        /* solhint-disable var-name-mixedcase */
         bool DISABLE_ZK_CHECKS;
         uint256 PLANETHASH_KEY;
         uint256 SPACETYPE_KEY;
@@ -23,6 +23,7 @@ abstract contract DarkForestCore {
         bool PERLIN_MIRROR_X;
         bool PERLIN_MIRROR_Y;
         uint256 PERLIN_LENGTH_SCALE; // must be a power of two up to 8192
+        /* solhint-enable var-name-mixedcase */
     }
 
     struct RevealedCoords {
@@ -39,12 +40,14 @@ abstract contract DarkForestCore {
 }
 
 contract RevealMarket is OwnableUpgradeable {
-    event RevealBountyAnnounced(address revealer, uint256 loc);
+    event RevealBountyAnnounced(address revealer, uint256 loc, uint256 x, uint256 y, uint256 value);
+    event RevealBountyCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
 
     Verifier private verifier;
     DarkForestCore private darkForestCore;
-
     DarkForestCore.SnarkConstants private snarkConstants;
+
+    mapping(uint256 => Bounty) public bounties;
 
     function initialize(address _verifierAddress, address _coreAddress) public initializer {
         __Ownable_init();
@@ -71,7 +74,22 @@ contract RevealMarket is OwnableUpgradeable {
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
 
-        emit RevealBountyAnnounced(msg.sender, _input[0]);
+        Bounty memory posted =
+            Bounty({aggressor: msg.sender, location: _input[0], x: _input[2], y: _input[3], value: msg.value});
+
+        bounties[posted.location] = posted;
+
+        emit RevealBountyAnnounced(msg.sender, posted.location, posted.x, posted.y, posted.value);
+    }
+
+    function claimRevealBounty(uint256 location) public {
+        // todo verify msg.sender is revealer or revert
+        Bounty memory claimed = bounties[location];
+        require(claimed.location != 0, "No Bounty at location");
+
+        delete bounties[location];
+
+        emit RevealBountyCollected(msg.sender, location, claimed.x, claimed.y, claimed.value);
     }
 
     function setVerifier(address _verifierAddress) public onlyOwner {
@@ -97,4 +115,12 @@ contract RevealMarket is OwnableUpgradeable {
 
         return true;
     }
+}
+
+struct Bounty {
+    address aggressor;
+    uint256 location;
+    uint256 x;
+    uint256 y;
+    uint256 value;
 }

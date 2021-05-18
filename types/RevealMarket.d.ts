@@ -22,6 +22,8 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
+    "bounties(uint256)": FunctionFragment;
+    "claimRevealBounty(uint256)": FunctionFragment;
     "createRevealBounty(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -32,6 +34,14 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "bounties",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimRevealBounty",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "createRevealBounty",
     values: [
@@ -77,6 +87,11 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
+  decodeFunctionResult(functionFragment: "bounties", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "claimRevealBounty",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "createRevealBounty",
     data: BytesLike
@@ -106,11 +121,13 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "RevealBountyAnnounced(address,uint256)": EventFragment;
+    "RevealBountyAnnounced(address,uint256,uint256,uint256,uint256)": EventFragment;
+    "RevealBountyCollected(address,uint256,uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevealBountyAnnounced"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevealBountyCollected"): EventFragment;
 }
 
 export class RevealMarket extends BaseContract {
@@ -157,6 +174,24 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
+    bounties(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        aggressor: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
+    >;
+
+    claimRevealBounty(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     createRevealBounty(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
@@ -214,6 +249,24 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  bounties(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      aggressor: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      value: BigNumber;
+    }
+  >;
+
+  claimRevealBounty(
+    location: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   createRevealBounty(
     _a: [BigNumberish, BigNumberish],
@@ -273,6 +326,24 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    bounties(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        aggressor: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
+    >;
+
+    claimRevealBounty(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     createRevealBounty(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
@@ -340,14 +411,47 @@ export class RevealMarket extends BaseContract {
 
     RevealBountyAnnounced(
       revealer?: null,
-      loc?: null
+      loc?: null,
+      x?: null,
+      y?: null,
+      value?: null
     ): TypedEventFilter<
-      [string, BigNumber],
-      { revealer: string; loc: BigNumber }
+      [string, BigNumber, BigNumber, BigNumber, BigNumber],
+      {
+        revealer: string;
+        loc: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
+    >;
+
+    RevealBountyCollected(
+      collector?: null,
+      loc?: null,
+      x?: null,
+      y?: null,
+      value?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber],
+      {
+        collector: string;
+        loc: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
     >;
   };
 
   estimateGas: {
+    bounties(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+    claimRevealBounty(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     createRevealBounty(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
@@ -407,6 +511,16 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
+    bounties(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    claimRevealBounty(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     createRevealBounty(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
