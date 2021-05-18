@@ -40,6 +40,11 @@
   resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-0.6.0-arena-phated6.0.tgz#48fd0b476d2fb3b2481d32667498c9ccd63ac996"
   integrity sha512-sfrc8vl15Sx1+tSgg9lOj7MXDh0YEXeDLkMlfF5QXHlvnI4fLftrQYSE96/YmclJ3Ran1Hn7SuATHyFB3fnOEA==
 
+"@darkforest_eth/snarks@arena-phated6":
+  version "0.6.0-arena-phated6.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-0.6.0-arena-phated6.0.tgz#abb1e3242c888e0dda8b9731f884fb012b9374d1"
+  integrity sha512-FOwmb+N0SXP1m1d04pDdUYT6JWUNdxW/C2xgV1oEsGTJTf36+VE22997oXDyDAK3FF6J+18tH9vOKLNchkb+cA==
+
 "@ensdomains/ens@^0.4.4":
   version "0.4.5"
   resolved "https://registry.yarnpkg.com/@ensdomains/ens/-/ens-0.4.5.tgz#e0aebc005afdc066447c6e22feb4eda89a5edbfc"
