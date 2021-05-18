@@ -1,9 +1,13 @@
 import * as hre from "hardhat";
 import { expect } from "chai";
 import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
+import { Contract, BigNumberish } from "ethers";
 import type { RevealMarket } from "../types";
 
 describe("RevealMarket", function () {
+  this.timeout(100000);
+
   let revealMarket: RevealMarket;
 
   beforeEach(async function () {
@@ -181,7 +185,22 @@ describe("RevealMarket", function () {
   });
 
   it("Should revert if planet is already revealed", async function () {
-    const create = revealMarket.createRevealBounty(
+    const params: [
+      [BigNumberish, BigNumberish],
+      [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      [BigNumberish, BigNumberish],
+      [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ]
+    ] = [
       [
         "595968808761843037207477632890647919183494403583508717310690963180816943936",
         "13119583075469163207335734190726927322524964187178717935075370338035347409535",
@@ -210,16 +229,22 @@ describe("RevealMarket", function () {
         "8192",
         "0",
         "0",
-      ]
-    );
+      ],
+    ];
+
+    await hre.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: ["0x27b0b597fa1e3c26fb9980acd44991d4a28b632e"],
+    });
+    const signer = await hre.ethers.provider.getSigner("0x27b0b597fa1e3c26fb9980acd44991d4a28b632e");
+
+    const coreContractABI = require("@darkforest_eth/contracts/abis/DarkForestCore.json");
+    const darkForestCore = new Contract(CORE_CONTRACT_ADDRESS, coreContractABI, hre.ethers.provider) as DarkForestCore;
+
+    const revealPlanetReceipt = await darkForestCore.connect(signer).revealLocation(...params);
+    await revealPlanetReceipt.wait();
+
+    const create = revealMarket.createRevealBounty(...params);
     await expect(create).to.be.revertedWith("Planet already revealed");
-  });
-
-  it("Should revert claiming bounty that doesnt exist", async function () {
-    const claimed = revealMarket.claimRevealBounty(
-      "1055489038200661028569388695857909186231371749064758227922792551724851607"
-    );
-
-    await expect(claimed).to.be.revertedWith("No Bounty at location");
   });
 });
