@@ -234,9 +234,9 @@ describe("RevealMarket", function () {
 
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
-      params: ["0x27b0b597fa1e3c26fb9980acd44991d4a28b632e"],
+      params: [hre.WHITELISTED_PLAYER_1],
     });
-    const signer = await hre.ethers.provider.getSigner("0x27b0b597fa1e3c26fb9980acd44991d4a28b632e");
+    const signer = await hre.ethers.provider.getSigner(hre.WHITELISTED_PLAYER_1);
 
     const coreContractABI = require("@darkforest_eth/contracts/abis/DarkForestCore.json");
     const darkForestCore = new Contract(CORE_CONTRACT_ADDRESS, coreContractABI, hre.ethers.provider) as DarkForestCore;
