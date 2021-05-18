@@ -63,9 +63,7 @@ describe("RevealMarket", function () {
   it("Should revert setting verifier for non owners", async function () {
     const [_, someguy] = await hre.ethers.getSigners();
 
-    const unpriviledgedUser = revealMarket.connect(someguy);
-
-    await expect(unpriviledgedUser.setVerifier(VERIFIER_LIBRARY_ADDRESS)).to.be.revertedWith(
+    await expect(revealMarket.connect(someguy).setVerifier(VERIFIER_LIBRARY_ADDRESS)).to.be.revertedWith(
       "Ownable: caller is not the owner"
     );
   });
