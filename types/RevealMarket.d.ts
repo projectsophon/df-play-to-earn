@@ -12,6 +12,7 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -21,28 +22,49 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
-    "greet()": FunctionFragment;
-    "initialize(string)": FunctionFragment;
+    "createRevealBounty(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
+    "initialize(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "setGreeting(string)": FunctionFragment;
+    "setVerifier(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "greet", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "createRevealBounty",
+    values: [
+      [BigNumberish, BigNumberish],
+      [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      [BigNumberish, BigNumberish],
+      [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ]
+    ]
+  ): string;
   encodeFunctionData(functionFragment: "initialize", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "setGreeting", values: [string]): string;
+  encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
 
-  decodeFunctionResult(functionFragment: "greet", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createRevealBounty",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -50,7 +72,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setGreeting",
+    functionFragment: "setVerifier",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -60,9 +82,11 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
+    "RevealBountyAnnounced(address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevealBountyAnnounced"): EventFragment;
 }
 
 export class RevealMarket extends BaseContract {
@@ -109,10 +133,26 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
-    greet(overrides?: CallOverrides): Promise<[string]>;
+    createRevealBounty(
+      _a: [BigNumberish, BigNumberish],
+      _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      _c: [BigNumberish, BigNumberish],
+      _input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     initialize(
-      _greeting: string,
+      _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -122,8 +162,8 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setGreeting(
-      _greeting: string,
+    setVerifier(
+      _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -133,10 +173,26 @@ export class RevealMarket extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  greet(overrides?: CallOverrides): Promise<string>;
+  createRevealBounty(
+    _a: [BigNumberish, BigNumberish],
+    _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+    _c: [BigNumberish, BigNumberish],
+    _input: [
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ],
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   initialize(
-    _greeting: string,
+    _verifierAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -146,8 +202,8 @@ export class RevealMarket extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setGreeting(
-    _greeting: string,
+  setVerifier(
+    _verifierAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -157,15 +213,37 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    greet(overrides?: CallOverrides): Promise<string>;
+    createRevealBounty(
+      _a: [BigNumberish, BigNumberish],
+      _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      _c: [BigNumberish, BigNumberish],
+      _input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    initialize(_greeting: string, overrides?: CallOverrides): Promise<void>;
+    initialize(
+      _verifierAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    setGreeting(_greeting: string, overrides?: CallOverrides): Promise<void>;
+    setVerifier(
+      _verifierAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     transferOwnership(
       newOwner: string,
@@ -181,13 +259,37 @@ export class RevealMarket extends BaseContract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
+
+    RevealBountyAnnounced(
+      revealer?: null,
+      loc?: null
+    ): TypedEventFilter<
+      [string, BigNumber],
+      { revealer: string; loc: BigNumber }
+    >;
   };
 
   estimateGas: {
-    greet(overrides?: CallOverrides): Promise<BigNumber>;
+    createRevealBounty(
+      _a: [BigNumberish, BigNumberish],
+      _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      _c: [BigNumberish, BigNumberish],
+      _input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     initialize(
-      _greeting: string,
+      _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -197,8 +299,8 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setGreeting(
-      _greeting: string,
+    setVerifier(
+      _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -209,10 +311,26 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
-    greet(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    createRevealBounty(
+      _a: [BigNumberish, BigNumberish],
+      _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      _c: [BigNumberish, BigNumberish],
+      _input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     initialize(
-      _greeting: string,
+      _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -222,8 +340,8 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setGreeting(
-      _greeting: string,
+    setVerifier(
+      _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

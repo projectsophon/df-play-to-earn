@@ -4,20 +4,38 @@ pragma solidity ^0.8.4;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract RevealMarket is OwnableUpgradeable {
-    string private greeting;
+abstract contract Verifier {
+    function verifyRevealProof(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[9] memory input
+    ) public virtual returns (bool);
+}
 
-    function initialize(string memory _greeting) public initializer {
+contract RevealMarket is OwnableUpgradeable {
+    event RevealBountyAnnounced(address revealer, uint256 loc);
+
+    Verifier private verifier;
+
+    function initialize(address _verifierAddress) public initializer {
         __Ownable_init();
 
-        greeting = _greeting;
+        verifier = Verifier(_verifierAddress);
     }
 
-    function greet() public view returns (string memory) {
-        return greeting;
+    function createRevealBounty(
+        uint256[2] memory _a,
+        uint256[2][2] memory _b,
+        uint256[2] memory _c,
+        uint256[9] memory _input
+    ) public payable {
+        require(verifier.verifyRevealProof(_a, _b, _c, _input), "Invalid reveal proof");
+
+        emit RevealBountyAnnounced(msg.sender, _input[0]);
     }
 
-    function setGreeting(string memory _greeting) public onlyOwner {
-        greeting = _greeting;
+    function setVerifier(address _verifierAddress) public onlyOwner {
+        verifier = Verifier(_verifierAddress);
     }
 }

@@ -35,6 +35,11 @@
   resolved "https://registry.yarnpkg.com/@cto.af/textdecoder/-/textdecoder-0.0.0.tgz#e1e8d84c936c30a0f4619971f19ca41941af9fdc"
   integrity sha512-sJpx3F5xcVV/9jNYJQtvimo4Vfld/nD3ph+ZWtQzZ03Zo8rJC7QKQTRcIGS13Rcz80DwFNthCWMrd58vpY4ZAQ==
 
+"@darkforest_eth/contracts@arena-phated6":
+  version "0.6.0-arena-phated6.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-0.6.0-arena-phated6.0.tgz#48fd0b476d2fb3b2481d32667498c9ccd63ac996"
+  integrity sha512-sfrc8vl15Sx1+tSgg9lOj7MXDh0YEXeDLkMlfF5QXHlvnI4fLftrQYSE96/YmclJ3Ran1Hn7SuATHyFB3fnOEA==
+
 "@ensdomains/ens@^0.4.4":
   version "0.4.5"
   resolved "https://registry.yarnpkg.com/@ensdomains/ens/-/ens-0.4.5.tgz#e0aebc005afdc066447c6e22feb4eda89a5edbfc"

@@ -20,6 +20,10 @@ declare module "hardhat/types/runtime" {
       name: "RevealMarket",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RevealMarket__factory>;
+    getContractFactory(
+      name: "Verifier",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Verifier__factory>;
 
     // default types
     getContractFactory(
