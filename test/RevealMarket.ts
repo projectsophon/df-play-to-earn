@@ -1,16 +1,20 @@
 import * as hre from "hardhat";
 import { expect } from "chai";
 import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
-import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
-import { Contract, BigNumberish } from "ethers";
+import type { BigNumberish, Signer } from "ethers";
 import type { RevealMarket } from "../types";
+import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
 
 describe("RevealMarket", function () {
   this.timeout(100000);
 
   let revealMarket: RevealMarket;
+  let player_1: Signer;
+  let darkForestCore: DarkForestCore;
 
   beforeEach(async function () {
+    const [, , piggyBank] = await hre.ethers.getSigners();
+
     await hre.network.provider.request({
       method: "hardhat_reset",
       params: [
@@ -30,6 +34,24 @@ describe("RevealMarket", function () {
       CORE_CONTRACT_ADDRESS,
     ])) as RevealMarket;
     await revealMarket.deployTransaction.wait();
+
+    await hre.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [hre.WHITELISTED_PLAYER_1],
+    });
+    player_1 = await hre.ethers.provider.getSigner(hre.WHITELISTED_PLAYER_1);
+
+    const coreContractABI = require("@darkforest_eth/contracts/abis/DarkForestCore.json");
+    darkForestCore = (await hre.ethers.getContractAt(
+      coreContractABI,
+      CORE_CONTRACT_ADDRESS,
+      player_1
+    )) as DarkForestCore;
+
+    await piggyBank.sendTransaction({
+      to: await player_1.getAddress(),
+      value: hre.ethers.utils.parseEther("1000"),
+    });
   });
 
   it("We should be owner", async function () {
@@ -232,16 +254,7 @@ describe("RevealMarket", function () {
       ],
     ];
 
-    await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [hre.WHITELISTED_PLAYER_1],
-    });
-    const signer = await hre.ethers.provider.getSigner(hre.WHITELISTED_PLAYER_1);
-
-    const coreContractABI = require("@darkforest_eth/contracts/abis/DarkForestCore.json");
-    const darkForestCore = new Contract(CORE_CONTRACT_ADDRESS, coreContractABI, hre.ethers.provider) as DarkForestCore;
-
-    const revealPlanetReceipt = await darkForestCore.connect(signer).revealLocation(...params);
+    const revealPlanetReceipt = await darkForestCore.revealLocation(...params);
     await revealPlanetReceipt.wait();
 
     const create = revealMarket.createRevealBounty(...params);
