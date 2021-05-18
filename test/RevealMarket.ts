@@ -20,8 +20,8 @@ describe("RevealMarket", function () {
       params: [
         {
           forking: {
-            jsonRpcUrl: hre.config.networks.hardhat.forking?.url,
-            blockNumber: hre.config.networks.hardhat.forking?.blockNumber,
+            jsonRpcUrl: hre.ARCHIVE_RPC_URL,
+            blockNumber: hre.FORKING_BLOCK_NUMBER,
           },
         },
       ],

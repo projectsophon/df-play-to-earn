@@ -8,12 +8,16 @@ import "./tasks/deploy";
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
-    WHITELISTED_PLAYER_1: string | undefined;
+    WHITELISTED_PLAYER_1: string;
+    ARCHIVE_RPC_URL: string;
+    FORKING_BLOCK_NUMBER: number;
   }
 }
 
 extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.WHITELISTED_PLAYER_1 = "0x27b0b597fa1e3c26fb9980acd44991d4a28b632e";
+  env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
+  env.FORKING_BLOCK_NUMBER = 16059152; // game created and user whitelisted
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {
@@ -25,14 +29,6 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
 });
 
 const config: HardhatUserConfig = {
-  networks: {
-    hardhat: {
-      forking: {
-        url: "https://xdai-archive.blockscout.com",
-        blockNumber: 16059152, // game created and user whitelisted
-      },
-    },
-  },
   solidity: "0.8.4",
   typechain: {
     outDir: "types",
