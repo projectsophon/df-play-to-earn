@@ -30,7 +30,13 @@ contract RevealMarket is OwnableUpgradeable {
         uint256[2] memory _c,
         uint256[9] memory _input
     ) public payable {
-        require(verifier.verifyRevealProof(_a, _b, _c, _input), "Invalid reveal proof");
+        try verifier.verifyRevealProof(_a, _b, _c, _input) returns (bool success) {
+            require(success, "Invalid reveal proof");
+        } catch (
+            bytes memory /*lowLevelData*/
+        ) {
+            revert("verifyRevealProof failed");
+        }
 
         emit RevealBountyAnnounced(msg.sender, _input[0]);
     }

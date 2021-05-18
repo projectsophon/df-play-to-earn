@@ -73,4 +73,23 @@ describe("RevealMarket", function () {
       .to.emit(revealMarket, "RevealBountyAnnounced")
       .withArgs(deployer.address, "1329179306606537017160072927171575336704451797191632288973401732155541798");
   });
+
+  it("Should revert on invalid createRevealBounty", async function () {
+    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+
+    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [VERIFIER_LIBRARY_ADDRESS]);
+    await revealMarket.deployTransaction.wait();
+
+    const create = revealMarket.createRevealBounty(
+      ["0", "0"],
+      [
+        ["0", "0"],
+        ["0", "0"],
+      ],
+      ["0", "0"],
+      ["0", "0", "0", "0", "0", "0", "0", "0", "0"]
+    );
+
+    await expect(create).to.be.revertedWith("Invalid reveal proof");
+  });
 });
