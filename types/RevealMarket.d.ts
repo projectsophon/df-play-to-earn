@@ -22,12 +22,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
-    "bounties(uint256)": FunctionFragment;
-    "claimRevealBounty(uint256)": FunctionFragment;
-    "createRevealBounty(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
+    "claimReveal(uint256)": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
+    "reveals(uint256)": FunctionFragment;
     "revertIfBadSnarkPerlinFlags(uint256[5],bool)": FunctionFragment;
     "setDarkForestCore(address)": FunctionFragment;
     "setVerifier(address)": FunctionFragment;
@@ -35,15 +35,20 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
-    functionFragment: "bounties",
+    functionFragment: "claimReveal",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "claimRevealBounty",
-    values: [BigNumberish]
+    functionFragment: "initialize",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "createRevealBounty",
+    functionFragment: "requestReveal",
     values: [
       [BigNumberish, BigNumberish],
       [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
@@ -62,13 +67,8 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
+    functionFragment: "reveals",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "revertIfBadSnarkPerlinFlags",
@@ -87,13 +87,8 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(functionFragment: "bounties", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "claimRevealBounty",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createRevealBounty",
+    functionFragment: "claimReveal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -102,6 +97,11 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestReveal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "reveals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "revertIfBadSnarkPerlinFlags",
     data: BytesLike
@@ -121,13 +121,13 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "RevealBountyAnnounced(address,uint256,uint256,uint256,uint256)": EventFragment;
-    "RevealBountyCollected(address,uint256,uint256,uint256,uint256)": EventFragment;
+    "RevealCollected(address,uint256,uint256,uint256,uint256)": EventFragment;
+    "RevealRequested(address,uint256,uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RevealBountyAnnounced"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RevealBountyCollected"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevealCollected"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevealRequested"): EventFragment;
 }
 
 export class RevealMarket extends BaseContract {
@@ -174,25 +174,24 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
-    bounties(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        aggressor: string;
-        location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        value: BigNumber;
-      }
-    >;
-
-    claimRevealBounty(
+    claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    createRevealBounty(
+    initialize(
+      _verifierAddress: string,
+      _coreAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    requestReveal(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
       _c: [BigNumberish, BigNumberish],
@@ -210,17 +209,18 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    reveals(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        buyer: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
+    >;
 
     revertIfBadSnarkPerlinFlags(
       perlinFlags: [
@@ -250,25 +250,24 @@ export class RevealMarket extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  bounties(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      aggressor: string;
-      location: BigNumber;
-      x: BigNumber;
-      y: BigNumber;
-      value: BigNumber;
-    }
-  >;
-
-  claimRevealBounty(
+  claimReveal(
     location: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  createRevealBounty(
+  initialize(
+    _verifierAddress: string,
+    _coreAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  requestReveal(
     _a: [BigNumberish, BigNumberish],
     _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
     _c: [BigNumberish, BigNumberish],
@@ -286,17 +285,18 @@ export class RevealMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  initialize(
-    _verifierAddress: string,
-    _coreAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  reveals(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      buyer: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      value: BigNumber;
+    }
+  >;
 
   revertIfBadSnarkPerlinFlags(
     perlinFlags: [
@@ -326,25 +326,22 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    bounties(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        aggressor: string;
-        location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        value: BigNumber;
-      }
-    >;
-
-    claimRevealBounty(
+    claimReveal(
       location: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    createRevealBounty(
+    initialize(
+      _verifierAddress: string,
+      _coreAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    requestReveal(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
       _c: [BigNumberish, BigNumberish],
@@ -362,15 +359,18 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
+    reveals(
+      arg0: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<void>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+    ): Promise<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        buyer: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
+    >;
 
     revertIfBadSnarkPerlinFlags(
       perlinFlags: [
@@ -409,24 +409,7 @@ export class RevealMarket extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
-    RevealBountyAnnounced(
-      revealer?: null,
-      loc?: null,
-      x?: null,
-      y?: null,
-      value?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber],
-      {
-        revealer: string;
-        loc: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        value: BigNumber;
-      }
-    >;
-
-    RevealBountyCollected(
+    RevealCollected(
       collector?: null,
       loc?: null,
       x?: null,
@@ -442,17 +425,44 @@ export class RevealMarket extends BaseContract {
         value: BigNumber;
       }
     >;
+
+    RevealRequested(
+      revealer?: null,
+      loc?: null,
+      x?: null,
+      y?: null,
+      value?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber],
+      {
+        revealer: string;
+        loc: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      }
+    >;
   };
 
   estimateGas: {
-    bounties(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    claimRevealBounty(
+    claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    createRevealBounty(
+    initialize(
+      _verifierAddress: string,
+      _coreAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    requestReveal(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
       _c: [BigNumberish, BigNumberish],
@@ -470,17 +480,7 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    reveals(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     revertIfBadSnarkPerlinFlags(
       perlinFlags: [
@@ -511,17 +511,24 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
-    bounties(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    claimRevealBounty(
+    claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    createRevealBounty(
+    initialize(
+      _verifierAddress: string,
+      _coreAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requestReveal(
       _a: [BigNumberish, BigNumberish],
       _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
       _c: [BigNumberish, BigNumberish],
@@ -539,16 +546,9 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+    reveals(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     revertIfBadSnarkPerlinFlags(

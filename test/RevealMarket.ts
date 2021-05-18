@@ -65,21 +65,21 @@ describe("RevealMarket", function () {
     );
   });
 
-  it("Emits a RevealBountyAnnounced given a correct RevealProof for unrevealed planet", async function () {
+  it("Emits a RevealRequested given a correct RevealProof for unrevealed planet", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const create = revealMarket.createRevealBounty(...validRevealProof, overrides);
+    const create = revealMarket.requestReveal(...validRevealProof, overrides);
 
     const locationID = validRevealProof[3][0];
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
 
     await expect(create)
-      .to.emit(revealMarket, "RevealBountyAnnounced")
+      .to.emit(revealMarket, "RevealRequested")
       .withArgs(deployer.address, locationID, x, y, overrides.value);
   });
 
@@ -88,7 +88,7 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const create = revealMarket.createRevealBounty(...invalidRevealProof, overrides);
+    const create = revealMarket.requestReveal(...invalidRevealProof, overrides);
 
     await expect(create).to.be.revertedWith("Invalid reveal proof");
   });
@@ -97,7 +97,7 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
-    const create = revealMarket.createRevealBounty(...garbageRevealProof, overrides);
+    const create = revealMarket.requestReveal(...garbageRevealProof, overrides);
 
     await expect(create).to.be.revertedWith("verifyRevealProof reverted");
   });
@@ -106,7 +106,7 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
-    const create = revealMarket.createRevealBounty(...wrongUniverseRevealProof, overrides);
+    const create = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
     await expect(create).to.be.revertedWith("bad planethash mimc key");
   });
 
@@ -118,28 +118,28 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const create = revealMarket.createRevealBounty(...validRevealProof, overrides);
+    const create = revealMarket.requestReveal(...validRevealProof, overrides);
     await expect(create).to.be.revertedWith("Planet already revealed");
   });
 
-  it("Emits RevealBountyCollected after planet revealed has been claimed", async function () {
+  it("Emits RevealCollected after planet revealed has been claimed", async function () {
     const [deployer] = await hre.ethers.getSigners();
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const createReceipt = await revealMarket.createRevealBounty(...validRevealProof, overrides);
+    const createReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await createReceipt.wait();
 
     const locationID = validRevealProof[3][0];
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
 
-    const claimedReceipt = await revealMarket.claimRevealBounty(locationID);
+    const claimedReceipt = await revealMarket.claimReveal(locationID);
     await claimedReceipt.wait();
 
     await expect(claimedReceipt)
-      .to.emit(revealMarket, "RevealBountyCollected")
+      .to.emit(revealMarket, "RevealCollected")
       .withArgs(deployer.address, locationID, x, y, overrides.value);
   });
 });
