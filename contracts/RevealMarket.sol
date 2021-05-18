@@ -83,13 +83,13 @@ contract RevealMarket is OwnableUpgradeable {
     }
 
     function claimRevealBounty(uint256 location) public {
-        // todo verify msg.sender is revealer or revert
         Bounty memory claimed = bounties[location];
         require(claimed.location != 0, "No Bounty at location");
 
         delete bounties[location];
 
-        emit RevealBountyCollected(msg.sender, location, claimed.x, claimed.y, claimed.value);
+        // todo look up if planet is revealed, and who revealer was, and pay them
+        emit RevealBountyCollected(msg.sender, claimed.location, claimed.x, claimed.y, claimed.value);
     }
 
     function setVerifier(address _verifierAddress) public onlyOwner {

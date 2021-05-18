@@ -1,11 +1,29 @@
-import { HardhatUserConfig, task } from "hardhat/config";
+import type { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatUserConfig, extendEnvironment, task } from "hardhat/config";
+import "hardhat/types/runtime";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
+declare module "hardhat/types/runtime" {
+  interface HardhatRuntimeEnvironment {
+    whitelistedPlayer1: {
+      address: string;
+      blockNumber: number;
+    };
+    ARCHIVE_RPC_URL: string;
+  }
+}
+
+extendEnvironment((env: HardhatRuntimeEnvironment) => {
+  env.whitelistedPlayer1 = {
+    address: "0x27b0b597fa1e3c26fb9980acd44991d4a28b632e",
+    blockNumber: 16059152, // game created and user whitelisted
+  };
+  env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
+});
+
 task("accounts", "Prints the list of accounts", async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
 
@@ -15,14 +33,6 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
 });
 
 const config: HardhatUserConfig = {
-  networks: {
-    hardhat: {
-      forking: {
-        url: "https://xdai-archive.blockscout.com",
-        // blockNumber: 11095000,
-      },
-    },
-  },
   solidity: "0.8.4",
   typechain: {
     outDir: "types",
