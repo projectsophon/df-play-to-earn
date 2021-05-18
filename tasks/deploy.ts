@@ -26,20 +26,17 @@ async function deployIntoNode(
   hre: HardhatRuntimeEnvironment,
   runSuper: RunSuperFunction<TaskArguments>
 ) {
-  const { forking } = hre.config.networks.hardhat;
-
   await hre.network.provider.request({
     method: "hardhat_reset",
     params: [
       {
         forking: {
-          jsonRpcUrl: forking?.url,
-          blockNumber: forking?.blockNumber,
+          jsonRpcUrl: hre.ARCHIVE_RPC_URL,
         },
       },
     ],
   });
-  console.log(`Forked from ${forking?.url}`);
+  console.log(`Forked from ${hre.ARCHIVE_RPC_URL}`);
 
   await hre.run("compile");
 
