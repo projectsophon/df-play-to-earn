@@ -126,6 +126,22 @@ describe("RevealMarket", function () {
     const create = revealMarket.createRevealBounty(...validRevealProof, overrides);
     await expect(create).to.be.revertedWith("Planet already revealed");
   });
+
+  it("Should claim bounty victoriously", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const createReceipt = await revealMarket.createRevealBounty(...validRevealProof, overrides);
+    await createReceipt.wait();
+
+    const claimedReceipt = await revealMarket.claimRevealBounty(
+      "1329179306606537017160072927171575336704451797191632288973401732155541798"
+    );
+    await claimedReceipt.wait();
+
+    expect(true);
+  });
 });
 
 type RevealProof = [
