@@ -6,7 +6,7 @@ describe("RevealMarket", function () {
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
 
     const RevealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, ["Hello, world!"]);
-    await RevealMarket.deployed();
+    await RevealMarket.deployTransaction.wait();
 
     expect(await RevealMarket.greet()).to.equal("Hello, world!");
   });
@@ -15,7 +15,7 @@ describe("RevealMarket", function () {
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
 
     const RevealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, ["Hello, world!"]);
-    await RevealMarket.deployed();
+    await RevealMarket.deployTransaction.wait();
 
     const [deployer] = await hre.ethers.getSigners();
 
@@ -28,7 +28,7 @@ describe("RevealMarket", function () {
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
 
     const RevealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, ["Hello, world!"]);
-    await RevealMarket.deployed();
+    await RevealMarket.deployTransaction.wait();
 
     const unpriviledgedGreeter = RevealMarket.connect(someguy);
 
