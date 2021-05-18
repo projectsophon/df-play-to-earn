@@ -27,6 +27,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "revertIfBadSnarkPerlinFlags(uint256[5],bool)": FunctionFragment;
+    "setDarkForestCore(address)": FunctionFragment;
     "setVerifier(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -66,6 +67,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
       boolean
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setDarkForestCore",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -84,6 +89,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "revertIfBadSnarkPerlinFlags",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDarkForestCore",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -190,6 +199,11 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    setDarkForestCore(
+      _coreAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setVerifier(
       _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -243,6 +257,11 @@ export class RevealMarket extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  setDarkForestCore(
+    _coreAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setVerifier(
     _verifierAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -293,6 +312,11 @@ export class RevealMarket extends BaseContract {
       checkingBiome: boolean,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    setDarkForestCore(
+      _coreAddress: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setVerifier(
       _verifierAddress: string,
@@ -366,6 +390,11 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setDarkForestCore(
+      _coreAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setVerifier(
       _verifierAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -418,6 +447,11 @@ export class RevealMarket extends BaseContract {
       ],
       checkingBiome: boolean,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setDarkForestCore(
+      _coreAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setVerifier(

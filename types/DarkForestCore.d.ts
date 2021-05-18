@@ -21,14 +21,23 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface DarkForestCoreInterface extends ethers.utils.Interface {
   functions: {
+    "getRevealedCoords(uint256)": FunctionFragment;
     "snarkConstants()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "getRevealedCoords",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "snarkConstants",
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "getRevealedCoords",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "snarkConstants",
     data: BytesLike
@@ -81,16 +90,37 @@ export class DarkForestCore extends BaseContract {
   interface: DarkForestCoreInterface;
 
   functions: {
+    getRevealedCoords(
+      locationId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     snarkConstants(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  getRevealedCoords(
+    locationId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   snarkConstants(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    getRevealedCoords(
+      locationId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        locationId: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+      }
+    >;
+
     snarkConstants(
       overrides?: CallOverrides
     ): Promise<
@@ -117,12 +147,22 @@ export class DarkForestCore extends BaseContract {
   filters: {};
 
   estimateGas: {
+    getRevealedCoords(
+      locationId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     snarkConstants(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    getRevealedCoords(
+      locationId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     snarkConstants(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

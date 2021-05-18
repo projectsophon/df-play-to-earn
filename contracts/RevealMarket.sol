@@ -25,13 +25,24 @@ abstract contract DarkForestCore {
         uint256 PERLIN_LENGTH_SCALE; // must be a power of two up to 8192
     }
 
+    struct RevealedCoords {
+        uint256 locationId;
+        uint256 x;
+        uint256 y;
+        // TODO: add this for new contracts
+        // address revealer;
+    }
+
     function snarkConstants() public virtual returns (SnarkConstants memory);
+
+    function getRevealedCoords(uint256 locationId) public virtual returns (RevealedCoords memory);
 }
 
 contract RevealMarket is OwnableUpgradeable {
     event RevealBountyAnnounced(address revealer, uint256 loc);
 
     Verifier private verifier;
+    DarkForestCore private darkForestCore;
 
     DarkForestCore.SnarkConstants private snarkConstants;
 
@@ -39,7 +50,7 @@ contract RevealMarket is OwnableUpgradeable {
         __Ownable_init();
 
         verifier = Verifier(_verifierAddress);
-        DarkForestCore darkForestCore = DarkForestCore(_coreAddress);
+        darkForestCore = DarkForestCore(_coreAddress);
         snarkConstants = darkForestCore.snarkConstants();
     }
 
@@ -57,11 +68,18 @@ contract RevealMarket is OwnableUpgradeable {
 
         revertIfBadSnarkPerlinFlags([_input[4], _input[5], _input[6], _input[7], _input[8]], false);
 
+        DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
+        require(revealed.locationId == 0, "Planet already revealed");
+
         emit RevealBountyAnnounced(msg.sender, _input[0]);
     }
 
     function setVerifier(address _verifierAddress) public onlyOwner {
         verifier = Verifier(_verifierAddress);
+    }
+
+    function setDarkForestCore(address _coreAddress) public onlyOwner {
+        darkForestCore = DarkForestCore(_coreAddress);
     }
 
     // if you don't check the public input snark perlin config values, then a player could specify a planet with for example the wrong PLANETHASH_KEY and the SNARK would verify but they'd have created an invalid planet.

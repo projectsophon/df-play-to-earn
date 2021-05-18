@@ -191,4 +191,47 @@ describe("RevealMarket", function () {
     );
     await expect(create).to.be.revertedWith("bad planethash mimc key");
   });
+
+  it("Should revert if planet is already revealed", async function () {
+    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+
+    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
+      VERIFIER_LIBRARY_ADDRESS,
+      CORE_CONTRACT_ADDRESS,
+    ]);
+    await revealMarket.deployTransaction.wait();
+
+    const create = revealMarket.createRevealBounty(
+      [
+        "595968808761843037207477632890647919183494403583508717310690963180816943936",
+        "13119583075469163207335734190726927322524964187178717935075370338035347409535",
+      ],
+      [
+        [
+          "14522895660382957920434244775958197781837818929118523230725130800464353895523",
+          "11658528159030849383437064915376180614763395723635063076947741732287581361904",
+        ],
+        [
+          "13111882226416296837600940113017288393994525287469607183213893381513993436687",
+          "5565695253401458972747414631027373369603522752137143196331900688238296997981",
+        ],
+      ],
+      [
+        "14841148118043513549134096516614771191840090329050926560279758930373180025633",
+        "8011317235710414158468505041965747879455278068754547214316194262578103901871",
+      ],
+      [
+        "632454059741334461931416141043285543223040211198002036139866803923927658",
+        "13",
+        "21888242871839275222246405745257275088548364400416034343698204186575808475732",
+        "24380",
+        "80",
+        "81",
+        "8192",
+        "0",
+        "0",
+      ]
+    );
+    await expect(create).to.be.revertedWith("Planet already revealed");
+  });
 });
