@@ -1,17 +1,34 @@
 import * as hre from "hardhat";
 import { expect } from "chai";
 import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import type { RevealMarket } from "../types";
 
 describe("RevealMarket", function () {
-  it("We should be owner", async function () {
+  let revealMarket: RevealMarket;
+
+  beforeEach(async function () {
+    await hre.network.provider.request({
+      method: "hardhat_reset",
+      params: [
+        {
+          forking: {
+            jsonRpcUrl: hre.config.networks.hardhat.forking?.url,
+            blockNumber: hre.config.networks.hardhat.forking?.blockNumber,
+          },
+        },
+      ],
+    });
+
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
 
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
+    revealMarket = (await hre.upgrades.deployProxy(RevealMarketFactory, [
       VERIFIER_LIBRARY_ADDRESS,
       CORE_CONTRACT_ADDRESS,
-    ]);
+    ])) as RevealMarket;
     await revealMarket.deployTransaction.wait();
+  });
 
+  it("We should be owner", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
     expect(await revealMarket.owner()).to.equal(deployer.address);
@@ -19,14 +36,6 @@ describe("RevealMarket", function () {
 
   it("Should revert setting verifier for non owners", async function () {
     const [_, someguy] = await hre.ethers.getSigners();
-
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
 
     const unpriviledgedUser = revealMarket.connect(someguy);
 
@@ -37,14 +46,6 @@ describe("RevealMarket", function () {
 
   it("Should emit on createRevealBounty", async function () {
     const [deployer] = await hre.ethers.getSigners();
-
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
 
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
@@ -95,14 +96,6 @@ describe("RevealMarket", function () {
   });
 
   it("Should revert on invalid createRevealBounty", async function () {
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
-
     const create = revealMarket.createRevealBounty(
       [
         "2314917398471075791412081768726178095305597292375298585677016379640178219521",
@@ -139,14 +132,6 @@ describe("RevealMarket", function () {
   });
 
   it("Should revert on verifyRevealProof", async function () {
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
-
     const create = revealMarket.createRevealBounty(
       [123, 456],
       [
@@ -161,14 +146,6 @@ describe("RevealMarket", function () {
   });
 
   it("Should revert on bad planethash mimc key", async function () {
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
-
     const create = revealMarket.createRevealBounty(
       [
         "6703488956905729376084125218020648117436752745830296413340201871641695379299",
@@ -204,14 +181,6 @@ describe("RevealMarket", function () {
   });
 
   it("Should revert if planet is already revealed", async function () {
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
-
     const create = revealMarket.createRevealBounty(
       [
         "595968808761843037207477632890647919183494403583508717310690963180816943936",
@@ -247,14 +216,6 @@ describe("RevealMarket", function () {
   });
 
   it("Should revert claiming bounty that doesnt exist", async function () {
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-    const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ]);
-    await revealMarket.deployTransaction.wait();
-
     const claimed = revealMarket.claimRevealBounty(
       "1055489038200661028569388695857909186231371749064758227922792551724851607"
     );
