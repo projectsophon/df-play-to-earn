@@ -23,9 +23,10 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
     "createRevealBounty(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
-    "initialize(address)": FunctionFragment;
+    "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "revertIfBadSnarkPerlinFlags(uint256[5],bool)": FunctionFragment;
     "setVerifier(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -49,11 +50,21 @@ interface RevealMarketInterface extends ethers.utils.Interface {
       ]
     ]
   ): string;
-  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [string, string]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revertIfBadSnarkPerlinFlags",
+    values: [
+      [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+      boolean
+    ]
   ): string;
   encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
   encodeFunctionData(
@@ -69,6 +80,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revertIfBadSnarkPerlinFlags",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -153,6 +168,7 @@ export class RevealMarket extends BaseContract {
 
     initialize(
       _verifierAddress: string,
+      _coreAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -161,6 +177,18 @@ export class RevealMarket extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    revertIfBadSnarkPerlinFlags(
+      perlinFlags: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      checkingBiome: boolean,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     setVerifier(
       _verifierAddress: string,
@@ -193,6 +221,7 @@ export class RevealMarket extends BaseContract {
 
   initialize(
     _verifierAddress: string,
+    _coreAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -201,6 +230,18 @@ export class RevealMarket extends BaseContract {
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  revertIfBadSnarkPerlinFlags(
+    perlinFlags: [
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ],
+    checkingBiome: boolean,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   setVerifier(
     _verifierAddress: string,
@@ -233,12 +274,25 @@ export class RevealMarket extends BaseContract {
 
     initialize(
       _verifierAddress: string,
+      _coreAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    revertIfBadSnarkPerlinFlags(
+      perlinFlags: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      checkingBiome: boolean,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     setVerifier(
       _verifierAddress: string,
@@ -290,6 +344,7 @@ export class RevealMarket extends BaseContract {
 
     initialize(
       _verifierAddress: string,
+      _coreAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -297,6 +352,18 @@ export class RevealMarket extends BaseContract {
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revertIfBadSnarkPerlinFlags(
+      perlinFlags: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      checkingBiome: boolean,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     setVerifier(
@@ -331,6 +398,7 @@ export class RevealMarket extends BaseContract {
 
     initialize(
       _verifierAddress: string,
+      _coreAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -338,6 +406,18 @@ export class RevealMarket extends BaseContract {
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revertIfBadSnarkPerlinFlags(
+      perlinFlags: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      checkingBiome: boolean,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setVerifier(

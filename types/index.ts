@@ -2,9 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OwnableUpgradeable } from "./OwnableUpgradeable";
+export type { DarkForestCore } from "./DarkForestCore";
 export type { RevealMarket } from "./RevealMarket";
 export type { Verifier } from "./Verifier";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
+export { DarkForestCore__factory } from "./factories/DarkForestCore__factory";
 export { RevealMarket__factory } from "./factories/RevealMarket__factory";
 export { Verifier__factory } from "./factories/Verifier__factory";
