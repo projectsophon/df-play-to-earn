@@ -22,8 +22,11 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
+    "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
+    "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
+    "getRevealRequestIds(uint256)": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -35,11 +38,23 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "bulkGetRevealRequests",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "claimReveal",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getNRevealRequests",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRevealRequest",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRevealRequestIds",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -88,11 +103,23 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "bulkGetRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "claimReveal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getNRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getRevealRequest",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRevealRequestIds",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -177,10 +204,36 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          requester: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          value: BigNumber;
+        })[]
+      ] & {
+        ret: ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+          requester: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          value: BigNumber;
+        })[];
+      }
+    >;
+
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getNRevealRequests(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getRevealRequest(
       location: BigNumberish,
@@ -196,6 +249,11 @@ export class RevealMarket extends BaseContract {
         }
       ]
     >;
+
+    getRevealRequestIds(
+      idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     initialize(
       _verifierAddress: string,
@@ -255,10 +313,26 @@ export class RevealMarket extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  bulkGetRevealRequests(
+    startIdx: BigNumberish,
+    endIdx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      requester: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      value: BigNumber;
+    })[]
+  >;
+
   claimReveal(
     location: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
   getRevealRequest(
     location: BigNumberish,
@@ -272,6 +346,11 @@ export class RevealMarket extends BaseContract {
       value: BigNumber;
     }
   >;
+
+  getRevealRequestIds(
+    idx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   initialize(
     _verifierAddress: string,
@@ -331,10 +410,26 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        requester: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+      })[]
+    >;
+
     claimReveal(
       location: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRevealRequest(
       location: BigNumberish,
@@ -348,6 +443,11 @@ export class RevealMarket extends BaseContract {
         value: BigNumber;
       }
     >;
+
+    getRevealRequestIds(
+      idx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     initialize(
       _verifierAddress: string,
@@ -450,13 +550,26 @@ export class RevealMarket extends BaseContract {
   };
 
   estimateGas: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
+
     getRevealRequest(
       location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRevealRequestIds(
+      idx: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -519,13 +632,28 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    getNRevealRequests(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getRevealRequest(
       location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRevealRequestIds(
+      idx: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

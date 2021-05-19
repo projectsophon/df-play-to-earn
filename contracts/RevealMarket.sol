@@ -47,6 +47,7 @@ contract RevealMarket is OwnableUpgradeable {
     DarkForestCore.SnarkConstants private snarkConstants;
 
     mapping(uint256 => RevealRequest) private revealRequests;
+    uint256[] private revealRequestIds;
 
     function initialize(address _verifierAddress, address _coreAddress) public initializer {
         __Ownable_init();
@@ -77,6 +78,7 @@ contract RevealMarket is OwnableUpgradeable {
             RevealRequest({requester: msg.sender, location: _input[0], x: _input[2], y: _input[3], value: msg.value});
 
         revealRequests[posted.location] = posted;
+        revealRequestIds.push(posted.location);
 
         emit RevealRequested(posted.requester, posted.location, posted.x, posted.y, posted.value);
     }
@@ -94,10 +96,26 @@ contract RevealMarket is OwnableUpgradeable {
         emit RevealCollected(msg.sender, claimed.location, claimed.x, claimed.y, claimed.value);
     }
 
+    function getNRevealRequests() public view returns (uint256) {
+        return revealRequestIds.length;
+    }
+
+    function getRevealRequestIds(uint256 idx) public view returns (uint256) {
+        return revealRequestIds[idx];
+    }
+
     function getRevealRequest(uint256 location) public view returns (RevealRequest memory) {
         RevealRequest memory reveal = revealRequests[location];
         require(reveal.location != 0, "No revealRequest at location");
         return reveal;
+    }
+
+    function bulkGetRevealRequests(uint256 startIdx, uint256 endIdx) public view returns (RevealRequest[] memory ret) {
+        // return array of planets corresponding to planetIds[startIdx] through planetIds[endIdx - 1]
+        ret = new RevealRequest[](endIdx - startIdx);
+        for (uint256 i = startIdx; i < endIdx; i++) {
+            ret[i - startIdx] = getRevealRequest(getRevealRequestIds(i));
+        }
     }
 
     function setVerifier(address _verifierAddress) public onlyOwner {

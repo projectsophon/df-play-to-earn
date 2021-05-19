@@ -184,10 +184,43 @@ describe("RevealMarket", function () {
 
     const revealRequest = await revealMarket.getRevealRequest(locationID);
 
-    expect(await deployer.getAddress()).to.eq(revealRequest.requester);
-    expect(locationID).to.eq(revealRequest.location);
-    expect(x).to.eq(revealRequest.x);
-    expect(y).to.eq(revealRequest.y);
-    expect(overrides.value).to.eq(revealRequest.value);
+    expect(revealRequest.requester).to.eq(await deployer.getAddress());
+    expect(revealRequest.location).to.eq(locationID);
+    expect(revealRequest.x).to.eq(x);
+    expect(revealRequest.y).to.eq(y);
+    expect(revealRequest.value).to.eq(overrides.value);
+  });
+
+  // todo make this 2 when we have another valid reveal proof
+  it("Returns number of revealRequests from getNRevealRequests", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const nRevealRequests = await revealMarket.getNRevealRequests();
+
+    expect(nRevealRequests).to.eq(1);
+  });
+
+  it("Returns all revealRequests from bulkGetRevealRequests", async function () {
+    const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const nRevealRequests = await revealMarket.getNRevealRequests();
+
+    const revealRequests = await revealMarket.bulkGetRevealRequests(0, nRevealRequests);
+
+    expect(revealRequests.length).to.eq(nRevealRequests);
+
+    expect(revealRequests[0].requester).to.eq(await deployer.getAddress());
   });
 });
