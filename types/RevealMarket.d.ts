@@ -210,20 +210,22 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
+          paid: boolean;
         })[]
       ] & {
-        ret: ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        ret: ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
+          paid: boolean;
         })[];
       }
     >;
@@ -240,12 +242,13 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+        [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
+          paid: boolean;
         }
       ]
     >;
@@ -318,12 +321,13 @@ export class RevealMarket extends BaseContract {
     endIdx: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
       requester: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
       value: BigNumber;
+      paid: boolean;
     })[]
   >;
 
@@ -338,12 +342,13 @@ export class RevealMarket extends BaseContract {
     location: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
       requester: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
       value: BigNumber;
+      paid: boolean;
     }
   >;
 
@@ -415,12 +420,13 @@ export class RevealMarket extends BaseContract {
       endIdx: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      ([string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
         requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
         value: BigNumber;
+        paid: boolean;
       })[]
     >;
 
@@ -435,12 +441,13 @@ export class RevealMarket extends BaseContract {
       location: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
         requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
         value: BigNumber;
+        paid: boolean;
       }
     >;
 

@@ -75,7 +75,14 @@ contract RevealMarket is OwnableUpgradeable {
         require(revealed.locationId == 0, "Planet already revealed");
 
         RevealRequest memory posted =
-            RevealRequest({requester: msg.sender, location: _input[0], x: _input[2], y: _input[3], value: msg.value});
+            RevealRequest({
+                requester: msg.sender,
+                location: _input[0],
+                x: _input[2],
+                y: _input[3],
+                value: msg.value,
+                paid: false
+            });
 
         revealRequests[posted.location] = posted;
         revealRequestIds.push(posted.location);
@@ -86,11 +93,14 @@ contract RevealMarket is OwnableUpgradeable {
     function claimReveal(uint256 location) public {
         RevealRequest memory claimed = revealRequests[location];
         require(claimed.location != 0, "No revealRequest at location");
+        require(claimed.paid == false, "revealRequest has been claimed");
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
         require(revealed.locationId != 0, "Planet is not revealed");
 
-        delete revealRequests[location];
+        claimed.paid = true;
+        revealRequests[claimed.location] = claimed;
+
         payable(revealed.revealer).transfer(claimed.value);
 
         emit RevealCollected(msg.sender, claimed.location, claimed.x, claimed.y, claimed.value);
@@ -149,4 +159,5 @@ struct RevealRequest {
     uint256 x;
     uint256 y;
     uint256 value;
+    bool paid;
 }

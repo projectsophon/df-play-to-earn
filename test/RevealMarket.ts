@@ -143,6 +143,26 @@ describe("RevealMarket", function () {
     await expect(claimedReceipt).to.be.revertedWith("Planet is not revealed");
   });
 
+  it("Revert on claimReveal if amount has already been claimed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
+
+    const claimedTx = await revealMarket.claimReveal(locationID);
+    await claimedTx.wait();
+
+    const claimedReceipt = revealMarket.connect(player1).claimReveal(locationID);
+    await expect(claimedReceipt).to.be.revertedWith("revealRequest has been claimed");
+  });
+
   it("Emits RevealCollected and makes payment to revealer after request has been claimed", async function () {
     const [deployer] = await hre.ethers.getSigners();
     const overrides = {
@@ -189,6 +209,7 @@ describe("RevealMarket", function () {
     expect(revealRequest.x).to.eq(x);
     expect(revealRequest.y).to.eq(y);
     expect(revealRequest.value).to.eq(overrides.value);
+    expect(revealRequest.paid).to.be.false;
   });
 
   // todo make this 2 when we have another valid reveal proof
