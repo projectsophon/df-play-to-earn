@@ -110,7 +110,9 @@ contract RevealMarket is OwnableUpgradeable {
         revealRequest.paid = true;
         revealRequests[revealRequest.location] = revealRequest;
 
-        payable(revealed.revealer).transfer(revealRequest.value);
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = payable(revealed.revealer).call{value: revealRequest.value}("");
+        require(success, "Claim failed");
 
         emit RevealCollected(
             revealed.revealer,
