@@ -122,6 +122,13 @@ describe("RevealMarket", function () {
     await expect(create).to.be.revertedWith("Planet already revealed");
   });
 
+  it("Revert on claimReveal if reveal has not been requested", async function () {
+    const locationID = validRevealProof[3][0];
+
+    const claimedReceipt = revealMarket.claimReveal(locationID);
+    await expect(claimedReceipt).to.be.revertedWith("No request at location");
+  });
+
   it("Revert on claimReveal if planetlocation has not been revealed", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
@@ -159,5 +166,26 @@ describe("RevealMarket", function () {
       .withArgs(deployer.address, locationID, x, y, overrides.value);
 
     expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
+  });
+
+  it("Returns a single reveal request from getReveal", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const createReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await createReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+    const x = validRevealProof[3][2];
+    const y = validRevealProof[3][3];
+
+    const reveal = await revealMarket.getReveal(locationID);
+
+    await expect(player1.getAddress()).to.eq(reveal.requester);
+    expect(locationID).to.eq(reveal.location);
+    expect(x).to.eq(reveal.x);
+    expect(y).to.eq(reveal.y);
+    expect(overrides.value).to.eq(reveal.value);
   });
 });

@@ -46,7 +46,7 @@ contract RevealMarket is OwnableUpgradeable {
     DarkForestCore private darkForestCore;
     DarkForestCore.SnarkConstants private snarkConstants;
 
-    mapping(uint256 => Reveal) public reveals;
+    mapping(uint256 => Reveal) reveals;
 
     function initialize(address _verifierAddress, address _coreAddress) public initializer {
         __Ownable_init();
@@ -83,7 +83,7 @@ contract RevealMarket is OwnableUpgradeable {
 
     function claimReveal(uint256 location) public {
         Reveal memory claimed = reveals[location];
-        require(claimed.location != 0, "No Reveal at location");
+        require(claimed.location != 0, "No request at location");
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
         require(revealed.locationId != 0, "Planet has not been revealed");
@@ -96,7 +96,7 @@ contract RevealMarket is OwnableUpgradeable {
 
     function getReveal(uint256 location) public view returns (Reveal memory) {
         Reveal memory reveal = reveals[location];
-        require(reveal.location != 0, "No Reveal at location");
+        require(reveal.location != 0, "No request at location");
         return reveal;
     }
 
