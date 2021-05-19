@@ -30,8 +30,7 @@ abstract contract DarkForestCore {
         uint256 locationId;
         uint256 x;
         uint256 y;
-        // TODO: add this for new contracts
-        // address revealer;
+        address revealer;
     }
 
     function snarkConstants() public virtual returns (SnarkConstants memory);
@@ -86,10 +85,19 @@ contract RevealMarket is OwnableUpgradeable {
         Reveal memory claimed = reveals[location];
         require(claimed.location != 0, "No Reveal at location");
 
-        delete reveals[location];
+        DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
+        require(revealed.locationId != 0, "Planet has not been revealed");
 
-        // todo look up if planet is revealed, and who revealer was, and pay them
+        delete reveals[location];
+        payable(revealed.revealer).transfer(claimed.value);
+
         emit RevealCollected(msg.sender, claimed.location, claimed.x, claimed.y, claimed.value);
+    }
+
+    function getReveal(uint256 location) public view returns (Reveal memory) {
+        Reveal memory reveal = reveals[location];
+        require(reveal.location != 0, "No Reveal at location");
+        return reveal;
     }
 
     function setVerifier(address _verifierAddress) public onlyOwner {

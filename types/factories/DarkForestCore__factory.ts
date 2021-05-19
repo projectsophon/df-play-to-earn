@@ -37,6 +37,11 @@ const _abi = [
             name: "y",
             type: "uint256",
           },
+          {
+            internalType: "address",
+            name: "revealer",
+            type: "address",
+          },
         ],
         internalType: "struct DarkForestCore.RevealedCoords",
         name: "",

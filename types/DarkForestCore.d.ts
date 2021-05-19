@@ -114,10 +114,11 @@ export class DarkForestCore extends BaseContract {
       locationId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, string] & {
         locationId: BigNumber;
         x: BigNumber;
         y: BigNumber;
+        revealer: string;
       }
     >;
 

@@ -122,7 +122,21 @@ describe("RevealMarket", function () {
     await expect(create).to.be.revertedWith("Planet already revealed");
   });
 
-  it("Emits RevealCollected after planet revealed has been claimed", async function () {
+  it("Revert on claimReveal if planetlocation has not been revealed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const createReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await createReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const claimedReceipt = revealMarket.claimReveal(locationID);
+    await expect(claimedReceipt).to.be.revertedWith("Planet has not been revealed");
+  });
+
+  it("Emits RevealCollected and makes payment to revealer after planet revealed has been claimed", async function () {
     const [deployer] = await hre.ethers.getSigners();
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
@@ -135,11 +149,15 @@ describe("RevealMarket", function () {
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
 
-    const claimedReceipt = await revealMarket.claimReveal(locationID);
-    await claimedReceipt.wait();
+    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
 
+    const oldBalance = await player1.getBalance();
+    const claimedReceipt = revealMarket.claimReveal(locationID);
     await expect(claimedReceipt)
       .to.emit(revealMarket, "RevealCollected")
       .withArgs(deployer.address, locationID, x, y, overrides.value);
+
+    expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
   });
 });
