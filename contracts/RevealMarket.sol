@@ -112,7 +112,13 @@ contract RevealMarket is OwnableUpgradeable {
 
         payable(revealed.revealer).transfer(revealRequest.value);
 
-        emit RevealCollected(msg.sender, revealRequest.location, revealRequest.x, revealRequest.y, revealRequest.value);
+        emit RevealCollected(
+            revealed.revealer,
+            revealRequest.location,
+            revealRequest.x,
+            revealRequest.y,
+            revealRequest.value
+        );
     }
 
     function getNRevealRequests() public view returns (uint256) {

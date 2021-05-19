@@ -176,7 +176,6 @@ describe("RevealMarket", function () {
   });
 
   it("Emits RevealCollected and makes payment to revealer after request has been claimed", async function () {
-    const [deployer] = await hre.ethers.getSigners();
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
@@ -195,7 +194,7 @@ describe("RevealMarket", function () {
     const claimedReceipt = revealMarket.claimReveal(locationID);
     await expect(claimedReceipt)
       .to.emit(revealMarket, "RevealCollected")
-      .withArgs(deployer.address, locationID, x, y, overrides.value);
+      .withArgs(await player1.getAddress(), locationID, x, y, overrides.value);
 
     expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
   });
