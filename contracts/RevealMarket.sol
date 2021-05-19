@@ -46,7 +46,7 @@ contract RevealMarket is OwnableUpgradeable {
     DarkForestCore private darkForestCore;
     DarkForestCore.SnarkConstants private snarkConstants;
 
-    mapping(uint256 => Reveal) reveals;
+    mapping(uint256 => RevealRequest) private revealRequests;
 
     function initialize(address _verifierAddress, address _coreAddress) public initializer {
         __Ownable_init();
@@ -73,30 +73,30 @@ contract RevealMarket is OwnableUpgradeable {
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
 
-        Reveal memory posted =
-            Reveal({requester: msg.sender, location: _input[0], x: _input[2], y: _input[3], value: msg.value});
+        RevealRequest memory posted =
+            RevealRequest({requester: msg.sender, location: _input[0], x: _input[2], y: _input[3], value: msg.value});
 
-        reveals[posted.location] = posted;
+        revealRequests[posted.location] = posted;
 
         emit RevealRequested(posted.requester, posted.location, posted.x, posted.y, posted.value);
     }
 
     function claimReveal(uint256 location) public {
-        Reveal memory claimed = reveals[location];
-        require(claimed.location != 0, "No request at location");
+        RevealRequest memory claimed = revealRequests[location];
+        require(claimed.location != 0, "No revealRequest at location");
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
-        require(revealed.locationId != 0, "Planet has not been revealed");
+        require(revealed.locationId != 0, "Planet is not revealed");
 
-        delete reveals[location];
+        delete revealRequests[location];
         payable(revealed.revealer).transfer(claimed.value);
 
         emit RevealCollected(msg.sender, claimed.location, claimed.x, claimed.y, claimed.value);
     }
 
-    function getReveal(uint256 location) public view returns (Reveal memory) {
-        Reveal memory reveal = reveals[location];
-        require(reveal.location != 0, "No request at location");
+    function getRevealRequest(uint256 location) public view returns (RevealRequest memory) {
+        RevealRequest memory reveal = revealRequests[location];
+        require(reveal.location != 0, "No revealRequest at location");
         return reveal;
     }
 
@@ -125,7 +125,7 @@ contract RevealMarket is OwnableUpgradeable {
     }
 }
 
-struct Reveal {
+struct RevealRequest {
     address requester;
     uint256 location;
     uint256 x;
