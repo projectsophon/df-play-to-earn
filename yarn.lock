@@ -35,15 +35,15 @@
   resolved "https://registry.yarnpkg.com/@cto.af/textdecoder/-/textdecoder-0.0.0.tgz#e1e8d84c936c30a0f4619971f19ca41941af9fdc"
   integrity sha512-sJpx3F5xcVV/9jNYJQtvimo4Vfld/nD3ph+ZWtQzZ03Zo8rJC7QKQTRcIGS13Rcz80DwFNthCWMrd58vpY4ZAQ==
 
-"@darkforest_eth/contracts@arena-phated6":
-  version "0.6.0-arena-phated6.0"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-0.6.0-arena-phated6.0.tgz#48fd0b476d2fb3b2481d32667498c9ccd63ac996"
-  integrity sha512-sfrc8vl15Sx1+tSgg9lOj7MXDh0YEXeDLkMlfF5QXHlvnI4fLftrQYSE96/YmclJ3Ran1Hn7SuATHyFB3fnOEA==
+"@darkforest_eth/contracts@staging-second-staging-2":
+  version "0.6.0-staging-second-staging-2.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-0.6.0-staging-second-staging-2.0.tgz#ae23cbbae015dddc86335bb363793f1eca2532ef"
+  integrity sha512-+pqLoaC4dK6ECIpbSRNsYpisNA7daW1FgjeLx1fNN3Isd8b+66kmrAV9l8S97YZ6+CjuONPi0cyMSMsttl4ngw==
 
-"@darkforest_eth/snarks@arena-phated6":
-  version "0.6.0-arena-phated6.0"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-0.6.0-arena-phated6.0.tgz#abb1e3242c888e0dda8b9731f884fb012b9374d1"
-  integrity sha512-FOwmb+N0SXP1m1d04pDdUYT6JWUNdxW/C2xgV1oEsGTJTf36+VE22997oXDyDAK3FF6J+18tH9vOKLNchkb+cA==
+"@darkforest_eth/snarks@staging-second-staging-2":
+  version "0.6.0-staging-second-staging-2.0"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-0.6.0-staging-second-staging-2.0.tgz#88443203db9b31fabbb3d400d4f06adccf1b7f75"
+  integrity sha512-i2eqKDl7NqHzn2GzuTABPoXHSAATqA7TOAuiDbWoN5yzFixq4frjtqZJgo3R37ylL4RxAzBnlKErtIQmZG6YHw==
 
 "@ensdomains/ens@^0.4.4":
   version "0.4.5"
