@@ -214,7 +214,7 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        buyer: string;
+        requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
@@ -290,7 +290,7 @@ export class RevealMarket extends BaseContract {
     overrides?: CallOverrides
   ): Promise<
     [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      buyer: string;
+      requester: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
@@ -364,7 +364,7 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        buyer: string;
+        requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;

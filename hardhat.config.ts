@@ -18,8 +18,8 @@ declare module "hardhat/types/runtime" {
 
 extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.whitelistedPlayer1 = {
-    address: "0x27b0b597fa1e3c26fb9980acd44991d4a28b632e",
-    blockNumber: 16059152, // game created and user whitelisted
+    address: "0xe0a0a42dE89C695CFfEe76C50C3Da710BB22C112",
+    blockNumber: 16119031, // game created and user whitelisted
   };
   env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
 });
