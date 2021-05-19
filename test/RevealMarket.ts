@@ -110,6 +110,18 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("bad planethash mimc key");
   });
 
+  it("Reverts if a planet is already requested", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Planet already requested");
+  });
+
   it("Reverts if a planet is already revealed", async function () {
     const revealPlanetReceipt = await darkForestCore.revealLocation(...validRevealProof);
     await revealPlanetReceipt.wait();

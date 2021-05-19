@@ -63,6 +63,9 @@ contract RevealMarket is OwnableUpgradeable {
         uint256[2] memory _c,
         uint256[9] memory _input
     ) public payable {
+        RevealRequest memory claimed = revealRequests[_input[0]];
+        require(claimed.location == 0, "Planet already requested");
+
         try verifier.verifyRevealProof(_a, _b, _c, _input) returns (bool success) {
             require(success, "Invalid reveal proof");
         } catch {
