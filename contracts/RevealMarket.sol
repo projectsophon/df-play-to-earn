@@ -39,7 +39,7 @@ abstract contract DarkForestCore {
 }
 
 contract RevealMarket is OwnableUpgradeable {
-    event RevealRequested(address revealer, uint256 loc, uint256 x, uint256 y, uint256 value);
+    event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
 
     Verifier private verifier;
