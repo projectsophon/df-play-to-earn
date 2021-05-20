@@ -35,48 +35,48 @@
   resolved "https://registry.yarnpkg.com/@cto.af/textdecoder/-/textdecoder-0.0.0.tgz#e1e8d84c936c30a0f4619971f19ca41941af9fdc"
   integrity sha512-sJpx3F5xcVV/9jNYJQtvimo4Vfld/nD3ph+ZWtQzZ03Zo8rJC7QKQTRcIGS13Rcz80DwFNthCWMrd58vpY4ZAQ==
 
-"@darkforest_eth/constants@0.6.0-staging-second-staging-2.2", "@darkforest_eth/constants@staging-second-staging-2":
-  version "0.6.0-staging-second-staging-2.2"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/constants/-/constants-0.6.0-staging-second-staging-2.2.tgz#3ac590912d14355673edd805fb7ca13801bd5e67"
-  integrity sha512-KrsVThsX0VNC9LWCe0qMX+HXp0w2UnJD00yft6y4x/qq7EAA/L/vJ9YXuv0/LKc7cG0ZPt+xT97sqR7iyRnGrw==
+"@darkforest_eth/constants@0.6.0-staging-second-staging-2.5", "@darkforest_eth/constants@staging-second-staging-2":
+  version "0.6.0-staging-second-staging-2.5"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/constants/-/constants-0.6.0-staging-second-staging-2.5.tgz#c960bb15761d790435250821185e67ea4b017cfc"
+  integrity sha512-zk/HqiC5qJTJp3T5dU7t77ujo/FujKQIc+eEDJ3tVHLj855bv7KXn5UY3KEp/G8Q6soX+Dxa0emyWEhk/gvvnQ==
   dependencies:
-    "@darkforest_eth/types" "0.6.0-staging-second-staging-2.2"
+    "@darkforest_eth/types" "0.6.0-staging-second-staging-2.5"
     big-integer "^1.6.48"
 
-"@darkforest_eth/contracts@0.6.0-staging-second-staging-2.2", "@darkforest_eth/contracts@staging-second-staging-2":
-  version "0.6.0-staging-second-staging-2.2"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-0.6.0-staging-second-staging-2.2.tgz#cf5c377dfccab9da33db1c7ad944ac419452372b"
-  integrity sha512-2jFUePWCvLbw7+NRHCW6tc+Q9ZrOmT6bCyC2QgLvY6yl1k8vFQHgK02inoMTePv5K5sbbcxTVADG+4R0ACDZOw==
+"@darkforest_eth/contracts@0.6.0-staging-second-staging-2.5", "@darkforest_eth/contracts@staging-second-staging-2":
+  version "0.6.0-staging-second-staging-2.5"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-0.6.0-staging-second-staging-2.5.tgz#efbf0899bc51dd1f151c3dbab69831d9a4859d0a"
+  integrity sha512-OuYPIYlUG6fnYAX8DBhlj1lz3wk5z4iXWEOkWISccdOPtAMp7albvrjRutbuO1zNkIulZHFA7ZhLP7oJJPKT6A==
 
-"@darkforest_eth/hexgen@0.6.0-staging-second-staging-2.2":
-  version "0.6.0-staging-second-staging-2.2"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/hexgen/-/hexgen-0.6.0-staging-second-staging-2.2.tgz#cfcd223aace9eb245ae42179377666dc6699cc82"
-  integrity sha512-taJfbQn7C90CLJGKiT0FJVK1vFGZg5ugjPvozr3sl38j5zrXWsuQYRcVQngnoyxRiDWG6EYDZAmLGawLnEiRnw==
+"@darkforest_eth/hexgen@0.6.0-staging-second-staging-2.5":
+  version "0.6.0-staging-second-staging-2.5"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/hexgen/-/hexgen-0.6.0-staging-second-staging-2.5.tgz#ac8fc26ed6dc8107f30ea922e1658c362c593990"
+  integrity sha512-Y8ltKIEydxr5bqe+4gxqjFWjpsa7uFUgxoYUSaFu9I3qACNTg9t82j4s9LMrjgt4yH9RYYe4LSHeD9v5SpXgiA==
   dependencies:
-    "@darkforest_eth/types" "0.6.0-staging-second-staging-2.2"
+    "@darkforest_eth/types" "0.6.0-staging-second-staging-2.5"
     big-integer "^1.6.48"
 
 "@darkforest_eth/serde@staging-second-staging-2":
-  version "0.6.0-staging-second-staging-2.2"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/serde/-/serde-0.6.0-staging-second-staging-2.2.tgz#0be7098b55af354735716494f4294c7e4ec4a837"
-  integrity sha512-uJcD06grDsdZHZ9jaMNkzw4VuL+vVr+WFA+Eq6wl6V8RtvmjxVCAgb/fU9kAXyqkXDb31ykOBHKjVPoKdo87jA==
+  version "0.6.0-staging-second-staging-2.5"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/serde/-/serde-0.6.0-staging-second-staging-2.5.tgz#85d9cf4806cd47d84cec55d35bf802795e1bb8f2"
+  integrity sha512-RKP2yNyTpqAOTNaZ6FiSjm/F9pXulgo6FljW7uyeIyN/4UaToef3nUv2eNZbfzmTSaip+BvOnAiOgLjB2seBGA==
   dependencies:
-    "@darkforest_eth/constants" "0.6.0-staging-second-staging-2.2"
-    "@darkforest_eth/contracts" "0.6.0-staging-second-staging-2.2"
-    "@darkforest_eth/hexgen" "0.6.0-staging-second-staging-2.2"
-    "@darkforest_eth/types" "0.6.0-staging-second-staging-2.2"
+    "@darkforest_eth/constants" "0.6.0-staging-second-staging-2.5"
+    "@darkforest_eth/contracts" "0.6.0-staging-second-staging-2.5"
+    "@darkforest_eth/hexgen" "0.6.0-staging-second-staging-2.5"
+    "@darkforest_eth/types" "0.6.0-staging-second-staging-2.5"
     big-integer "^1.6.48"
     ethers "^5.0.7"
 
 "@darkforest_eth/snarks@staging-second-staging-2":
-  version "0.6.0-staging-second-staging-2.2"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-0.6.0-staging-second-staging-2.2.tgz#5f30fc4fbdb7869661b4494b7660746c394de4a8"
-  integrity sha512-ulC+joHUeZrJSGWP6GGZbcBbI3MivhBdKoNJOeOukdMW1RnWJP1cbh/+OVoV9h2OiLRz6vzIdXqgqtYyWkhfOg==
+  version "0.6.0-staging-second-staging-2.5"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-0.6.0-staging-second-staging-2.5.tgz#4e4cfac5fd238127b1f0dcd844a088a16d7c4658"
+  integrity sha512-BsmCGzBVdxgCRCWk+a1CY3O9aHYKlH/hfUDk1kBDa5W9uJXntruPhp4JvYoeyKQShaAX7KU2x9tB7wp/RM4wCg==
 
-"@darkforest_eth/types@0.6.0-staging-second-staging-2.2":
-  version "0.6.0-staging-second-staging-2.2"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/types/-/types-0.6.0-staging-second-staging-2.2.tgz#f0033efd5833c83ce26a467722c5977dc27fa25c"
-  integrity sha512-Cjh8u2rBQpd+jwKf3dx2o0IOmemtmpyOxcVJY32vK1ozkXTh8Z2nHtxxdvpaTa9bNG+jWqMAc4cEaLgHkw1H6A==
+"@darkforest_eth/types@0.6.0-staging-second-staging-2.5", "@darkforest_eth/types@staging-second-staging-2":
+  version "0.6.0-staging-second-staging-2.5"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/types/-/types-0.6.0-staging-second-staging-2.5.tgz#96e72284ee6a7485dd22711617bf3c5ad57d04a7"
+  integrity sha512-Vrhk3ksqeEkCC+4gU75P0TUyHJ/ttYSZDKKWcF2s6Lce14WJ+XRN3JFdXFqUULKX3VAIcgaFspJp6CeCQH33aw==
   dependencies:
     big-integer "^1.6.48"
     ethers "^5.0.7"
