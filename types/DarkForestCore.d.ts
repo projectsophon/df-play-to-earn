@@ -21,25 +21,40 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface DarkForestCoreInterface extends ethers.utils.Interface {
   functions: {
+    "checkRevealProof(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
     "getRevealedCoords(uint256)": FunctionFragment;
-    "snarkConstants()": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "checkRevealProof",
+    values: [
+      [BigNumberish, BigNumberish],
+      [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      [BigNumberish, BigNumberish],
+      [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ]
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "getRevealedCoords",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "snarkConstants",
-    values?: undefined
-  ): string;
 
   decodeFunctionResult(
-    functionFragment: "getRevealedCoords",
+    functionFragment: "checkRevealProof",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "snarkConstants",
+    functionFragment: "getRevealedCoords",
     data: BytesLike
   ): Result;
 
@@ -90,26 +105,72 @@ export class DarkForestCore extends BaseContract {
   interface: DarkForestCoreInterface;
 
   functions: {
+    checkRevealProof(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     getRevealedCoords(
       locationId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    snarkConstants(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
+
+  checkRevealProof(
+    a: [BigNumberish, BigNumberish],
+    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+    c: [BigNumberish, BigNumberish],
+    input: [
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish
+    ],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   getRevealedCoords(
     locationId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  snarkConstants(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
+    checkRevealProof(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     getRevealedCoords(
       locationId: BigNumberish,
       overrides?: CallOverrides
@@ -121,50 +182,56 @@ export class DarkForestCore extends BaseContract {
         revealer: string;
       }
     >;
-
-    snarkConstants(
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        boolean,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        boolean,
-        boolean,
-        BigNumber
-      ] & {
-        DISABLE_ZK_CHECKS: boolean;
-        PLANETHASH_KEY: BigNumber;
-        SPACETYPE_KEY: BigNumber;
-        BIOMEBASE_KEY: BigNumber;
-        PERLIN_MIRROR_X: boolean;
-        PERLIN_MIRROR_Y: boolean;
-        PERLIN_LENGTH_SCALE: BigNumber;
-      }
-    >;
   };
 
   filters: {};
 
   estimateGas: {
-    getRevealedCoords(
-      locationId: BigNumberish,
+    checkRevealProof(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    snarkConstants(
+    getRevealedCoords(
+      locationId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    getRevealedCoords(
-      locationId: BigNumberish,
+    checkRevealProof(
+      a: [BigNumberish, BigNumberish],
+      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
+      c: [BigNumberish, BigNumberish],
+      input: [
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish,
+        BigNumberish
+      ],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    snarkConstants(
+    getRevealedCoords(
+      locationId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -13,9 +13,9 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "OwnableUpgradeable",
+      name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OwnableUpgradeable__factory>;
+    ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
       name: "DarkForestCore",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -24,10 +24,6 @@ declare module "hardhat/types/runtime" {
       name: "RevealMarket",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RevealMarket__factory>;
-    getContractFactory(
-      name: "Verifier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Verifier__factory>;
 
     // default types
     getContractFactory(

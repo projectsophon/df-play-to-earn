@@ -22,20 +22,23 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
+    "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
     "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
-    "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
-    "setDarkForestCore(address)": FunctionFragment;
-    "setVerifier(address)": FunctionFragment;
+    "rugPull()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "bulkGetRevealRequests",
     values: [BigNumberish, BigNumberish]
@@ -55,10 +58,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "getRevealRequest",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [string, string]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -84,16 +83,16 @@ interface RevealMarketInterface extends ethers.utils.Interface {
       ]
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setDarkForestCore",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
+  encodeFunctionData(functionFragment: "rugPull", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "bulkGetRevealRequests",
     data: BytesLike
@@ -114,7 +113,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     functionFragment: "getRevealRequest",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
@@ -124,14 +122,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     functionFragment: "requestReveal",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDarkForestCore",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setVerifier",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "rugPull", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -192,6 +183,10 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -256,12 +251,6 @@ export class RevealMarket extends BaseContract {
       ]
     >;
 
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
@@ -286,13 +275,7 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setVerifier(
-      _verifierAddress: string,
+    rugPull(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -301,6 +284,10 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   bulkGetRevealRequests(
     startIdx: BigNumberish,
@@ -351,12 +338,6 @@ export class RevealMarket extends BaseContract {
     }
   >;
 
-  initialize(
-    _verifierAddress: string,
-    _coreAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
@@ -381,13 +362,7 @@ export class RevealMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setDarkForestCore(
-    _coreAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setVerifier(
-    _verifierAddress: string,
+  rugPull(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -397,6 +372,10 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -446,12 +425,6 @@ export class RevealMarket extends BaseContract {
       }
     >;
 
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
@@ -474,15 +447,7 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setVerifier(
-      _verifierAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    rugPull(overrides?: CallOverrides): Promise<void>;
 
     transferOwnership(
       newOwner: string,
@@ -535,6 +500,10 @@ export class RevealMarket extends BaseContract {
   };
 
   estimateGas: {
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -553,12 +522,6 @@ export class RevealMarket extends BaseContract {
     getRevealRequest(
       location: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -585,13 +548,7 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setVerifier(
-      _verifierAddress: string,
+    rugPull(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -602,6 +559,10 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -624,12 +585,6 @@ export class RevealMarket extends BaseContract {
     getRevealRequest(
       location: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -656,13 +611,7 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setVerifier(
-      _verifierAddress: string,
+    rugPull(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

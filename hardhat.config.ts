@@ -14,15 +14,19 @@ declare module "hardhat/types/runtime" {
       blockNumber: number;
     };
     ARCHIVE_RPC_URL: string;
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP: number;
   }
 }
 
 extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.whitelistedPlayer1 = {
     address: "0xe0a0a42dE89C695CFfEe76C50C3Da710BB22C112",
-    blockNumber: 16119031, // game created and user whitelisted
+    blockNumber: 16154883, // game created and user whitelisted and abi updated
   };
   env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
+
+  const oneWeek = 60 * 60 * 24 * 7;
+  env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeek) / 1000);
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

@@ -1,19 +1,14 @@
 import { task, subtask } from "hardhat/config";
 import type { HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments, HardhatArguments } from "hardhat/types";
 import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
-import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 import type { Contract } from "ethers";
 
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
   const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-
-  const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
-    VERIFIER_LIBRARY_ADDRESS,
-    CORE_CONTRACT_ADDRESS,
-  ]);
-
+  const revealMarket = await RevealMarketFactory.deploy(CORE_CONTRACT_ADDRESS, hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP);
   await revealMarket.deployTransaction.wait();
 
   return revealMarket;

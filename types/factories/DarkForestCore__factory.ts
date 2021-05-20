@@ -13,6 +13,40 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256[2]",
+        name: "a",
+        type: "uint256[2]",
+      },
+      {
+        internalType: "uint256[2][2]",
+        name: "b",
+        type: "uint256[2][2]",
+      },
+      {
+        internalType: "uint256[2]",
+        name: "c",
+        type: "uint256[2]",
+      },
+      {
+        internalType: "uint256[9]",
+        name: "input",
+        type: "uint256[9]",
+      },
+    ],
+    name: "checkRevealProof",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "locationId",
         type: "uint256",
@@ -44,56 +78,6 @@ const _abi = [
           },
         ],
         internalType: "struct DarkForestCore.RevealedCoords",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "snarkConstants",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "bool",
-            name: "DISABLE_ZK_CHECKS",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "PLANETHASH_KEY",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "SPACETYPE_KEY",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "BIOMEBASE_KEY",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "PERLIN_MIRROR_X",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "PERLIN_MIRROR_Y",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "PERLIN_LENGTH_SCALE",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct DarkForestCore.SnarkConstants",
         name: "",
         type: "tuple",
       },

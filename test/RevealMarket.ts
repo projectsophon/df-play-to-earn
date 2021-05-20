@@ -1,11 +1,17 @@
 import * as hre from "hardhat";
 import { expect } from "chai";
-import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 import type { Signer } from "ethers";
 import type { RevealMarket } from "../types";
 import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
 import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
-import { validRevealProof, invalidRevealProof, garbageRevealProof, wrongUniverseRevealProof } from "./fixtures";
+import {
+  validRevealProof,
+  invalidRevealProof,
+  garbageRevealProof,
+  wrongUniverseRevealProof,
+  MARKET_CLOSE_INCREASE,
+} from "./fixtures";
 
 describe("RevealMarket", function () {
   this.timeout(100000);
@@ -29,12 +35,12 @@ describe("RevealMarket", function () {
       ],
     });
 
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+    darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
-    revealMarket = (await hre.upgrades.deployProxy(RevealMarketFactory, [
-      VERIFIER_LIBRARY_ADDRESS,
-      CORE_CONTRACT_ADDRESS,
-    ])) as RevealMarket;
+    const current1 = (await hre.ethers.provider.getBlock("latest")).timestamp;
+
+    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+    revealMarket = await RevealMarketFactory.deploy(CORE_CONTRACT_ADDRESS, current1 + MARKET_CLOSE_INCREASE);
     await revealMarket.deployTransaction.wait();
 
     await hre.network.provider.request({
@@ -55,14 +61,6 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     expect(await revealMarket.owner()).to.equal(deployer.address);
-  });
-
-  it("Should revert setting verifier for non owners", async function () {
-    const [_, someguy] = await hre.ethers.getSigners();
-
-    await expect(revealMarket.connect(someguy).setVerifier(VERIFIER_LIBRARY_ADDRESS)).to.be.revertedWith(
-      "Ownable: caller is not the owner"
-    );
   });
 
   it("Emits a RevealRequested given a correct RevealProof for unrevealed planet", async function () {
@@ -99,7 +97,7 @@ describe("RevealMarket", function () {
     };
     const revealRequestTx = revealMarket.requestReveal(...garbageRevealProof, overrides);
 
-    await expect(revealRequestTx).to.be.revertedWith("verifyRevealProof reverted");
+    await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
   it("Revert on valid RevealProof generated for the wrong universe", async function () {
@@ -107,7 +105,7 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
     const revealRequestTx = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
-    await expect(revealRequestTx).to.be.revertedWith("bad planethash mimc key");
+    await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
   it("Reverts if a RevealRequest already exists for a planet", async function () {
@@ -197,6 +195,66 @@ describe("RevealMarket", function () {
       .withArgs(await player1.getAddress(), locationID, x, y, overrides.value);
 
     expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
+  });
+
+  it("Revert on rugPull when market still open", async function () {
+    const revealRequestTx = revealMarket.rugPull();
+    await expect(revealRequestTx).to.be.revertedWith("Marketplace is still open");
+  });
+
+  it("RugPull sweeps all funds after market close", async function () {
+    const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
+    await hre.ethers.provider.send("evm_mine", []);
+
+    const oldBalance = await deployer.getBalance();
+    expect(await revealMarket.rugPull()).to.changeEtherBalance(deployer, overrides.value);
+
+    // types broken https://github.com/EthWorks/Waffle/issues/512
+    expect(await deployer.getBalance()).to.be.closeTo(
+      oldBalance.add(overrides.value) as never,
+      hre.ethers.utils.parseEther(".01") as never
+    );
+  });
+
+  it("Revert on requestReveal when market closed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
+    await hre.ethers.provider.send("evm_mine", []);
+
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Marketplace has closed");
+  });
+
+  it("Revert on claimReveal when market closed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
+
+    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
+    await hre.ethers.provider.send("evm_mine", []);
+
+    const claimedTx = revealMarket.claimReveal(locationID);
+    await expect(claimedTx).to.be.revertedWith("Marketplace has closed");
   });
 
   it("Returns a single RevealRequest from getRevealRequest when given a valid location", async function () {

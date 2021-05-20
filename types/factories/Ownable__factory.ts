@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type {
-  OwnableUpgradeable,
-  OwnableUpgradeableInterface,
-} from "../OwnableUpgradeable";
+import type { Ownable, OwnableInterface } from "../Ownable";
 
 const _abi = [
   {
@@ -64,15 +61,15 @@ const _abi = [
   },
 ];
 
-export class OwnableUpgradeable__factory {
+export class Ownable__factory {
   static readonly abi = _abi;
-  static createInterface(): OwnableUpgradeableInterface {
-    return new utils.Interface(_abi) as OwnableUpgradeableInterface;
+  static createInterface(): OwnableInterface {
+    return new utils.Interface(_abi) as OwnableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): OwnableUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as OwnableUpgradeable;
+  ): Ownable {
+    return new Contract(address, _abi, signerOrProvider) as Ownable;
   }
 }

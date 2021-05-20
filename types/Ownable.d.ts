@@ -19,40 +19,41 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface VerifierInterface extends ethers.utils.Interface {
+interface OwnableInterface extends ethers.utils.Interface {
   functions: {
-    "verifyRevealProof(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
+    "owner()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "verifyRevealProof",
-    values: [
-      [BigNumberish, BigNumberish],
-      [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      [BigNumberish, BigNumberish],
-      [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ]
-    ]
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
   ): string;
 
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "verifyRevealProof",
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "OwnershipTransferred(address,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
-export class Verifier extends BaseContract {
+export class Ownable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -93,104 +94,75 @@ export class Verifier extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: VerifierInterface;
+  interface: OwnableInterface;
 
   functions: {
-    verifyRevealProof(
-      a: [BigNumberish, BigNumberish],
-      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c: [BigNumberish, BigNumberish],
-      input: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  verifyRevealProof(
-    a: [BigNumberish, BigNumberish],
-    b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-    c: [BigNumberish, BigNumberish],
-    input: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ],
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  transferOwnership(
+    newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    verifyRevealProof(
-      a: [BigNumberish, BigNumberish],
-      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c: [BigNumberish, BigNumberish],
-      input: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+  };
 
   estimateGas: {
-    verifyRevealProof(
-      a: [BigNumberish, BigNumberish],
-      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c: [BigNumberish, BigNumberish],
-      input: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    verifyRevealProof(
-      a: [BigNumberish, BigNumberish],
-      b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]],
-      c: [BigNumberish, BigNumberish],
-      input: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -2,30 +2,9 @@
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-abstract contract Verifier {
-    function verifyRevealProof(
-        uint256[2] memory a,
-        uint256[2][2] memory b,
-        uint256[2] memory c,
-        uint256[9] memory input
-    ) public virtual returns (bool);
-}
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 abstract contract DarkForestCore {
-    struct SnarkConstants {
-        /* solhint-disable var-name-mixedcase */
-        bool DISABLE_ZK_CHECKS;
-        uint256 PLANETHASH_KEY;
-        uint256 SPACETYPE_KEY;
-        uint256 BIOMEBASE_KEY;
-        bool PERLIN_MIRROR_X;
-        bool PERLIN_MIRROR_Y;
-        uint256 PERLIN_LENGTH_SCALE; // must be a power of two up to 8192
-        /* solhint-enable var-name-mixedcase */
-    }
-
     struct RevealedCoords {
         uint256 locationId;
         uint256 x;
@@ -33,28 +12,51 @@ abstract contract DarkForestCore {
         address revealer;
     }
 
-    function snarkConstants() public virtual returns (SnarkConstants memory);
+    function checkRevealProof(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[9] memory input
+    ) public virtual returns (bool);
 
     function getRevealedCoords(uint256 locationId) public virtual returns (RevealedCoords memory);
 }
 
-contract RevealMarket is OwnableUpgradeable {
+contract RevealMarket is Ownable {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
 
-    Verifier private verifier;
     DarkForestCore private darkForestCore;
-    DarkForestCore.SnarkConstants private snarkConstants;
+
+    /* solhint-disable var-name-mixedcase */
+    uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
+    /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
     uint256[] private revealRequestIds;
 
-    function initialize(address _verifierAddress, address _coreAddress) public initializer {
-        __Ownable_init();
+    modifier open() {
+        // solhint-disable-next-line not-rely-on-time
+        require(block.timestamp < MARKET_CLOSE_COUNTDOWN_TIMESTAMP, "Marketplace has closed");
+        _;
+    }
 
-        verifier = Verifier(_verifierAddress);
-        darkForestCore = DarkForestCore(_coreAddress);
-        snarkConstants = darkForestCore.snarkConstants();
+    // give a 10 block confirmation window so we couldn't front run any last withdraws
+    modifier closed() {
+        // solhint-disable-next-line not-rely-on-time
+        require(block.timestamp >= MARKET_CLOSE_COUNTDOWN_TIMESTAMP + 10, "Marketplace is still open");
+        _;
+    }
+
+    constructor(address coreAddress, uint256 _marketClosedCountdownTimestamp) {
+        darkForestCore = DarkForestCore(coreAddress);
+
+        MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
+    }
+
+    // At market close, any unwithdrawn funds are swept by us
+    function rugPull() public onlyOwner closed {
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     function requestReveal(
@@ -62,17 +64,17 @@ contract RevealMarket is OwnableUpgradeable {
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
-    ) public payable {
+    ) public payable open {
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
         require(possibleRevealRequest.location == 0, "RevealRequest already exists");
 
-        try verifier.verifyRevealProof(_a, _b, _c, _input) returns (bool success) {
-            require(success, "Invalid reveal proof");
+        try darkForestCore.checkRevealProof(_a, _b, _c, _input) returns (bool success) {
+            // It should NEVER revert here because `checkRevealProof` reverts on all bad values
+            // and only returns if success == true
+            require(success == true, "Disaster with reveal proof");
         } catch {
-            revert("verifyRevealProof reverted");
+            revert("Invalid reveal proof");
         }
-
-        _revertIfBadSnarkPerlinFlags([_input[4], _input[5], _input[6], _input[7], _input[8]], false);
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
@@ -99,7 +101,7 @@ contract RevealMarket is OwnableUpgradeable {
         );
     }
 
-    function claimReveal(uint256 location) public {
+    function claimReveal(uint256 location) public open {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
@@ -146,34 +148,6 @@ contract RevealMarket is OwnableUpgradeable {
 
     function getAllRevealRequests() public view returns (RevealRequest[] memory) {
         return bulkGetRevealRequests(0, revealRequestIds.length);
-    }
-
-    function setVerifier(address _verifierAddress) public onlyOwner {
-        verifier = Verifier(_verifierAddress);
-    }
-
-    function setDarkForestCore(address _coreAddress) public onlyOwner {
-        darkForestCore = DarkForestCore(_coreAddress);
-    }
-
-    // if you don't check the public input snark perlin config values, then a player could specify a planet with for example the wrong PLANETHASH_KEY and the SNARK would verify but they'd have created an invalid planet.
-    // the zkSNARK verification function checks that the SNARK proof is valid; a valid proof might be "i know the existence of a planet at secret coords with address 0x123456... and mimc key 42". but if this universe's mimc key is 43 this is still an invalid planet, so we have to check that this SNARK proof is a proof for the right mimc key (and spacetype key, perlin length scale, etc.)
-    function _revertIfBadSnarkPerlinFlags(uint256[5] memory perlinFlags, bool checkingBiome)
-        private
-        view
-        returns (bool)
-    {
-        require(perlinFlags[0] == snarkConstants.PLANETHASH_KEY, "bad planethash mimc key");
-        if (checkingBiome) {
-            require(perlinFlags[1] == snarkConstants.BIOMEBASE_KEY, "bad spacetype mimc key");
-        } else {
-            require(perlinFlags[1] == snarkConstants.SPACETYPE_KEY, "bad spacetype mimc key");
-        }
-        require(perlinFlags[2] == snarkConstants.PERLIN_LENGTH_SCALE, "bad perlin length scale");
-        require((perlinFlags[3] == 1) == snarkConstants.PERLIN_MIRROR_X, "bad perlin mirror x");
-        require((perlinFlags[4] == 1) == snarkConstants.PERLIN_MIRROR_Y, "bad perlin mirror y");
-
-        return true;
     }
 }
 
