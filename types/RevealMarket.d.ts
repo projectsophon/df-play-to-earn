@@ -37,8 +37,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
-    "setDarkForestCore(address)": FunctionFragment;
-    "setVerifier(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
@@ -124,11 +122,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDarkForestCore",
-    values: [string]
-  ): string;
-  encodeFunctionData(functionFragment: "setVerifier", values: [string]): string;
-  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
@@ -185,14 +178,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "requestReveal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDarkForestCore",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setVerifier",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -367,16 +352,6 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setVerifier(
-      _verifierAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -480,16 +455,6 @@ export class RevealMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setDarkForestCore(
-    _coreAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setVerifier(
-    _verifierAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -588,16 +553,6 @@ export class RevealMarket extends BaseContract {
         BigNumberish,
         BigNumberish
       ],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setVerifier(
-      _verifierAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -720,16 +675,6 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setVerifier(
-      _verifierAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -809,16 +754,6 @@ export class RevealMarket extends BaseContract {
         BigNumberish
       ],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setDarkForestCore(
-      _coreAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setVerifier(
-      _verifierAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(

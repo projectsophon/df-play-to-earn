@@ -14,12 +14,6 @@ declare module "hardhat/types/runtime" {
       blockNumber: number;
     };
     ARCHIVE_RPC_URL: string;
-    PLANETHASH_KEY: number;
-    SPACETYPE_KEY: number;
-    BIOMEBASE_KEY: number;
-    PERLIN_MIRROR_X: boolean;
-    PERLIN_MIRROR_Y: boolean;
-    PERLIN_LENGTH_SCALE: number;
   }
 }
 
@@ -29,12 +23,6 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
     blockNumber: 16119031, // game created and user whitelisted
   };
   env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
-  env.PLANETHASH_KEY = 80;
-  env.SPACETYPE_KEY = 81;
-  env.BIOMEBASE_KEY = 82;
-  env.PERLIN_MIRROR_X = false;
-  env.PERLIN_MIRROR_Y = false;
-  env.PERLIN_LENGTH_SCALE = 16384;
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

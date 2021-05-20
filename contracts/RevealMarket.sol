@@ -156,14 +156,6 @@ contract RevealMarket is Ownable, Initializable {
         return bulkGetRevealRequests(0, revealRequestIds.length);
     }
 
-    function setVerifier(address _verifierAddress) public onlyOwner {
-        verifier = Verifier(_verifierAddress);
-    }
-
-    function setDarkForestCore(address _coreAddress) public onlyOwner {
-        darkForestCore = DarkForestCore(_coreAddress);
-    }
-
     // if you don't check the public input snark perlin config values, then a player could specify a planet with for example the wrong PLANETHASH_KEY and the SNARK would verify but they'd have created an invalid planet.
     // the zkSNARK verification function checks that the SNARK proof is valid; a valid proof might be "i know the existence of a planet at secret coords with address 0x123456... and mimc key 42". but if this universe's mimc key is 43 this is still an invalid planet, so we have to check that this SNARK proof is a proof for the right mimc key (and spacetype key, perlin length scale, etc.)
     function _revertIfBadSnarkPerlinFlags(uint256[5] memory perlinFlags, bool checkingBiome)

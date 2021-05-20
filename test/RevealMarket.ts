@@ -5,18 +5,7 @@ import type { Signer } from "ethers";
 import type { RevealMarket } from "../types";
 import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
 import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
-import {
-  validRevealProof,
-  invalidRevealProof,
-  garbageRevealProof,
-  wrongUniverseRevealProof,
-  PLANETHASH_KEY,
-  SPACETYPE_KEY,
-  BIOMEBASE_KEY,
-  PERLIN_MIRROR_X,
-  PERLIN_MIRROR_Y,
-  PERLIN_LENGTH_SCALE,
-} from "./fixtures";
+import { validRevealProof, invalidRevealProof, garbageRevealProof, wrongUniverseRevealProof } from "./fixtures";
 
 describe("RevealMarket", function () {
   this.timeout(100000);
@@ -40,8 +29,12 @@ describe("RevealMarket", function () {
       ],
     });
 
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+    darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
+    const { PLANETHASH_KEY, SPACETYPE_KEY, BIOMEBASE_KEY, PERLIN_MIRROR_X, PERLIN_MIRROR_Y, PERLIN_LENGTH_SCALE } =
+      await darkForestCore.callStatic.snarkConstants();
+
+    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
     revealMarket = await RevealMarketFactory.deploy();
     await revealMarket.deployTransaction.wait();
 
@@ -75,14 +68,6 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     expect(await revealMarket.owner()).to.equal(deployer.address);
-  });
-
-  it("Should revert setting verifier for non owners", async function () {
-    const [_, someguy] = await hre.ethers.getSigners();
-
-    await expect(revealMarket.connect(someguy).setVerifier(VERIFIER_LIBRARY_ADDRESS)).to.be.revertedWith(
-      "Ownable: caller is not the owner"
-    );
   });
 
   it("Emits a RevealRequested given a correct RevealProof for unrevealed planet", async function () {

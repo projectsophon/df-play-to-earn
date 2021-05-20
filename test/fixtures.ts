@@ -1,12 +1,5 @@
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
 
-export const PLANETHASH_KEY = 80;
-export const SPACETYPE_KEY = 81;
-export const BIOMEBASE_KEY = 82;
-export const PERLIN_MIRROR_X = false;
-export const PERLIN_MIRROR_Y = false;
-export const PERLIN_LENGTH_SCALE = 16384;
-
 export const garbageRevealProof: RevealSnarkContractCallArgs = [
   ["123", "456"],
   [
