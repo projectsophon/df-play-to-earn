@@ -14,6 +14,7 @@ declare module "hardhat/types/runtime" {
       blockNumber: number;
     };
     ARCHIVE_RPC_URL: string;
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP: number;
   }
 }
 
@@ -23,6 +24,9 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
     blockNumber: 16119031, // game created and user whitelisted
   };
   env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
+
+  const oneWeek = 60 * 60 * 24 * 7;
+  env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeek) / 1000);
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

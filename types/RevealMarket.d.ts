@@ -23,6 +23,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
     "BIOMEBASE_KEY()": FunctionFragment;
+    "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
     "PERLIN_LENGTH_SCALE()": FunctionFragment;
     "PERLIN_MIRROR_X()": FunctionFragment;
     "PERLIN_MIRROR_Y()": FunctionFragment;
@@ -33,15 +34,20 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
-    "initialize(address,address,uint256,uint256,uint256,bool,bool,uint256)": FunctionFragment;
+    "initialize(address,address,uint256,uint256,uint256,bool,bool,uint256,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
+    "rugPull()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "BIOMEBASE_KEY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -94,6 +100,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
       BigNumberish,
       boolean,
       boolean,
+      BigNumberish,
       BigNumberish
     ]
   ): string;
@@ -121,6 +128,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
       ]
     ]
   ): string;
+  encodeFunctionData(functionFragment: "rugPull", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
@@ -128,6 +136,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "BIOMEBASE_KEY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -180,6 +192,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     functionFragment: "requestReveal",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "rugPull", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -241,6 +254,10 @@ export class RevealMarket extends BaseContract {
 
   functions: {
     BIOMEBASE_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -325,6 +342,7 @@ export class RevealMarket extends BaseContract {
       perlinMirrorX: boolean,
       perlinMirrorY: boolean,
       perlinLengthScale: BigNumberish,
+      _marketClosedCountdownTimestamp: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -352,6 +370,10 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    rugPull(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -359,6 +381,10 @@ export class RevealMarket extends BaseContract {
   };
 
   BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+  MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -428,6 +454,7 @@ export class RevealMarket extends BaseContract {
     perlinMirrorX: boolean,
     perlinMirrorY: boolean,
     perlinLengthScale: BigNumberish,
+    _marketClosedCountdownTimestamp: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -455,6 +482,10 @@ export class RevealMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  rugPull(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -462,6 +493,10 @@ export class RevealMarket extends BaseContract {
 
   callStatic: {
     BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -531,6 +566,7 @@ export class RevealMarket extends BaseContract {
       perlinMirrorX: boolean,
       perlinMirrorY: boolean,
       perlinLengthScale: BigNumberish,
+      _marketClosedCountdownTimestamp: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -555,6 +591,8 @@ export class RevealMarket extends BaseContract {
       ],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    rugPull(overrides?: CallOverrides): Promise<void>;
 
     transferOwnership(
       newOwner: string,
@@ -609,6 +647,10 @@ export class RevealMarket extends BaseContract {
   estimateGas: {
     BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
 
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<BigNumber>;
@@ -648,6 +690,7 @@ export class RevealMarket extends BaseContract {
       perlinMirrorX: boolean,
       perlinMirrorY: boolean,
       perlinLengthScale: BigNumberish,
+      _marketClosedCountdownTimestamp: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -675,6 +718,10 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    rugPull(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -683,6 +730,10 @@ export class RevealMarket extends BaseContract {
 
   populateTransaction: {
     BIOMEBASE_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     PERLIN_LENGTH_SCALE(
       overrides?: CallOverrides
@@ -729,6 +780,7 @@ export class RevealMarket extends BaseContract {
       perlinMirrorX: boolean,
       perlinMirrorY: boolean,
       perlinLengthScale: BigNumberish,
+      _marketClosedCountdownTimestamp: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -754,6 +806,10 @@ export class RevealMarket extends BaseContract {
         BigNumberish
       ],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    rugPull(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(

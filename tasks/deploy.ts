@@ -27,7 +27,8 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     BIOMEBASE_KEY,
     PERLIN_MIRROR_X,
     PERLIN_MIRROR_Y,
-    PERLIN_LENGTH_SCALE
+    PERLIN_LENGTH_SCALE,
+    hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP
   );
   await revealReceipt.wait();
 

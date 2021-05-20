@@ -1,5 +1,8 @@
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
 
+const ONE_HOUR = 60 * 60;
+const COUNTDOWN = 10;
+export const MARKET_CLOSE_INCREASE = ONE_HOUR + COUNTDOWN;
 export const garbageRevealProof: RevealSnarkContractCallArgs = [
   ["123", "456"],
   [

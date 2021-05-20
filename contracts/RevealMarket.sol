@@ -39,10 +39,25 @@ contract RevealMarket is Ownable, Initializable {
     bool public PERLIN_MIRROR_X;
     bool public PERLIN_MIRROR_Y;
     uint256 public PERLIN_LENGTH_SCALE;
+
+    uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
     uint256[] private revealRequestIds;
+
+    modifier open() {
+        // solhint-disable-next-line not-rely-on-time
+        require(block.timestamp < MARKET_CLOSE_COUNTDOWN_TIMESTAMP, "Marketplace has closed");
+        _;
+    }
+
+    // give a 10 block confirmation window so we couldn't front run any last withdraws
+    modifier closed() {
+        // solhint-disable-next-line not-rely-on-time
+        require(block.timestamp >= MARKET_CLOSE_COUNTDOWN_TIMESTAMP + 10, "Marketplace is still open");
+        _;
+    }
 
     function initialize(
         address verifierAddress,
@@ -52,7 +67,8 @@ contract RevealMarket is Ownable, Initializable {
         uint256 biomebaseKey,
         bool perlinMirrorX,
         bool perlinMirrorY,
-        uint256 perlinLengthScale
+        uint256 perlinLengthScale,
+        uint256 _marketClosedCountdownTimestamp
     ) public onlyOwner initializer {
         verifier = Verifier(verifierAddress);
         darkForestCore = DarkForestCore(coreAddress);
@@ -63,6 +79,12 @@ contract RevealMarket is Ownable, Initializable {
         PERLIN_MIRROR_X = perlinMirrorX;
         PERLIN_MIRROR_Y = perlinMirrorY;
         PERLIN_LENGTH_SCALE = perlinLengthScale;
+        MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
+    }
+
+    // At market close, any unwithdrawn funds are swept by us
+    function rugPull() public onlyOwner closed {
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     function requestReveal(
@@ -70,7 +92,7 @@ contract RevealMarket is Ownable, Initializable {
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
-    ) public payable {
+    ) public payable open {
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
         require(possibleRevealRequest.location == 0, "RevealRequest already exists");
 
@@ -107,7 +129,7 @@ contract RevealMarket is Ownable, Initializable {
         );
     }
 
-    function claimReveal(uint256 location) public {
+    function claimReveal(uint256 location) public open {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
