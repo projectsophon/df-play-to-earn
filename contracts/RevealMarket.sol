@@ -56,7 +56,7 @@ contract RevealMarket is Ownable {
 
     // At market close, any unwithdrawn funds are swept by us
     function rugPull() public onlyOwner closed {
-        payable(msg.sender).transfer(address(this).balance);
+        payable(owner()).transfer(address(this).balance);
     }
 
     function requestReveal(
