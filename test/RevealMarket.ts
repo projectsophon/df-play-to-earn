@@ -5,7 +5,18 @@ import type { Signer } from "ethers";
 import type { RevealMarket } from "../types";
 import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
 import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
-import { validRevealProof, invalidRevealProof, garbageRevealProof, wrongUniverseRevealProof } from "./fixtures";
+import {
+  validRevealProof,
+  invalidRevealProof,
+  garbageRevealProof,
+  wrongUniverseRevealProof,
+  PLANETHASH_KEY,
+  SPACETYPE_KEY,
+  BIOMEBASE_KEY,
+  PERLIN_MIRROR_X,
+  PERLIN_MIRROR_Y,
+  PERLIN_LENGTH_SCALE,
+} from "./fixtures";
 
 describe("RevealMarket", function () {
   this.timeout(100000);
@@ -34,6 +45,12 @@ describe("RevealMarket", function () {
     revealMarket = (await hre.upgrades.deployProxy(RevealMarketFactory, [
       VERIFIER_LIBRARY_ADDRESS,
       CORE_CONTRACT_ADDRESS,
+      PLANETHASH_KEY,
+      SPACETYPE_KEY,
+      BIOMEBASE_KEY,
+      PERLIN_MIRROR_X,
+      PERLIN_MIRROR_Y,
+      PERLIN_LENGTH_SCALE,
     ])) as RevealMarket;
     await revealMarket.deployTransaction.wait();
 

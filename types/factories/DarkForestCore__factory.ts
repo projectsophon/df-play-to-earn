@@ -51,56 +51,6 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  {
-    inputs: [],
-    name: "snarkConstants",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "bool",
-            name: "DISABLE_ZK_CHECKS",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "PLANETHASH_KEY",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "SPACETYPE_KEY",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "BIOMEBASE_KEY",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "PERLIN_MIRROR_X",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "PERLIN_MIRROR_Y",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "PERLIN_LENGTH_SCALE",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct DarkForestCore.SnarkConstants",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
 ];
 
 export class DarkForestCore__factory {

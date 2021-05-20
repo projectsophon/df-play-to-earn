@@ -22,12 +22,18 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
+    "BIOMEBASE_KEY()": FunctionFragment;
+    "PERLIN_LENGTH_SCALE()": FunctionFragment;
+    "PERLIN_MIRROR_X()": FunctionFragment;
+    "PERLIN_MIRROR_Y()": FunctionFragment;
+    "PLANETHASH_KEY()": FunctionFragment;
+    "SPACETYPE_KEY()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
     "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
-    "initialize(address,address)": FunctionFragment;
+    "initialize(address,address,uint256,uint256,uint256,bool,bool,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
@@ -36,6 +42,30 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "BIOMEBASE_KEY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PERLIN_LENGTH_SCALE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PERLIN_MIRROR_X",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PERLIN_MIRROR_Y",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PLANETHASH_KEY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "SPACETYPE_KEY",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "bulkGetRevealRequests",
     values: [BigNumberish, BigNumberish]
@@ -58,7 +88,16 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [string, string]
+    values: [
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      boolean,
+      boolean,
+      BigNumberish
+    ]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -94,6 +133,30 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "BIOMEBASE_KEY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PERLIN_LENGTH_SCALE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PERLIN_MIRROR_X",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PERLIN_MIRROR_Y",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PLANETHASH_KEY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "SPACETYPE_KEY",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "bulkGetRevealRequests",
     data: BytesLike
@@ -192,6 +255,18 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
+    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<[boolean]>;
+
+    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<[boolean]>;
+
+    PLANETHASH_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    SPACETYPE_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -257,8 +332,14 @@ export class RevealMarket extends BaseContract {
     >;
 
     initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
+      verifierAddress: string,
+      coreAddress: string,
+      planetHashKey: BigNumberish,
+      spacetypeKey: BigNumberish,
+      biomebaseKey: BigNumberish,
+      perlinMirrorX: boolean,
+      perlinMirrorY: boolean,
+      perlinLengthScale: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -301,6 +382,18 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+  PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<boolean>;
+
+  PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<boolean>;
+
+  PLANETHASH_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+  SPACETYPE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
 
   bulkGetRevealRequests(
     startIdx: BigNumberish,
@@ -352,8 +445,14 @@ export class RevealMarket extends BaseContract {
   >;
 
   initialize(
-    _verifierAddress: string,
-    _coreAddress: string,
+    verifierAddress: string,
+    coreAddress: string,
+    planetHashKey: BigNumberish,
+    spacetypeKey: BigNumberish,
+    biomebaseKey: BigNumberish,
+    perlinMirrorX: boolean,
+    perlinMirrorY: boolean,
+    perlinLengthScale: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -397,6 +496,18 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<boolean>;
+
+    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<boolean>;
+
+    PLANETHASH_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    SPACETYPE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -447,8 +558,14 @@ export class RevealMarket extends BaseContract {
     >;
 
     initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
+      verifierAddress: string,
+      coreAddress: string,
+      planetHashKey: BigNumberish,
+      spacetypeKey: BigNumberish,
+      biomebaseKey: BigNumberish,
+      perlinMirrorX: boolean,
+      perlinMirrorY: boolean,
+      perlinLengthScale: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -535,6 +652,18 @@ export class RevealMarket extends BaseContract {
   };
 
   estimateGas: {
+    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PLANETHASH_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    SPACETYPE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -556,8 +685,14 @@ export class RevealMarket extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
+      verifierAddress: string,
+      coreAddress: string,
+      planetHashKey: BigNumberish,
+      spacetypeKey: BigNumberish,
+      biomebaseKey: BigNumberish,
+      perlinMirrorX: boolean,
+      perlinMirrorY: boolean,
+      perlinLengthScale: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -602,6 +737,20 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
+    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    PERLIN_LENGTH_SCALE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    PLANETHASH_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    SPACETYPE_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -627,8 +776,14 @@ export class RevealMarket extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      _verifierAddress: string,
-      _coreAddress: string,
+      verifierAddress: string,
+      coreAddress: string,
+      planetHashKey: BigNumberish,
+      spacetypeKey: BigNumberish,
+      biomebaseKey: BigNumberish,
+      perlinMirrorX: boolean,
+      perlinMirrorY: boolean,
+      perlinLengthScale: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

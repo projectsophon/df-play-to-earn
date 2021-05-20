@@ -22,24 +22,15 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface DarkForestCoreInterface extends ethers.utils.Interface {
   functions: {
     "getRevealedCoords(uint256)": FunctionFragment;
-    "snarkConstants()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "getRevealedCoords",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "snarkConstants",
-    values?: undefined
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "getRevealedCoords",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "snarkConstants",
     data: BytesLike
   ): Result;
 
@@ -94,18 +85,10 @@ export class DarkForestCore extends BaseContract {
       locationId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    snarkConstants(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   getRevealedCoords(
     locationId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  snarkConstants(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -121,28 +104,6 @@ export class DarkForestCore extends BaseContract {
         revealer: string;
       }
     >;
-
-    snarkConstants(
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        boolean,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        boolean,
-        boolean,
-        BigNumber
-      ] & {
-        DISABLE_ZK_CHECKS: boolean;
-        PLANETHASH_KEY: BigNumber;
-        SPACETYPE_KEY: BigNumber;
-        BIOMEBASE_KEY: BigNumber;
-        PERLIN_MIRROR_X: boolean;
-        PERLIN_MIRROR_Y: boolean;
-        PERLIN_LENGTH_SCALE: BigNumber;
-      }
-    >;
   };
 
   filters: {};
@@ -152,19 +113,11 @@ export class DarkForestCore extends BaseContract {
       locationId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    snarkConstants(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     getRevealedCoords(
       locationId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    snarkConstants(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

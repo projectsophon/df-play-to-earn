@@ -14,26 +14,12 @@ abstract contract Verifier {
 }
 
 abstract contract DarkForestCore {
-    struct SnarkConstants {
-        /* solhint-disable var-name-mixedcase */
-        bool DISABLE_ZK_CHECKS;
-        uint256 PLANETHASH_KEY;
-        uint256 SPACETYPE_KEY;
-        uint256 BIOMEBASE_KEY;
-        bool PERLIN_MIRROR_X;
-        bool PERLIN_MIRROR_Y;
-        uint256 PERLIN_LENGTH_SCALE; // must be a power of two up to 8192
-        /* solhint-enable var-name-mixedcase */
-    }
-
     struct RevealedCoords {
         uint256 locationId;
         uint256 x;
         uint256 y;
         address revealer;
     }
-
-    function snarkConstants() public virtual returns (SnarkConstants memory);
 
     function getRevealedCoords(uint256 locationId) public virtual returns (RevealedCoords memory);
 }
@@ -44,17 +30,40 @@ contract RevealMarket is OwnableUpgradeable {
 
     Verifier private verifier;
     DarkForestCore private darkForestCore;
-    DarkForestCore.SnarkConstants private snarkConstants;
+
+    /* solhint-disable var-name-mixedcase */
+    uint256 public PLANETHASH_KEY;
+    uint256 public SPACETYPE_KEY;
+    uint256 public BIOMEBASE_KEY;
+    bool public PERLIN_MIRROR_X;
+    bool public PERLIN_MIRROR_Y;
+    uint256 public PERLIN_LENGTH_SCALE;
+    /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
     uint256[] private revealRequestIds;
 
-    function initialize(address _verifierAddress, address _coreAddress) public initializer {
+    function initialize(
+        address verifierAddress,
+        address coreAddress,
+        uint256 planetHashKey,
+        uint256 spacetypeKey,
+        uint256 biomebaseKey,
+        bool perlinMirrorX,
+        bool perlinMirrorY,
+        uint256 perlinLengthScale
+    ) public initializer {
         __Ownable_init();
 
-        verifier = Verifier(_verifierAddress);
-        darkForestCore = DarkForestCore(_coreAddress);
-        snarkConstants = darkForestCore.snarkConstants();
+        verifier = Verifier(verifierAddress);
+        darkForestCore = DarkForestCore(coreAddress);
+
+        PLANETHASH_KEY = planetHashKey;
+        SPACETYPE_KEY = spacetypeKey;
+        BIOMEBASE_KEY = biomebaseKey;
+        PERLIN_MIRROR_X = perlinMirrorX;
+        PERLIN_MIRROR_Y = perlinMirrorY;
+        PERLIN_LENGTH_SCALE = perlinLengthScale;
     }
 
     function requestReveal(
@@ -163,15 +172,15 @@ contract RevealMarket is OwnableUpgradeable {
         view
         returns (bool)
     {
-        require(perlinFlags[0] == snarkConstants.PLANETHASH_KEY, "bad planethash mimc key");
+        require(perlinFlags[0] == PLANETHASH_KEY, "bad planethash mimc key");
         if (checkingBiome) {
-            require(perlinFlags[1] == snarkConstants.BIOMEBASE_KEY, "bad spacetype mimc key");
+            require(perlinFlags[1] == BIOMEBASE_KEY, "bad spacetype mimc key");
         } else {
-            require(perlinFlags[1] == snarkConstants.SPACETYPE_KEY, "bad spacetype mimc key");
+            require(perlinFlags[1] == SPACETYPE_KEY, "bad spacetype mimc key");
         }
-        require(perlinFlags[2] == snarkConstants.PERLIN_LENGTH_SCALE, "bad perlin length scale");
-        require((perlinFlags[3] == 1) == snarkConstants.PERLIN_MIRROR_X, "bad perlin mirror x");
-        require((perlinFlags[4] == 1) == snarkConstants.PERLIN_MIRROR_Y, "bad perlin mirror y");
+        require(perlinFlags[2] == PERLIN_LENGTH_SCALE, "bad perlin length scale");
+        require((perlinFlags[3] == 1) == PERLIN_MIRROR_X, "bad perlin mirror x");
+        require((perlinFlags[4] == 1) == PERLIN_MIRROR_Y, "bad perlin mirror y");
 
         return true;
     }
