@@ -44,4 +44,11 @@ async function deployIntoNode(
 
   const revealMarket = await hre.run("deploy");
   console.log(`Deployed contract at: ${revealMarket.address}`);
+
+  // Give blaine some money
+  const [, , piggyBank] = await hre.ethers.getSigners();
+  await piggyBank.sendTransaction({
+    to: hre.whitelistedPlayer1.address,
+    value: hre.ethers.utils.parseEther("1000"),
+  });
 }
