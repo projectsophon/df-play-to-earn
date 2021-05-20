@@ -5,6 +5,9 @@
   "license": "MIT",
   "private": true,
   "files": [],
+  "engines": {
+    "node": "^14"
+  },
   "scripts": {
     "lint": "solhint 'contracts/**/*.sol' --max-warnings 0 && eslint .",
     "test": "hardhat compile && hardhat test",
