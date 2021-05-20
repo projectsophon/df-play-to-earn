@@ -536,7 +536,7 @@
     "@ethersproject/rlp" "^5.1.0"
     "@ethersproject/signing-key" "^5.1.0"
 
-"@ethersproject/units@5.1.0":
+"@ethersproject/units@5.1.0", "@ethersproject/units@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/units/-/units-5.1.0.tgz#b6ab3430ebc22adc3cb4839516496f167bee3ad5"
   integrity sha512-isvJrx6qG0nKWfxsGORNjmOq/nh175fStfvRTA2xEKrGqx8JNJY83fswu4GkILowfriEM/eYpretfJnfzi7YhA==
@@ -4662,6 +4662,11 @@ hosted-git-info@^2.1.4, hosted-git-info@^2.6.0:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
   integrity sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==
 
+htm@3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/htm/-/htm-3.0.4.tgz#c90c891645d2d792bdb9f8c867964b18e3503718"
+  integrity sha512-VRdvxX3tmrXuT/Ovt59NMp/ORMFi4bceFMDjos1PV4E0mV+5votuID8R60egR9A4U8nLt238R/snlJGz3UYiTQ==
+
 http-cache-semantics@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/http-cache-semantics/-/http-cache-semantics-4.1.0.tgz#49e91c5cbf36c9b94bcfcd71c23d5249ec74e390"
@@ -6635,6 +6640,11 @@ postinstall-postinstall@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#4f7f77441ef539d1512c40bd04c71b06a4704ca3"
   integrity sha512-7hQX6ZlZXIoRiWNrbMQaLzUUfH+sSx39u8EJ9HYuDc1kLo9IXKWjM5RSquZN1ad5GnH8CGFM78fsAAQi3OKEEQ==
+
+preact@^10.5.13:
+  version "10.5.13"
+  resolved "https://registry.yarnpkg.com/preact/-/preact-10.5.13.tgz#85f6c9197ecd736ce8e3bec044d08fd1330fa019"
+  integrity sha512-q/vlKIGNwzTLu+jCcvywgGrt+H/1P/oIRSD6mV4ln3hmlC+Aa34C7yfPI4+5bzW8pONyVXYS7SvXosy2dKKtWQ==
 
 precond@0.2:
   version "0.2.3"
