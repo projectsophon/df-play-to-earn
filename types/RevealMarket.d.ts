@@ -26,7 +26,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "claimReveal(uint256)": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
-    "getRevealRequestIds(uint256)": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -51,10 +50,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getRevealRequest",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRevealRequestIds",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -116,10 +111,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getRevealRequest",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRevealRequestIds",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -253,11 +244,6 @@ export class RevealMarket extends BaseContract {
       ]
     >;
 
-    getRevealRequestIds(
-      idx: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     initialize(
       _verifierAddress: string,
       _coreAddress: string,
@@ -352,11 +338,6 @@ export class RevealMarket extends BaseContract {
     }
   >;
 
-  getRevealRequestIds(
-    idx: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   initialize(
     _verifierAddress: string,
     _coreAddress: string,
@@ -450,11 +431,6 @@ export class RevealMarket extends BaseContract {
         paid: boolean;
       }
     >;
-
-    getRevealRequestIds(
-      idx: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     initialize(
       _verifierAddress: string,
@@ -575,11 +551,6 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getRevealRequestIds(
-      idx: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     initialize(
       _verifierAddress: string,
       _coreAddress: string,
@@ -656,11 +627,6 @@ export class RevealMarket extends BaseContract {
 
     getRevealRequest(
       location: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRevealRequestIds(
-      idx: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

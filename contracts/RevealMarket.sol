@@ -127,7 +127,7 @@ contract RevealMarket is OwnableUpgradeable {
         return revealRequestIds.length;
     }
 
-    function getRevealRequestIds(uint256 idx) public view returns (uint256) {
+    function getRevealRequestId(uint256 idx) private view returns (uint256) {
         return revealRequestIds[idx];
     }
 
@@ -140,7 +140,7 @@ contract RevealMarket is OwnableUpgradeable {
     function bulkGetRevealRequests(uint256 startIdx, uint256 endIdx) public view returns (RevealRequest[] memory ret) {
         ret = new RevealRequest[](endIdx - startIdx);
         for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = getRevealRequest(getRevealRequestIds(i));
+            ret[i - startIdx] = getRevealRequest(getRevealRequestId(i));
         }
     }
 
