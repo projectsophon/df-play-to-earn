@@ -22,12 +22,14 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
+    "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
+    "getNRevealRequests()": FunctionFragment;
+    "getRevealRequest(uint256)": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
-    "reveals(uint256)": FunctionFragment;
     "revertIfBadSnarkPerlinFlags(uint256[5],bool)": FunctionFragment;
     "setDarkForestCore(address)": FunctionFragment;
     "setVerifier(address)": FunctionFragment;
@@ -35,7 +37,19 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "bulkGetRevealRequests",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "claimReveal",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getNRevealRequests",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRevealRequest",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -67,10 +81,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "reveals",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "revertIfBadSnarkPerlinFlags",
     values: [
       [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
@@ -88,7 +98,19 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "bulkGetRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "claimReveal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getNRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRevealRequest",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -101,7 +123,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     functionFragment: "requestReveal",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "reveals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "revertIfBadSnarkPerlinFlags",
     data: BytesLike
@@ -174,10 +195,54 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+          requester: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          value: BigNumber;
+          paid: boolean;
+        })[]
+      ] & {
+        ret: ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+          requester: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          value: BigNumber;
+          paid: boolean;
+        })[];
+      }
+    >;
+
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    getNRevealRequests(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getRevealRequest(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+          requester: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          value: BigNumber;
+          paid: boolean;
+        }
+      ]
+    >;
 
     initialize(
       _verifierAddress: string,
@@ -209,19 +274,6 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    reveals(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        requester: string;
-        location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        value: BigNumber;
-      }
-    >;
-
     revertIfBadSnarkPerlinFlags(
       perlinFlags: [
         BigNumberish,
@@ -250,10 +302,41 @@ export class RevealMarket extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  bulkGetRevealRequests(
+    startIdx: BigNumberish,
+    endIdx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+      requester: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      value: BigNumber;
+      paid: boolean;
+    })[]
+  >;
+
   claimReveal(
     location: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getRevealRequest(
+    location: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+      requester: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      value: BigNumber;
+      paid: boolean;
+    }
+  >;
 
   initialize(
     _verifierAddress: string,
@@ -285,19 +368,6 @@ export class RevealMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  reveals(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      requester: string;
-      location: BigNumber;
-      x: BigNumber;
-      y: BigNumber;
-      value: BigNumber;
-    }
-  >;
-
   revertIfBadSnarkPerlinFlags(
     perlinFlags: [
       BigNumberish,
@@ -326,10 +396,41 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        requester: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+        paid: boolean;
+      })[]
+    >;
+
     claimReveal(
       location: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getRevealRequest(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        requester: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+        paid: boolean;
+      }
+    >;
 
     initialize(
       _verifierAddress: string,
@@ -358,19 +459,6 @@ export class RevealMarket extends BaseContract {
       ],
       overrides?: CallOverrides
     ): Promise<void>;
-
-    reveals(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        requester: string;
-        location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        value: BigNumber;
-      }
-    >;
 
     revertIfBadSnarkPerlinFlags(
       perlinFlags: [
@@ -445,9 +533,22 @@ export class RevealMarket extends BaseContract {
   };
 
   estimateGas: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getRevealRequest(
+      location: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     initialize(
@@ -480,8 +581,6 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    reveals(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
     revertIfBadSnarkPerlinFlags(
       perlinFlags: [
         BigNumberish,
@@ -511,9 +610,24 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
+    bulkGetRevealRequests(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getNRevealRequests(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRevealRequest(
+      location: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     initialize(
@@ -544,11 +658,6 @@ export class RevealMarket extends BaseContract {
         BigNumberish
       ],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    reveals(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     revertIfBadSnarkPerlinFlags(

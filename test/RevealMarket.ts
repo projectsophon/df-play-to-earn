@@ -72,13 +72,13 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const create = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
 
     const locationID = validRevealProof[3][0];
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
 
-    await expect(create)
+    await expect(revealRequestTx)
       .to.emit(revealMarket, "RevealRequested")
       .withArgs(deployer.address, locationID, x, y, overrides.value);
   });
@@ -88,26 +88,38 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const create = revealMarket.requestReveal(...invalidRevealProof, overrides);
+    const revealRequestTx = revealMarket.requestReveal(...invalidRevealProof, overrides);
 
-    await expect(create).to.be.revertedWith("Invalid reveal proof");
+    await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
   it("Reverts on garbage RevealProof", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
-    const create = revealMarket.requestReveal(...garbageRevealProof, overrides);
+    const revealRequestTx = revealMarket.requestReveal(...garbageRevealProof, overrides);
 
-    await expect(create).to.be.revertedWith("verifyRevealProof reverted");
+    await expect(revealRequestTx).to.be.revertedWith("verifyRevealProof reverted");
   });
 
   it("Revert on valid RevealProof generated for the wrong universe", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
-    const create = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
-    await expect(create).to.be.revertedWith("bad planethash mimc key");
+    const revealRequestTx = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("bad planethash mimc key");
+  });
+
+  it("Reverts if a RevealRequest already exists for a planet", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("RevealRequest already exists");
   });
 
   it("Reverts if a planet is already revealed", async function () {
@@ -118,28 +130,129 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const create = revealMarket.requestReveal(...validRevealProof, overrides);
-    await expect(create).to.be.revertedWith("Planet already revealed");
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Planet already revealed");
   });
 
-  it("Emits RevealCollected after planet revealed has been claimed", async function () {
-    const [deployer] = await hre.ethers.getSigners();
+  it("Revert on claimReveal if no RevealRequest for given location", async function () {
+    const locationID = validRevealProof[3][0];
+
+    const claimedReceipt = revealMarket.claimReveal(locationID);
+    await expect(claimedReceipt).to.be.revertedWith("No RevealRequest for that Planet");
+  });
+
+  it("Revert on claimReveal if location has not been revealed", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
 
-    const createReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
-    await createReceipt.wait();
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const claimedReceipt = revealMarket.claimReveal(locationID);
+    await expect(claimedReceipt).to.be.revertedWith("Planet is not revealed");
+  });
+
+  it("Revert on claimReveal if amount has already been claimed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
+
+    const claimedTx = await revealMarket.claimReveal(locationID);
+    await claimedTx.wait();
+
+    const claimedReceipt = revealMarket.connect(player1).claimReveal(locationID);
+    await expect(claimedReceipt).to.be.revertedWith("RevealRequest has been claimed");
+  });
+
+  it("Emits RevealCollected and makes payment to revealer after request has been claimed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
 
-    const claimedReceipt = await revealMarket.claimReveal(locationID);
-    await claimedReceipt.wait();
+    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
 
+    const oldBalance = await player1.getBalance();
+    const claimedReceipt = revealMarket.claimReveal(locationID);
     await expect(claimedReceipt)
       .to.emit(revealMarket, "RevealCollected")
-      .withArgs(deployer.address, locationID, x, y, overrides.value);
+      .withArgs(await player1.getAddress(), locationID, x, y, overrides.value);
+
+    expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
+  });
+
+  it("Returns a single RevealRequest from getRevealRequest when given a valid location", async function () {
+    const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+    const x = validRevealProof[3][2];
+    const y = validRevealProof[3][3];
+
+    const revealRequest = await revealMarket.getRevealRequest(locationID);
+
+    expect(revealRequest.requester).to.eq(await deployer.getAddress());
+    expect(revealRequest.location).to.eq(locationID);
+    expect(revealRequest.x).to.eq(x);
+    expect(revealRequest.y).to.eq(y);
+    expect(revealRequest.value).to.eq(overrides.value);
+    expect(revealRequest.paid).to.be.false;
+  });
+
+  // todo make this 2 when we have another valid reveal proof
+  it("Returns total number of all RevealRequests from getNRevealRequests", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const nRevealRequests = await revealMarket.getNRevealRequests();
+
+    expect(nRevealRequests).to.eq(1);
+  });
+
+  it("Returns all RevealRequests from bulkGetRevealRequests", async function () {
+    const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const nRevealRequests = await revealMarket.getNRevealRequests();
+
+    const revealRequests = await revealMarket.bulkGetRevealRequests(0, nRevealRequests);
+
+    expect(revealRequests.length).to.eq(nRevealRequests);
+
+    expect(revealRequests[0].requester).to.eq(await deployer.getAddress());
   });
 });

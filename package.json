@@ -7,7 +7,7 @@
   "files": [],
   "scripts": {
     "lint": "solhint 'contracts/**/*.sol' --max-warnings 0 && eslint .",
-    "test": "npx hardhat test",
+    "test": "hardhat compile && hardhat test",
     "format": "prettier --write .",
     "serve": "node serve.js"
   },
