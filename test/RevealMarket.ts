@@ -35,6 +35,7 @@ describe("RevealMarket", function () {
       ],
     });
 
+    player1 = await hre.ethers.provider.getSigner(hre.whitelistedPlayer1.address);
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
     const current1 = (await hre.ethers.provider.getBlock("latest")).timestamp;
@@ -47,9 +48,6 @@ describe("RevealMarket", function () {
       method: "hardhat_impersonateAccount",
       params: [hre.whitelistedPlayer1.address],
     });
-    player1 = await hre.ethers.provider.getSigner(hre.whitelistedPlayer1.address);
-
-    darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
     await piggyBank.sendTransaction({
       to: await player1.getAddress(),
