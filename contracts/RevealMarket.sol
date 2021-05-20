@@ -144,6 +144,10 @@ contract RevealMarket is OwnableUpgradeable {
         }
     }
 
+    function getAllRevealRequests() public view returns (RevealRequest[] memory) {
+        return bulkGetRevealRequests(0, revealRequestIds.length);
+    }
+
     function setVerifier(address _verifierAddress) public onlyOwner {
         verifier = Verifier(_verifierAddress);
     }
