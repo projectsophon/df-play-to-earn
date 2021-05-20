@@ -3,7 +3,6 @@ pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 abstract contract DarkForestCore {
     struct RevealedCoords {
@@ -23,20 +22,13 @@ abstract contract DarkForestCore {
     function getRevealedCoords(uint256 locationId) public virtual returns (RevealedCoords memory);
 }
 
-contract RevealMarket is Ownable, Initializable {
+contract RevealMarket is Ownable {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
 
     DarkForestCore private darkForestCore;
 
     /* solhint-disable var-name-mixedcase */
-    uint256 public PLANETHASH_KEY;
-    uint256 public SPACETYPE_KEY;
-    uint256 public BIOMEBASE_KEY;
-    bool public PERLIN_MIRROR_X;
-    bool public PERLIN_MIRROR_Y;
-    uint256 public PERLIN_LENGTH_SCALE;
-
     uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     /* solhint-enable var-name-mixedcase */
 
@@ -56,24 +48,9 @@ contract RevealMarket is Ownable, Initializable {
         _;
     }
 
-    function initialize(
-        address coreAddress,
-        uint256 planetHashKey,
-        uint256 spacetypeKey,
-        uint256 biomebaseKey,
-        bool perlinMirrorX,
-        bool perlinMirrorY,
-        uint256 perlinLengthScale,
-        uint256 _marketClosedCountdownTimestamp
-    ) public onlyOwner initializer {
+    constructor(address coreAddress, uint256 _marketClosedCountdownTimestamp) {
         darkForestCore = DarkForestCore(coreAddress);
 
-        PLANETHASH_KEY = planetHashKey;
-        SPACETYPE_KEY = spacetypeKey;
-        BIOMEBASE_KEY = biomebaseKey;
-        PERLIN_MIRROR_X = perlinMirrorX;
-        PERLIN_MIRROR_Y = perlinMirrorY;
-        PERLIN_LENGTH_SCALE = perlinLengthScale;
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
     }
 
@@ -91,7 +68,13 @@ contract RevealMarket is Ownable, Initializable {
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
         require(possibleRevealRequest.location == 0, "RevealRequest already exists");
 
-        require(darkForestCore.checkRevealProof(_a, _b, _c, _input), "Invalid reveal proof");
+        try darkForestCore.checkRevealProof(_a, _b, _c, _input) returns (bool success) {
+            // It should NEVER revert here because `checkRevealProof` reverts on all bad values
+            // and only returns if success == true
+            require(success == true, "Disaster with reveal proof");
+        } catch {
+            revert("Invalid reveal proof");
+        }
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");

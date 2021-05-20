@@ -1,6 +1,5 @@
 import { task, subtask } from "hardhat/config";
 import type { HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments, HardhatArguments } from "hardhat/types";
-import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
 import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
 import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 import type { Contract } from "ethers";
@@ -8,28 +7,9 @@ import type { Contract } from "ethers";
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
-  const [deployer] = await hre.ethers.getSigners();
-
   const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-  const revealMarket = await RevealMarketFactory.deploy();
+  const revealMarket = await RevealMarketFactory.deploy(CORE_CONTRACT_ADDRESS, hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP);
   await revealMarket.deployTransaction.wait();
-
-  const darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, deployer);
-
-  const { PLANETHASH_KEY, SPACETYPE_KEY, BIOMEBASE_KEY, PERLIN_MIRROR_X, PERLIN_MIRROR_Y, PERLIN_LENGTH_SCALE } =
-    await darkForestCore.callStatic.snarkConstants();
-
-  const revealReceipt = await revealMarket.initialize(
-    CORE_CONTRACT_ADDRESS,
-    PLANETHASH_KEY,
-    SPACETYPE_KEY,
-    BIOMEBASE_KEY,
-    PERLIN_MIRROR_X,
-    PERLIN_MIRROR_Y,
-    PERLIN_LENGTH_SCALE,
-    hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP
-  );
-  await revealReceipt.wait();
 
   return revealMarket;
 }

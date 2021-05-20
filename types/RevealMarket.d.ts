@@ -22,19 +22,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
-    "BIOMEBASE_KEY()": FunctionFragment;
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
-    "PERLIN_LENGTH_SCALE()": FunctionFragment;
-    "PERLIN_MIRROR_X()": FunctionFragment;
-    "PERLIN_MIRROR_Y()": FunctionFragment;
-    "PLANETHASH_KEY()": FunctionFragment;
-    "SPACETYPE_KEY()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
     "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
-    "initialize(address,uint256,uint256,uint256,bool,bool,uint256,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
@@ -43,31 +36,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
-    functionFragment: "BIOMEBASE_KEY",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PERLIN_LENGTH_SCALE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PERLIN_MIRROR_X",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PERLIN_MIRROR_Y",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PLANETHASH_KEY",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "SPACETYPE_KEY",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -89,19 +58,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "getRevealRequest",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      boolean,
-      boolean,
-      BigNumberish,
-      BigNumberish
-    ]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -134,31 +90,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "BIOMEBASE_KEY",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PERLIN_LENGTH_SCALE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PERLIN_MIRROR_X",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PERLIN_MIRROR_Y",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PLANETHASH_KEY",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "SPACETYPE_KEY",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -181,7 +113,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     functionFragment: "getRevealRequest",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
@@ -252,21 +183,9 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
-    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<[boolean]>;
-
-    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<[boolean]>;
-
-    PLANETHASH_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    SPACETYPE_KEY(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -332,18 +251,6 @@ export class RevealMarket extends BaseContract {
       ]
     >;
 
-    initialize(
-      coreAddress: string,
-      planetHashKey: BigNumberish,
-      spacetypeKey: BigNumberish,
-      biomebaseKey: BigNumberish,
-      perlinMirrorX: boolean,
-      perlinMirrorY: boolean,
-      perlinLengthScale: BigNumberish,
-      _marketClosedCountdownTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
@@ -378,21 +285,9 @@ export class RevealMarket extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
-
   MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
-
-  PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<boolean>;
-
-  PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<boolean>;
-
-  PLANETHASH_KEY(overrides?: CallOverrides): Promise<BigNumber>;
-
-  SPACETYPE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
 
   bulkGetRevealRequests(
     startIdx: BigNumberish,
@@ -443,18 +338,6 @@ export class RevealMarket extends BaseContract {
     }
   >;
 
-  initialize(
-    coreAddress: string,
-    planetHashKey: BigNumberish,
-    spacetypeKey: BigNumberish,
-    biomebaseKey: BigNumberish,
-    perlinMirrorX: boolean,
-    perlinMirrorY: boolean,
-    perlinLengthScale: BigNumberish,
-    _marketClosedCountdownTimestamp: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
@@ -489,21 +372,9 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
-
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<boolean>;
-
-    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<boolean>;
-
-    PLANETHASH_KEY(overrides?: CallOverrides): Promise<BigNumber>;
-
-    SPACETYPE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -553,18 +424,6 @@ export class RevealMarket extends BaseContract {
         paid: boolean;
       }
     >;
-
-    initialize(
-      coreAddress: string,
-      planetHashKey: BigNumberish,
-      spacetypeKey: BigNumberish,
-      biomebaseKey: BigNumberish,
-      perlinMirrorX: boolean,
-      perlinMirrorY: boolean,
-      perlinLengthScale: BigNumberish,
-      _marketClosedCountdownTimestamp: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -641,21 +500,9 @@ export class RevealMarket extends BaseContract {
   };
 
   estimateGas: {
-    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
-
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    PERLIN_LENGTH_SCALE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PLANETHASH_KEY(overrides?: CallOverrides): Promise<BigNumber>;
-
-    SPACETYPE_KEY(overrides?: CallOverrides): Promise<BigNumber>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -675,18 +522,6 @@ export class RevealMarket extends BaseContract {
     getRevealRequest(
       location: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    initialize(
-      coreAddress: string,
-      planetHashKey: BigNumberish,
-      spacetypeKey: BigNumberish,
-      biomebaseKey: BigNumberish,
-      perlinMirrorX: boolean,
-      perlinMirrorY: boolean,
-      perlinLengthScale: BigNumberish,
-      _marketClosedCountdownTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -724,23 +559,9 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
-    BIOMEBASE_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    PERLIN_LENGTH_SCALE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    PERLIN_MIRROR_X(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PERLIN_MIRROR_Y(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    PLANETHASH_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    SPACETYPE_KEY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -764,18 +585,6 @@ export class RevealMarket extends BaseContract {
     getRevealRequest(
       location: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      coreAddress: string,
-      planetHashKey: BigNumberish,
-      spacetypeKey: BigNumberish,
-      biomebaseKey: BigNumberish,
-      perlinMirrorX: boolean,
-      perlinMirrorY: boolean,
-      perlinLengthScale: BigNumberish,
-      _marketClosedCountdownTimestamp: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;

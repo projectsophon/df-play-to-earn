@@ -37,26 +37,11 @@ describe("RevealMarket", function () {
 
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
-    const { PLANETHASH_KEY, SPACETYPE_KEY, BIOMEBASE_KEY, PERLIN_MIRROR_X, PERLIN_MIRROR_Y, PERLIN_LENGTH_SCALE } =
-      await darkForestCore.snarkConstants();
-
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-    revealMarket = await RevealMarketFactory.deploy();
-    await revealMarket.deployTransaction.wait();
-
     const current1 = (await hre.ethers.provider.getBlock("latest")).timestamp;
 
-    const revealReceipt = await revealMarket.initialize(
-      CORE_CONTRACT_ADDRESS,
-      PLANETHASH_KEY,
-      SPACETYPE_KEY,
-      BIOMEBASE_KEY,
-      PERLIN_MIRROR_X,
-      PERLIN_MIRROR_Y,
-      PERLIN_LENGTH_SCALE,
-      current1 + MARKET_CLOSE_INCREASE
-    );
-    await revealReceipt.wait();
+    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
+    revealMarket = await RevealMarketFactory.deploy(CORE_CONTRACT_ADDRESS, current1 + MARKET_CLOSE_INCREASE);
+    await revealMarket.deployTransaction.wait();
 
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
@@ -112,7 +97,7 @@ describe("RevealMarket", function () {
     };
     const revealRequestTx = revealMarket.requestReveal(...garbageRevealProof, overrides);
 
-    await expect(revealRequestTx).to.be.revertedWith("verifyRevealProof reverted");
+    await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
   it("Revert on valid RevealProof generated for the wrong universe", async function () {
@@ -120,7 +105,7 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther("1.0"),
     };
     const revealRequestTx = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
-    await expect(revealRequestTx).to.be.revertedWith("bad planethash mimc key");
+    await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
   it("Reverts if a RevealRequest already exists for a planet", async function () {
