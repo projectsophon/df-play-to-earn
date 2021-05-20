@@ -13,6 +13,40 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256[2]",
+        name: "a",
+        type: "uint256[2]",
+      },
+      {
+        internalType: "uint256[2][2]",
+        name: "b",
+        type: "uint256[2][2]",
+      },
+      {
+        internalType: "uint256[2]",
+        name: "c",
+        type: "uint256[2]",
+      },
+      {
+        internalType: "uint256[9]",
+        name: "input",
+        type: "uint256[9]",
+      },
+    ],
+    name: "checkRevealProof",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "locationId",
         type: "uint256",

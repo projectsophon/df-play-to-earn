@@ -2,7 +2,7 @@ import { task, subtask } from "hardhat/config";
 import type { HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments, HardhatArguments } from "hardhat/types";
 import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
 import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
-import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 import type { Contract } from "ethers";
 
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
@@ -20,7 +20,6 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     await darkForestCore.callStatic.snarkConstants();
 
   const revealReceipt = await revealMarket.initialize(
-    VERIFIER_LIBRARY_ADDRESS,
     CORE_CONTRACT_ADDRESS,
     PLANETHASH_KEY,
     SPACETYPE_KEY,

@@ -34,7 +34,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
-    "initialize(address,address,uint256,uint256,uint256,bool,bool,uint256,uint256)": FunctionFragment;
+    "initialize(address,uint256,uint256,uint256,bool,bool,uint256,uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
@@ -93,7 +93,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [
-      string,
       string,
       BigNumberish,
       BigNumberish,
@@ -334,7 +333,6 @@ export class RevealMarket extends BaseContract {
     >;
 
     initialize(
-      verifierAddress: string,
       coreAddress: string,
       planetHashKey: BigNumberish,
       spacetypeKey: BigNumberish,
@@ -446,7 +444,6 @@ export class RevealMarket extends BaseContract {
   >;
 
   initialize(
-    verifierAddress: string,
     coreAddress: string,
     planetHashKey: BigNumberish,
     spacetypeKey: BigNumberish,
@@ -558,7 +555,6 @@ export class RevealMarket extends BaseContract {
     >;
 
     initialize(
-      verifierAddress: string,
       coreAddress: string,
       planetHashKey: BigNumberish,
       spacetypeKey: BigNumberish,
@@ -682,7 +678,6 @@ export class RevealMarket extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      verifierAddress: string,
       coreAddress: string,
       planetHashKey: BigNumberish,
       spacetypeKey: BigNumberish,
@@ -772,7 +767,6 @@ export class RevealMarket extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      verifierAddress: string,
       coreAddress: string,
       planetHashKey: BigNumberish,
       spacetypeKey: BigNumberish,

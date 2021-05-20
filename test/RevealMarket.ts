@@ -1,6 +1,6 @@
 import * as hre from "hardhat";
 import { expect } from "chai";
-import { VERIFIER_LIBRARY_ADDRESS, CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 import type { Signer } from "ethers";
 import type { RevealMarket } from "../types";
 import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
@@ -38,7 +38,7 @@ describe("RevealMarket", function () {
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
     const { PLANETHASH_KEY, SPACETYPE_KEY, BIOMEBASE_KEY, PERLIN_MIRROR_X, PERLIN_MIRROR_Y, PERLIN_LENGTH_SCALE } =
-      await darkForestCore.callStatic.snarkConstants();
+      await darkForestCore.snarkConstants();
 
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
     revealMarket = await RevealMarketFactory.deploy();
@@ -47,7 +47,6 @@ describe("RevealMarket", function () {
     const current1 = (await hre.ethers.provider.getBlock("latest")).timestamp;
 
     const revealReceipt = await revealMarket.initialize(
-      VERIFIER_LIBRARY_ADDRESS,
       CORE_CONTRACT_ADDRESS,
       PLANETHASH_KEY,
       SPACETYPE_KEY,
