@@ -110,7 +110,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("bad planethash mimc key");
   });
 
-  it("Reverts if a planet is already requested", async function () {
+  it("Reverts if a RevealRequest already exists for a planet", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
@@ -119,7 +119,7 @@ describe("RevealMarket", function () {
     await revealRequestReceipt.wait();
 
     const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
-    await expect(revealRequestTx).to.be.revertedWith("Planet already requested");
+    await expect(revealRequestTx).to.be.revertedWith("RevealRequest already exists");
   });
 
   it("Reverts if a planet is already revealed", async function () {
@@ -134,11 +134,11 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Planet already revealed");
   });
 
-  it("Revert on claimReveal if location was not requested", async function () {
+  it("Revert on claimReveal if no RevealRequest for given location", async function () {
     const locationID = validRevealProof[3][0];
 
     const claimedReceipt = revealMarket.claimReveal(locationID);
-    await expect(claimedReceipt).to.be.revertedWith("No revealRequest at location");
+    await expect(claimedReceipt).to.be.revertedWith("No RevealRequest for that Planet");
   });
 
   it("Revert on claimReveal if location has not been revealed", async function () {
@@ -172,7 +172,7 @@ describe("RevealMarket", function () {
     await claimedTx.wait();
 
     const claimedReceipt = revealMarket.connect(player1).claimReveal(locationID);
-    await expect(claimedReceipt).to.be.revertedWith("revealRequest has been claimed");
+    await expect(claimedReceipt).to.be.revertedWith("RevealRequest has been claimed");
   });
 
   it("Emits RevealCollected and makes payment to revealer after request has been claimed", async function () {
@@ -199,7 +199,7 @@ describe("RevealMarket", function () {
     expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
   });
 
-  it("Returns a single revealRequest from getRevealRequest", async function () {
+  it("Returns a single RevealRequest from getRevealRequest when given a valid location", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
@@ -224,7 +224,7 @@ describe("RevealMarket", function () {
   });
 
   // todo make this 2 when we have another valid reveal proof
-  it("Returns number of revealRequests from getNRevealRequests", async function () {
+  it("Returns total number of all RevealRequests from getNRevealRequests", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
@@ -237,7 +237,7 @@ describe("RevealMarket", function () {
     expect(nRevealRequests).to.eq(1);
   });
 
-  it("Returns all revealRequests from bulkGetRevealRequests", async function () {
+  it("Returns all RevealRequests from bulkGetRevealRequests", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {

@@ -64,7 +64,7 @@ contract RevealMarket is OwnableUpgradeable {
         uint256[9] memory _input
     ) public payable {
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
-        require(possibleRevealRequest.location == 0, "Planet already requested");
+        require(possibleRevealRequest.location == 0, "RevealRequest already exists");
 
         try verifier.verifyRevealProof(_a, _b, _c, _input) returns (bool success) {
             require(success, "Invalid reveal proof");
@@ -101,8 +101,8 @@ contract RevealMarket is OwnableUpgradeable {
 
     function claimReveal(uint256 location) public {
         RevealRequest memory revealRequest = revealRequests[location];
-        require(revealRequest.location != 0, "No revealRequest at location");
-        require(revealRequest.paid == false, "revealRequest has been claimed");
+        require(revealRequest.location != 0, "No RevealRequest for that Planet");
+        require(revealRequest.paid == false, "RevealRequest has been claimed");
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
         require(revealed.locationId != 0, "Planet is not revealed");
@@ -112,7 +112,7 @@ contract RevealMarket is OwnableUpgradeable {
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = payable(revealed.revealer).call{value: revealRequest.value}("");
-        require(success, "Claim failed");
+        require(success, "RevealRequest claim has failed");
 
         emit RevealCollected(
             revealed.revealer,
@@ -133,12 +133,11 @@ contract RevealMarket is OwnableUpgradeable {
 
     function getRevealRequest(uint256 location) public view returns (RevealRequest memory) {
         RevealRequest memory revealRequest = revealRequests[location];
-        require(revealRequest.location != 0, "No revealRequest at location");
+        require(revealRequest.location != 0, "No RevealRequest for that Planet");
         return revealRequest;
     }
 
     function bulkGetRevealRequests(uint256 startIdx, uint256 endIdx) public view returns (RevealRequest[] memory ret) {
-        // return array of planets corresponding to planetIds[startIdx] through planetIds[endIdx - 1]
         ret = new RevealRequest[](endIdx - startIdx);
         for (uint256 i = startIdx; i < endIdx; i++) {
             ret[i - startIdx] = getRevealRequest(getRevealRequestIds(i));
