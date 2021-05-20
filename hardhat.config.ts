@@ -5,6 +5,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
+import "./tasks/compile";
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {

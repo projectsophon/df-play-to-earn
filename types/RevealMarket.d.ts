@@ -24,13 +24,13 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
+    "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
-    "revertIfBadSnarkPerlinFlags(uint256[5],bool)": FunctionFragment;
     "setDarkForestCore(address)": FunctionFragment;
     "setVerifier(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
@@ -43,6 +43,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "claimReveal",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllRevealRequests",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getNRevealRequests",
@@ -81,13 +85,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "revertIfBadSnarkPerlinFlags",
-    values: [
-      [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-      boolean
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setDarkForestCore",
     values: [string]
   ): string;
@@ -106,6 +103,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getAllRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getNRevealRequests",
     data: BytesLike
   ): Result;
@@ -121,10 +122,6 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "requestReveal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "revertIfBadSnarkPerlinFlags",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -226,6 +223,21 @@ export class RevealMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getAllRevealRequests(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+          requester: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          value: BigNumber;
+          paid: boolean;
+        })[]
+      ]
+    >;
+
     getNRevealRequests(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getRevealRequest(
@@ -274,18 +286,6 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    revertIfBadSnarkPerlinFlags(
-      perlinFlags: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
-      checkingBiome: boolean,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     setDarkForestCore(
       _coreAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -321,6 +321,19 @@ export class RevealMarket extends BaseContract {
     location: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  getAllRevealRequests(
+    overrides?: CallOverrides
+  ): Promise<
+    ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+      requester: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      value: BigNumber;
+      paid: boolean;
+    })[]
+  >;
 
   getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -368,18 +381,6 @@ export class RevealMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  revertIfBadSnarkPerlinFlags(
-    perlinFlags: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
-    ],
-    checkingBiome: boolean,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   setDarkForestCore(
     _coreAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -415,6 +416,19 @@ export class RevealMarket extends BaseContract {
       location: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getAllRevealRequests(
+      overrides?: CallOverrides
+    ): Promise<
+      ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        requester: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+        paid: boolean;
+      })[]
+    >;
 
     getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -460,18 +474,6 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    revertIfBadSnarkPerlinFlags(
-      perlinFlags: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
-      checkingBiome: boolean,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     setDarkForestCore(
       _coreAddress: string,
       overrides?: CallOverrides
@@ -515,7 +517,7 @@ export class RevealMarket extends BaseContract {
     >;
 
     RevealRequested(
-      revealer?: null,
+      requester?: null,
       loc?: null,
       x?: null,
       y?: null,
@@ -523,7 +525,7 @@ export class RevealMarket extends BaseContract {
     ): TypedEventFilter<
       [string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
-        revealer: string;
+        requester: string;
         loc: BigNumber;
         x: BigNumber;
         y: BigNumber;
@@ -543,6 +545,8 @@ export class RevealMarket extends BaseContract {
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    getAllRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
     getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -581,18 +585,6 @@ export class RevealMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    revertIfBadSnarkPerlinFlags(
-      perlinFlags: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
-      checkingBiome: boolean,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     setDarkForestCore(
       _coreAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -619,6 +611,10 @@ export class RevealMarket extends BaseContract {
     claimReveal(
       location: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getAllRevealRequests(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getNRevealRequests(
@@ -658,18 +654,6 @@ export class RevealMarket extends BaseContract {
         BigNumberish
       ],
       overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    revertIfBadSnarkPerlinFlags(
-      perlinFlags: [
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish,
-        BigNumberish
-      ],
-      checkingBiome: boolean,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setDarkForestCore(

@@ -39,7 +39,7 @@ abstract contract DarkForestCore {
 }
 
 contract RevealMarket is OwnableUpgradeable {
-    event RevealRequested(address revealer, uint256 loc, uint256 x, uint256 y, uint256 value);
+    event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
 
     Verifier private verifier;
@@ -72,7 +72,7 @@ contract RevealMarket is OwnableUpgradeable {
             revert("verifyRevealProof reverted");
         }
 
-        revertIfBadSnarkPerlinFlags([_input[4], _input[5], _input[6], _input[7], _input[8]], false);
+        _revertIfBadSnarkPerlinFlags([_input[4], _input[5], _input[6], _input[7], _input[8]], false);
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
@@ -144,6 +144,10 @@ contract RevealMarket is OwnableUpgradeable {
         }
     }
 
+    function getAllRevealRequests() public view returns (RevealRequest[] memory) {
+        return bulkGetRevealRequests(0, revealRequestIds.length);
+    }
+
     function setVerifier(address _verifierAddress) public onlyOwner {
         verifier = Verifier(_verifierAddress);
     }
@@ -154,7 +158,11 @@ contract RevealMarket is OwnableUpgradeable {
 
     // if you don't check the public input snark perlin config values, then a player could specify a planet with for example the wrong PLANETHASH_KEY and the SNARK would verify but they'd have created an invalid planet.
     // the zkSNARK verification function checks that the SNARK proof is valid; a valid proof might be "i know the existence of a planet at secret coords with address 0x123456... and mimc key 42". but if this universe's mimc key is 43 this is still an invalid planet, so we have to check that this SNARK proof is a proof for the right mimc key (and spacetype key, perlin length scale, etc.)
-    function revertIfBadSnarkPerlinFlags(uint256[5] memory perlinFlags, bool checkingBiome) public view returns (bool) {
+    function _revertIfBadSnarkPerlinFlags(uint256[5] memory perlinFlags, bool checkingBiome)
+        private
+        view
+        returns (bool)
+    {
         require(perlinFlags[0] == snarkConstants.PLANETHASH_KEY, "bad planethash mimc key");
         if (checkingBiome) {
             require(perlinFlags[1] == snarkConstants.BIOMEBASE_KEY, "bad spacetype mimc key");
