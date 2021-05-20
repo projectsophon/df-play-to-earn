@@ -2,7 +2,8 @@
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 abstract contract Verifier {
     function verifyRevealProof(
@@ -24,7 +25,7 @@ abstract contract DarkForestCore {
     function getRevealedCoords(uint256 locationId) public virtual returns (RevealedCoords memory);
 }
 
-contract RevealMarket is OwnableUpgradeable {
+contract RevealMarket is Ownable, Initializable {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
 
@@ -52,9 +53,7 @@ contract RevealMarket is OwnableUpgradeable {
         bool perlinMirrorX,
         bool perlinMirrorY,
         uint256 perlinLengthScale
-    ) public initializer {
-        __Ownable_init();
-
+    ) public onlyOwner initializer {
         verifier = Verifier(verifierAddress);
         darkForestCore = DarkForestCore(coreAddress);
 

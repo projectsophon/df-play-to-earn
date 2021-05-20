@@ -9,12 +9,20 @@ task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
   const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
 
-  const revealMarket = await hre.upgrades.deployProxy(RevealMarketFactory, [
+  const revealMarket = await RevealMarketFactory.deploy();
+  await revealMarket.deployTransaction.wait();
+
+  const revealReceipt = await revealMarket.initialize(
     VERIFIER_LIBRARY_ADDRESS,
     CORE_CONTRACT_ADDRESS,
-  ]);
-
-  await revealMarket.deployTransaction.wait();
+    hre.PLANETHASH_KEY,
+    hre.SPACETYPE_KEY,
+    hre.BIOMEBASE_KEY,
+    hre.PERLIN_MIRROR_X,
+    hre.PERLIN_MIRROR_Y,
+    hre.PERLIN_LENGTH_SCALE
+  );
+  await revealReceipt.wait();
 
   return revealMarket;
 }

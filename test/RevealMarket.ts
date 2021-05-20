@@ -42,7 +42,10 @@ describe("RevealMarket", function () {
 
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
 
-    revealMarket = (await hre.upgrades.deployProxy(RevealMarketFactory, [
+    revealMarket = await RevealMarketFactory.deploy();
+    await revealMarket.deployTransaction.wait();
+
+    const revealReceipt = await revealMarket.initialize(
       VERIFIER_LIBRARY_ADDRESS,
       CORE_CONTRACT_ADDRESS,
       PLANETHASH_KEY,
@@ -50,9 +53,9 @@ describe("RevealMarket", function () {
       BIOMEBASE_KEY,
       PERLIN_MIRROR_X,
       PERLIN_MIRROR_Y,
-      PERLIN_LENGTH_SCALE,
-    ])) as RevealMarket;
-    await revealMarket.deployTransaction.wait();
+      PERLIN_LENGTH_SCALE
+    );
+    await revealReceipt.wait();
 
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
