@@ -134,7 +134,7 @@ contract RevealMarket is Ownable {
         revealRequests[revealRequest.location] = revealRequest;
 
         emit RevealCancelled(
-            revealed.revealer,
+            revealRequest.requester,
             revealRequest.location,
             revealRequest.x,
             revealRequest.y,
