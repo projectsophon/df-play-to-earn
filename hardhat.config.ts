@@ -6,6 +6,8 @@ import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
 import "./tasks/compile";
+import type { BigNumber } from "ethers";
+import { utils } from "ethers";
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
@@ -18,6 +20,7 @@ declare module "hardhat/types/runtime" {
     CANCELLED_COUNTDOWN_BLOCKS: number;
     PAYOUT_NUMERATOR: number; //uint8
     PAYOUT_DENOMINATOR: number; //uint8
+    REQUEST_MINIMUM: BigNumber;
   }
 }
 
@@ -33,6 +36,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
   env.PAYOUT_NUMERATOR = 9;
   env.PAYOUT_DENOMINATOR = 10;
+  env.REQUEST_MINIMUM = utils.parseEther("1");
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

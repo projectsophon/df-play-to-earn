@@ -46,7 +46,8 @@ describe("RevealMarket", function () {
       current1 + MARKET_CLOSE_INCREASE,
       hre.CANCELLED_COUNTDOWN_BLOCKS,
       hre.PAYOUT_NUMERATOR,
-      hre.PAYOUT_DENOMINATOR
+      hre.PAYOUT_DENOMINATOR,
+      hre.REQUEST_MINIMUM
     );
     await revealMarket.deployTransaction.wait();
 
@@ -231,6 +232,15 @@ describe("RevealMarket", function () {
     expect(await revealMarket.rugPull()).to.changeEtherBalance(deployer, overrides.value);
 
     expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
+  });
+
+  it("Revert on requestReveal when value too low", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther(".1"),
+    };
+
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Request value too low");
   });
 
   it("Revert on requestReveal when market closed", async function () {
