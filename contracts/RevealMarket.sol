@@ -28,9 +28,9 @@ contract RevealMarket is Ownable {
     address public DARK_FOREST_CORE_ADDRESS;
     uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 public CANCELLED_COUNTDOWN_BLOCKS;
+    uint256 public REQUEST_MINIMUM;
     uint8 public PAYOUT_NUMERATOR;
     uint8 public PAYOUT_DENOMINATOR;
-
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -54,7 +54,8 @@ contract RevealMarket is Ownable {
         uint256 _marketClosedCountdownTimestamp,
         uint256 _cancelledCountdownBlocks,
         uint8 _payoutNumerator,
-        uint8 _payoutDenominator
+        uint8 _payoutDenominator,
+        uint256 _requestMinimum
     ) {
         DARK_FOREST_CORE_ADDRESS = _darkForestCoreAddress;
 
@@ -62,6 +63,7 @@ contract RevealMarket is Ownable {
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
         PAYOUT_NUMERATOR = _payoutNumerator;
         PAYOUT_DENOMINATOR = _payoutDenominator;
+        REQUEST_MINIMUM = _requestMinimum;
     }
 
     // At market close, any unwithdrawn funds are swept by us
@@ -75,6 +77,8 @@ contract RevealMarket is Ownable {
         uint256[2] memory _c,
         uint256[9] memory _input
     ) public payable open {
+        require(msg.value >= REQUEST_MINIMUM, "Request value too low");
+
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
         require(possibleRevealRequest.location == 0, "RevealRequest already exists");
 

@@ -13,7 +13,8 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
     hre.CANCELLED_COUNTDOWN_BLOCKS,
     hre.PAYOUT_NUMERATOR,
-    hre.PAYOUT_DENOMINATOR
+    hre.PAYOUT_DENOMINATOR,
+    hre.REQUEST_MINIMUM
   );
   await revealMarket.deployTransaction.wait();
 

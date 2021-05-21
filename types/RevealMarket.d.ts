@@ -27,6 +27,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
     "PAYOUT_DENOMINATOR()": FunctionFragment;
     "PAYOUT_NUMERATOR()": FunctionFragment;
+    "REQUEST_MINIMUM()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "cancelReveal(uint256)": FunctionFragment;
     "claimRefund(uint256)": FunctionFragment;
@@ -59,6 +60,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "PAYOUT_NUMERATOR",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REQUEST_MINIMUM",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -137,6 +142,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "PAYOUT_NUMERATOR",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REQUEST_MINIMUM",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -252,6 +261,8 @@ export class RevealMarket extends BaseContract {
     PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<[number]>;
 
     PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<[number]>;
+
+    REQUEST_MINIMUM(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -417,6 +428,8 @@ export class RevealMarket extends BaseContract {
 
   PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<number>;
 
+  REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
+
   bulkGetRevealRequests(
     startIdx: BigNumberish,
     endIdx: BigNumberish,
@@ -554,6 +567,8 @@ export class RevealMarket extends BaseContract {
     PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<number>;
 
     PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<number>;
+
+    REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -772,6 +787,8 @@ export class RevealMarket extends BaseContract {
 
     PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
+    REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -854,6 +871,8 @@ export class RevealMarket extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    REQUEST_MINIMUM(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
