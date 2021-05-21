@@ -22,9 +22,8 @@ declare module "hardhat/types/runtime" {
     ARCHIVE_RPC_URL: string;
     MARKET_OPEN_FOR_HOURS: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
-    PAYOUT_NUMERATOR: number; //uint8
-    PAYOUT_DENOMINATOR: number; //uint8
     REQUEST_MINIMUM: BigNumber;
+    FEE_PERCENT: number;
   }
 }
 
@@ -38,9 +37,8 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   const oneWeekInHours = 24 * 7;
   env.MARKET_OPEN_FOR_HOURS = oneWeekInHours;
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
-  env.PAYOUT_NUMERATOR = 9;
-  env.PAYOUT_DENOMINATOR = 10;
-  env.REQUEST_MINIMUM = utils.parseEther("1.1");
+  env.REQUEST_MINIMUM = utils.parseEther("1.25");
+  env.FEE_PERCENT = 20;
 
   env.outputDir = path.join(env.config.paths.root, "./plugins/generated/");
 });

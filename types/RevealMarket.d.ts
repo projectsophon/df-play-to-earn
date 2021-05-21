@@ -23,9 +23,8 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
     "CANCELLED_COUNTDOWN_BLOCKS()": FunctionFragment;
+    "FEE_PERCENT()": FunctionFragment;
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
-    "PAYOUT_DENOMINATOR()": FunctionFragment;
-    "PAYOUT_NUMERATOR()": FunctionFragment;
     "REQUEST_MINIMUM()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "cancelReveal(uint256)": FunctionFragment;
@@ -47,15 +46,11 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "FEE_PERCENT",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PAYOUT_DENOMINATOR",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PAYOUT_NUMERATOR",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -129,15 +124,11 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "FEE_PERCENT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PAYOUT_DENOMINATOR",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PAYOUT_NUMERATOR",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -252,13 +243,11 @@ export class RevealMarket extends BaseContract {
   functions: {
     CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    FEE_PERCENT(overrides?: CallOverrides): Promise<[number]>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<[number]>;
-
-    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<[number]>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -282,7 +271,7 @@ export class RevealMarket extends BaseContract {
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
-          value: BigNumber;
+          payout: BigNumber;
           paid: boolean;
           refunded: boolean;
           cancelCompleteBlock: BigNumber;
@@ -302,7 +291,7 @@ export class RevealMarket extends BaseContract {
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
-          value: BigNumber;
+          payout: BigNumber;
           paid: boolean;
           refunded: boolean;
           cancelCompleteBlock: BigNumber;
@@ -343,7 +332,7 @@ export class RevealMarket extends BaseContract {
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
-          value: BigNumber;
+          payout: BigNumber;
           paid: boolean;
           refunded: boolean;
           cancelCompleteBlock: BigNumber;
@@ -355,12 +344,11 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        [BigNumber, BigNumber, BigNumber, number, number] & {
+        [BigNumber, BigNumber, BigNumber, number] & {
           MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
           CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
           REQUEST_MINIMUM: BigNumber;
-          PAYOUT_NUMERATOR: number;
-          PAYOUT_DENOMINATOR: number;
+          FEE_PERCENT: number;
         }
       ]
     >;
@@ -386,7 +374,7 @@ export class RevealMarket extends BaseContract {
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
-          value: BigNumber;
+          payout: BigNumber;
           paid: boolean;
           refunded: boolean;
           cancelCompleteBlock: BigNumber;
@@ -430,13 +418,11 @@ export class RevealMarket extends BaseContract {
 
   CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
 
+  FEE_PERCENT(overrides?: CallOverrides): Promise<number>;
+
   MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<number>;
-
-  PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<number>;
 
   REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -459,7 +445,7 @@ export class RevealMarket extends BaseContract {
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
-      value: BigNumber;
+      payout: BigNumber;
       paid: boolean;
       refunded: boolean;
       cancelCompleteBlock: BigNumber;
@@ -498,7 +484,7 @@ export class RevealMarket extends BaseContract {
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
-      value: BigNumber;
+      payout: BigNumber;
       paid: boolean;
       refunded: boolean;
       cancelCompleteBlock: BigNumber;
@@ -508,12 +494,11 @@ export class RevealMarket extends BaseContract {
   getConstants(
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, number, number] & {
+    [BigNumber, BigNumber, BigNumber, number] & {
       MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
       CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
       REQUEST_MINIMUM: BigNumber;
-      PAYOUT_NUMERATOR: number;
-      PAYOUT_DENOMINATOR: number;
+      FEE_PERCENT: number;
     }
   >;
 
@@ -537,7 +522,7 @@ export class RevealMarket extends BaseContract {
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
-      value: BigNumber;
+      payout: BigNumber;
       paid: boolean;
       refunded: boolean;
       cancelCompleteBlock: BigNumber;
@@ -580,13 +565,11 @@ export class RevealMarket extends BaseContract {
   callStatic: {
     CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FEE_PERCENT(overrides?: CallOverrides): Promise<number>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<number>;
-
-    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<number>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -609,7 +592,7 @@ export class RevealMarket extends BaseContract {
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
         paid: boolean;
         refunded: boolean;
         cancelCompleteBlock: BigNumber;
@@ -648,7 +631,7 @@ export class RevealMarket extends BaseContract {
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
         paid: boolean;
         refunded: boolean;
         cancelCompleteBlock: BigNumber;
@@ -658,12 +641,11 @@ export class RevealMarket extends BaseContract {
     getConstants(
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, number, number] & {
+      [BigNumber, BigNumber, BigNumber, number] & {
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
         CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
         REQUEST_MINIMUM: BigNumber;
-        PAYOUT_NUMERATOR: number;
-        PAYOUT_DENOMINATOR: number;
+        FEE_PERCENT: number;
       }
     >;
 
@@ -687,7 +669,7 @@ export class RevealMarket extends BaseContract {
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
         paid: boolean;
         refunded: boolean;
         cancelCompleteBlock: BigNumber;
@@ -809,13 +791,11 @@ export class RevealMarket extends BaseContract {
   estimateGas: {
     CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FEE_PERCENT(overrides?: CallOverrides): Promise<BigNumber>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
-
-    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -890,15 +870,11 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    FEE_PERCENT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    PAYOUT_DENOMINATOR(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
