@@ -71,7 +71,7 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
     const payout = overrides.value
       .mul(hre.ethers.BigNumber.from(hre.PAYOUT_NUMERATOR))
@@ -90,7 +90,7 @@ describe("RevealMarket", function () {
 
   it("Reverts on invalid RevealProof", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestTx = revealMarket.requestReveal(...invalidRevealProof, overrides);
@@ -100,7 +100,7 @@ describe("RevealMarket", function () {
 
   it("Reverts on garbage RevealProof", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
     const revealRequestTx = revealMarket.requestReveal(...garbageRevealProof, overrides);
 
@@ -109,7 +109,7 @@ describe("RevealMarket", function () {
 
   it("Revert on valid RevealProof generated for the wrong universe", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
     const revealRequestTx = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
@@ -117,7 +117,7 @@ describe("RevealMarket", function () {
 
   it("Reverts if a RevealRequest already exists for a planet", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -132,7 +132,7 @@ describe("RevealMarket", function () {
     await revealPlanetReceipt.wait();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
@@ -148,7 +148,7 @@ describe("RevealMarket", function () {
 
   it("Revert on claimReveal if location has not been revealed", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -162,7 +162,7 @@ describe("RevealMarket", function () {
 
   it("Revert on claimReveal if amount has already been claimed", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -182,7 +182,7 @@ describe("RevealMarket", function () {
 
   it("Emits RevealCollected and makes payment to revealer after request has been claimed and cancel not completed", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
     const payout = overrides.value
       .mul(hre.ethers.BigNumber.from(hre.PAYOUT_NUMERATOR))
@@ -219,7 +219,7 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
@@ -244,7 +244,7 @@ describe("RevealMarket", function () {
 
   it("Revert on requestReveal when market closed", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
@@ -256,7 +256,7 @@ describe("RevealMarket", function () {
 
   it("Revert on claimReveal when market closed", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -276,7 +276,7 @@ describe("RevealMarket", function () {
 
   it("Revert on claimReveal when request cancelled countdown has finished", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -302,7 +302,7 @@ describe("RevealMarket", function () {
     // const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -322,7 +322,7 @@ describe("RevealMarket", function () {
 
   it("Revert on claimRefund when countdown not complete", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -342,7 +342,7 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
     const payout = overrides.value
       .mul(hre.ethers.BigNumber.from(hre.PAYOUT_NUMERATOR))
@@ -374,7 +374,7 @@ describe("RevealMarket", function () {
 
   it("Revert on claimRefund if already claimed", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -400,7 +400,7 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -423,7 +423,7 @@ describe("RevealMarket", function () {
   // todo make this 2 when we have another valid reveal proof
   it("Returns total number of all RevealRequests from getNRevealRequests", async function () {
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
@@ -438,7 +438,7 @@ describe("RevealMarket", function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
+      value: hre.ethers.utils.parseEther("1.1"),
     };
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
