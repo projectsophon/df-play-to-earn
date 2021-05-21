@@ -25,14 +25,14 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256 cancelCompleteBlock
     );
 
-    DarkForestCore private darkForestCore;
+    DarkForestCore private immutable darkForestCore;
 
     /* solhint-disable var-name-mixedcase */
-    uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
-    uint256 public CANCELLED_COUNTDOWN_BLOCKS;
-    uint256 public REQUEST_MINIMUM;
-    uint8 public PAYOUT_NUMERATOR;
-    uint8 public PAYOUT_DENOMINATOR;
+    uint256 public immutable MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
+    uint256 public immutable CANCELLED_COUNTDOWN_BLOCKS;
+    uint256 public immutable REQUEST_MINIMUM;
+    uint8 public immutable PAYOUT_NUMERATOR;
+    uint8 public immutable PAYOUT_DENOMINATOR;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -44,16 +44,15 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         _;
     }
 
-    // give a 10 block confirmation window so we couldn't front run any last withdraws
     modifier closed() {
         // solhint-disable-next-line not-rely-on-time
-        require(block.timestamp >= MARKET_CLOSE_COUNTDOWN_TIMESTAMP + 10, "Marketplace is still open");
+        require(block.timestamp >= MARKET_CLOSE_COUNTDOWN_TIMESTAMP, "Marketplace is still open");
         _;
     }
 
     constructor(
         address _darkForestCoreAddress,
-        uint256 _marketClosedCountdownTimestamp,
+        uint256 _marketOpenForHours,
         uint256 _cancelledCountdownBlocks,
         uint8 _payoutNumerator,
         uint8 _payoutDenominator,
@@ -61,7 +60,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     ) {
         darkForestCore = DarkForestCore(_darkForestCoreAddress);
 
-        MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
+        MARKET_CLOSE_COUNTDOWN_TIMESTAMP = block.timestamp + (_marketOpenForHours * 1 hours);
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
         PAYOUT_NUMERATOR = _payoutNumerator;
         PAYOUT_DENOMINATOR = _payoutDenominator;

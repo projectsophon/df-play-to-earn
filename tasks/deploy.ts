@@ -13,7 +13,7 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
   const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
   const revealMarket = await RevealMarketFactory.deploy(
     CORE_CONTRACT_ADDRESS,
-    hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
+    hre.MARKET_OPEN_FOR_HOURS,
     hre.CANCELLED_COUNTDOWN_BLOCKS,
     hre.PAYOUT_NUMERATOR,
     hre.PAYOUT_DENOMINATOR,
