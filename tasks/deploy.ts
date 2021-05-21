@@ -8,7 +8,11 @@ task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
   const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-  const revealMarket = await RevealMarketFactory.deploy(CORE_CONTRACT_ADDRESS, hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP);
+  const revealMarket = await RevealMarketFactory.deploy(
+    CORE_CONTRACT_ADDRESS,
+    hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
+    hre.CANCELLED_COUNTDOWN_BLOCKS
+  );
   await revealMarket.deployTransaction.wait();
 
   return revealMarket;

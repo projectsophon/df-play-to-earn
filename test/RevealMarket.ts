@@ -35,21 +35,23 @@ describe("RevealMarket", function () {
       ],
     });
 
+    player1 = await hre.ethers.provider.getSigner(hre.whitelistedPlayer1.address);
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
     const current1 = (await hre.ethers.provider.getBlock("latest")).timestamp;
 
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-    revealMarket = await RevealMarketFactory.deploy(CORE_CONTRACT_ADDRESS, current1 + MARKET_CLOSE_INCREASE);
+    revealMarket = await RevealMarketFactory.deploy(
+      CORE_CONTRACT_ADDRESS,
+      current1 + MARKET_CLOSE_INCREASE,
+      hre.CANCELLED_COUNTDOWN_BLOCKS
+    );
     await revealMarket.deployTransaction.wait();
 
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
       params: [hre.whitelistedPlayer1.address],
     });
-    player1 = await hre.ethers.provider.getSigner(hre.whitelistedPlayer1.address);
-
-    darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
     await piggyBank.sendTransaction({
       to: await player1.getAddress(),
@@ -173,7 +175,7 @@ describe("RevealMarket", function () {
     await expect(claimedReceipt).to.be.revertedWith("RevealRequest has been claimed");
   });
 
-  it("Emits RevealCollected and makes payment to revealer after request has been claimed", async function () {
+  it("Emits RevealCollected and makes payment to revealer after request has been claimed and cancel not completed", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
@@ -184,6 +186,9 @@ describe("RevealMarket", function () {
     const locationID = validRevealProof[3][0];
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
+
+    const cancelReceipt = await revealMarket.cancelReveal(locationID);
+    await cancelReceipt.wait();
 
     const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
     await revealPlanetReceipt.wait();
@@ -215,14 +220,9 @@ describe("RevealMarket", function () {
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    const oldBalance = await deployer.getBalance();
     expect(await revealMarket.rugPull()).to.changeEtherBalance(deployer, overrides.value);
 
-    // types broken https://github.com/EthWorks/Waffle/issues/512
-    expect(await deployer.getBalance()).to.be.closeTo(
-      oldBalance.add(overrides.value) as never,
-      hre.ethers.utils.parseEther(".01") as never
-    );
+    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
   });
 
   it("Revert on requestReveal when market closed", async function () {
@@ -255,6 +255,124 @@ describe("RevealMarket", function () {
 
     const claimedTx = revealMarket.claimReveal(locationID);
     await expect(claimedTx).to.be.revertedWith("Marketplace has closed");
+  });
+
+  it("Revert on claimReveal when request cancelled countdown has finished", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const cancelReceipt = await revealMarket.cancelReveal(locationID);
+    await cancelReceipt.wait();
+
+    for (let i = 0; i <= hre.CANCELLED_COUNTDOWN_BLOCKS; i++) {
+      await hre.ethers.provider.send("evm_mine", []);
+    }
+
+    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
+
+    const claimedTx = revealMarket.connect(player1).claimReveal(locationID);
+    await expect(claimedTx).to.be.revertedWith("RevealRequest was cancelled");
+  });
+
+  it("Emits RevealCancelled when cancelReveal succeeds", async function () {
+    // const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+    // const x = validRevealProof[3][2];
+    // const y = validRevealProof[3][3];
+
+    const cancelTx = await revealMarket.cancelReveal(locationID);
+    await cancelTx.wait();
+
+    //unsure how to get block number for withArgs
+    await expect(cancelTx).to.emit(revealMarket, "RevealCancelled");
+    // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
+  });
+
+  it("Revert on claimRefund when countdown not complete", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const cancelTx = await revealMarket.cancelReveal(locationID);
+    await cancelTx.wait();
+
+    const refundTx = revealMarket.claimRefund(locationID);
+
+    await expect(refundTx).to.be.revertedWith("Cancel countdown not complete");
+  });
+
+  it("Emits RevealRefunded when claimRefund succeeds", async function () {
+    const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+    // const x = validRevealProof[3][2];
+    // const y = validRevealProof[3][3];
+
+    const cancelTx = await revealMarket.cancelReveal(locationID);
+    await cancelTx.wait();
+
+    for (let i = 0; i <= hre.CANCELLED_COUNTDOWN_BLOCKS; i++) {
+      await hre.ethers.provider.send("evm_mine", []);
+    }
+
+    expect(await revealMarket.claimRefund(locationID))
+      .to.changeEtherBalance(deployer, overrides.value)
+      .to.emit(revealMarket, "RevealRefunded");
+    //unsure how to get block number for withArgs
+    // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
+
+    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
+  });
+
+  it("Revert on claimRefund if already claimed", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther("1.0"),
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const cancelTx = await revealMarket.cancelReveal(locationID);
+    await cancelTx.wait();
+
+    for (let i = 0; i <= hre.CANCELLED_COUNTDOWN_BLOCKS; i++) {
+      await hre.ethers.provider.send("evm_mine", []);
+    }
+
+    const refundReceipt = await revealMarket.claimRefund(locationID);
+    await refundReceipt.wait();
+
+    const refundtx = revealMarket.claimRefund(locationID);
+    await expect(refundtx).to.be.revertedWith("RevealRequest was refunded");
   });
 
   it("Returns a single RevealRequest from getRevealRequest when given a valid location", async function () {
