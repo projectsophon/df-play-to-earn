@@ -122,14 +122,6 @@ contract RevealMarket is Ownable {
         require(revealRequest.paid == false, "RevealRequest already claimed");
         require(revealRequest.cancelCompleteBlock == 0, "RevealRequest already cancelled");
 
-        (bool successCoords, bytes memory data) =
-            // solhint-disable-next-line avoid-low-level-calls
-            DARK_FOREST_CORE_ADDRESS.call(abi.encodeWithSignature("getRevealedCoords(uint256)", location));
-        require(successCoords == true, "getRevealedCoords failed");
-
-        RevealedCoords memory revealed = abi.decode(data, (RevealedCoords));
-        require(revealed.locationId == 0, "Planet already revealed");
-
         revealRequest.cancelCompleteBlock = block.number + CANCELLED_COUNTDOWN_BLOCKS;
         revealRequests[revealRequest.location] = revealRequest;
 

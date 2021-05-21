@@ -28,7 +28,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
 
   const oneWeek = 60 * 60 * 24 * 7;
   env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeek) / 1000);
-  env.CANCELLED_COUNTDOWN_BLOCKS = 256;
+  env.CANCELLED_COUNTDOWN_BLOCKS = 512;
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

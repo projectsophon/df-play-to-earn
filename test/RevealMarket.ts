@@ -375,23 +375,6 @@ describe("RevealMarket", function () {
     await expect(refundtx).to.be.revertedWith("RevealRequest was refunded");
   });
 
-  it("Revert on cancelReveal if already revealed", async function () {
-    const overrides = {
-      value: hre.ethers.utils.parseEther("1.0"),
-    };
-
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
-    await revealRequestReceipt.wait();
-
-    const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
-    await revealPlanetReceipt.wait();
-
-    const locationID = validRevealProof[3][0];
-
-    const cancelTx = revealMarket.cancelReveal(locationID);
-    await expect(cancelTx).to.be.revertedWith("Planet already revealed");
-  });
-
   it("Returns a single RevealRequest from getRevealRequest when given a valid location", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
