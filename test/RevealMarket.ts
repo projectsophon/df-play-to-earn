@@ -88,7 +88,7 @@ describe("RevealMarket", function () {
       .withArgs(deployer.address, locationID, x, y, payout);
   });
 
-  it("Reverts on invalid RevealProof", async function () {
+  it("Reverts on requestReveal with invalid RevealProof", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.1"),
     };
@@ -98,7 +98,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
-  it("Reverts on garbage RevealProof", async function () {
+  it("Reverts on requestReveal with garbage RevealProof", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.1"),
     };
@@ -107,7 +107,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
-  it("Revert on valid RevealProof generated for the wrong universe", async function () {
+  it("Revert on requestReveal with valid RevealProof generated for the wrong universe", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.1"),
     };
@@ -115,7 +115,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
-  it("Reverts if a RevealRequest already exists for a planet", async function () {
+  it("Reverts on requestReveal if a RevealRequest already exists for a planet", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.1"),
     };
@@ -127,7 +127,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("RevealRequest already exists");
   });
 
-  it("Reverts if a planet is already revealed", async function () {
+  it("Reverts on requestReveal if a planet is already revealed", async function () {
     const revealPlanetReceipt = await darkForestCore.revealLocation(...validRevealProof);
     await revealPlanetReceipt.wait();
 
