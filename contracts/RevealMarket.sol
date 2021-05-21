@@ -25,11 +25,28 @@ abstract contract DarkForestCore {
 contract RevealMarket is Ownable {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
+    event RevealCancelled(
+        address requester,
+        uint256 loc,
+        uint256 x,
+        uint256 y,
+        uint256 value,
+        uint256 cancelCompleteBlock
+    );
+    event RevealRefunded(
+        address requester,
+        uint256 loc,
+        uint256 x,
+        uint256 y,
+        uint256 value,
+        uint256 cancelCompleteBlock
+    );
 
     DarkForestCore private darkForestCore;
 
     /* solhint-disable var-name-mixedcase */
     uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
+    uint256 public CANCELLED_COUNTDOWN_BLOCKS;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -48,10 +65,15 @@ contract RevealMarket is Ownable {
         _;
     }
 
-    constructor(address coreAddress, uint256 _marketClosedCountdownTimestamp) {
+    constructor(
+        address coreAddress,
+        uint256 _marketClosedCountdownTimestamp,
+        uint256 _cancelledCountdownBlocks
+    ) {
         darkForestCore = DarkForestCore(coreAddress);
 
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
+        CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
     }
 
     // At market close, any unwithdrawn funds are swept by us
@@ -86,7 +108,9 @@ contract RevealMarket is Ownable {
                 x: _input[2],
                 y: _input[3],
                 value: msg.value,
-                paid: false
+                paid: false,
+                refunded: false,
+                cancelCompleteBlock: 0
             });
 
         revealRequests[revealRequest.location] = revealRequest;
@@ -101,10 +125,37 @@ contract RevealMarket is Ownable {
         );
     }
 
+    function cancelReveal(uint256 location) public open {
+        RevealRequest memory revealRequest = revealRequests[location];
+        require(revealRequest.location != 0, "No RevealRequest for that Planet");
+        require(revealRequest.paid == false, "RevealRequest already claimed");
+        require(revealRequest.cancelCompleteBlock == 0, "RevealRequest already cancelled");
+
+        DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
+        require(revealed.locationId == 0, "Planet already revealed");
+
+        revealRequest.cancelCompleteBlock = block.number + CANCELLED_COUNTDOWN_BLOCKS;
+        revealRequests[revealRequest.location] = revealRequest;
+
+        emit RevealCancelled(
+            revealed.revealer,
+            revealRequest.location,
+            revealRequest.x,
+            revealRequest.y,
+            revealRequest.value,
+            revealRequest.cancelCompleteBlock
+        );
+    }
+
     function claimReveal(uint256 location) public open {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
+        require(revealRequest.refunded == false, "RevealRequest was cancelled");
+
+        if (revealRequest.cancelCompleteBlock != 0) {
+            require(block.number <= revealRequest.cancelCompleteBlock, "RevealRequest was cancelled");
+        }
 
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
         require(revealed.locationId != 0, "Planet is not revealed");
@@ -122,6 +173,31 @@ contract RevealMarket is Ownable {
             revealRequest.x,
             revealRequest.y,
             revealRequest.value
+        );
+    }
+
+    function claimRefund(uint256 location) public open {
+        RevealRequest memory revealRequest = revealRequests[location];
+        require(revealRequest.location != 0, "No RevealRequest for that Planet");
+        require(revealRequest.paid == false, "RevealRequest has been claimed");
+        require(revealRequest.cancelCompleteBlock != 0, "RevealRequest not canceled");
+        require(revealRequest.refunded == false, "RevealRequest was refunded");
+        require(block.number > revealRequest.cancelCompleteBlock, "Cancel countdown not complete");
+
+        revealRequest.refunded = true;
+        revealRequests[revealRequest.location] = revealRequest;
+
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = payable(revealRequest.requester).call{value: revealRequest.value}("");
+        require(success, "RevealRequest claim has failed");
+
+        emit RevealRefunded(
+            revealRequest.requester,
+            revealRequest.location,
+            revealRequest.x,
+            revealRequest.y,
+            revealRequest.value,
+            revealRequest.cancelCompleteBlock
         );
     }
 
@@ -158,4 +234,6 @@ struct RevealRequest {
     uint256 y;
     uint256 value;
     bool paid;
+    bool refunded;
+    uint256 cancelCompleteBlock;
 }

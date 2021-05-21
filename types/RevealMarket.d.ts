@@ -22,8 +22,11 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
+    "CANCELLED_COUNTDOWN_BLOCKS()": FunctionFragment;
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
+    "cancelReveal(uint256)": FunctionFragment;
+    "claimRefund(uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
     "getAllRevealRequests()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
@@ -36,12 +39,24 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "CANCELLED_COUNTDOWN_BLOCKS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "bulkGetRevealRequests",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "cancelReveal",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "claimRefund",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "claimReveal",
@@ -90,11 +105,23 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "CANCELLED_COUNTDOWN_BLOCKS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "bulkGetRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "cancelReveal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "claimRefund",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -130,12 +157,16 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
+    "RevealCancelled(address,uint256,uint256,uint256,uint256,uint256)": EventFragment;
     "RevealCollected(address,uint256,uint256,uint256,uint256)": EventFragment;
+    "RevealRefunded(address,uint256,uint256,uint256,uint256,uint256)": EventFragment;
     "RevealRequested(address,uint256,uint256,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevealCancelled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevealCollected"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RevealRefunded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RevealRequested"): EventFragment;
 }
 
@@ -183,6 +214,8 @@ export class RevealMarket extends BaseContract {
   interface: RevealMarketInterface;
 
   functions: {
+    CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -193,25 +226,57 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        ([
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean,
+          boolean,
+          BigNumber
+        ] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
           paid: boolean;
+          refunded: boolean;
+          cancelCompleteBlock: BigNumber;
         })[]
       ] & {
-        ret: ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        ret: ([
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean,
+          boolean,
+          BigNumber
+        ] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
           paid: boolean;
+          refunded: boolean;
+          cancelCompleteBlock: BigNumber;
         })[];
       }
     >;
+
+    cancelReveal(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    claimRefund(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     claimReveal(
       location: BigNumberish,
@@ -222,13 +287,24 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        ([
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean,
+          boolean,
+          BigNumber
+        ] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
           paid: boolean;
+          refunded: boolean;
+          cancelCompleteBlock: BigNumber;
         })[]
       ]
     >;
@@ -240,13 +316,24 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+        [
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean,
+          boolean,
+          BigNumber
+        ] & {
           requester: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
           value: BigNumber;
           paid: boolean;
+          refunded: boolean;
+          cancelCompleteBlock: BigNumber;
         }
       ]
     >;
@@ -285,6 +372,8 @@ export class RevealMarket extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
+
   MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -294,15 +383,36 @@ export class RevealMarket extends BaseContract {
     endIdx: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+    ([
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean,
+      boolean,
+      BigNumber
+    ] & {
       requester: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
       value: BigNumber;
       paid: boolean;
+      refunded: boolean;
+      cancelCompleteBlock: BigNumber;
     })[]
   >;
+
+  cancelReveal(
+    location: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  claimRefund(
+    location: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   claimReveal(
     location: BigNumberish,
@@ -312,13 +422,24 @@ export class RevealMarket extends BaseContract {
   getAllRevealRequests(
     overrides?: CallOverrides
   ): Promise<
-    ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+    ([
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean,
+      boolean,
+      BigNumber
+    ] & {
       requester: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
       value: BigNumber;
       paid: boolean;
+      refunded: boolean;
+      cancelCompleteBlock: BigNumber;
     })[]
   >;
 
@@ -328,13 +449,24 @@ export class RevealMarket extends BaseContract {
     location: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+    [
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean,
+      boolean,
+      BigNumber
+    ] & {
       requester: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
       value: BigNumber;
       paid: boolean;
+      refunded: boolean;
+      cancelCompleteBlock: BigNumber;
     }
   >;
 
@@ -372,6 +504,8 @@ export class RevealMarket extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -381,15 +515,36 @@ export class RevealMarket extends BaseContract {
       endIdx: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+      ([
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean,
+        boolean,
+        BigNumber
+      ] & {
         requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
         value: BigNumber;
         paid: boolean;
+        refunded: boolean;
+        cancelCompleteBlock: BigNumber;
       })[]
     >;
+
+    cancelReveal(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    claimRefund(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     claimReveal(
       location: BigNumberish,
@@ -399,13 +554,24 @@ export class RevealMarket extends BaseContract {
     getAllRevealRequests(
       overrides?: CallOverrides
     ): Promise<
-      ([string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+      ([
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean,
+        boolean,
+        BigNumber
+      ] & {
         requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
         value: BigNumber;
         paid: boolean;
+        refunded: boolean;
+        cancelCompleteBlock: BigNumber;
       })[]
     >;
 
@@ -415,13 +581,24 @@ export class RevealMarket extends BaseContract {
       location: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
+      [
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean,
+        boolean,
+        BigNumber
+      ] & {
         requester: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
         value: BigNumber;
         paid: boolean;
+        refunded: boolean;
+        cancelCompleteBlock: BigNumber;
       }
     >;
 
@@ -464,6 +641,25 @@ export class RevealMarket extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
+    RevealCancelled(
+      requester?: null,
+      loc?: null,
+      x?: null,
+      y?: null,
+      value?: null,
+      cancelCompleteBlock?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
+      {
+        requester: string;
+        loc: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+        cancelCompleteBlock: BigNumber;
+      }
+    >;
+
     RevealCollected(
       collector?: null,
       loc?: null,
@@ -478,6 +674,25 @@ export class RevealMarket extends BaseContract {
         x: BigNumber;
         y: BigNumber;
         value: BigNumber;
+      }
+    >;
+
+    RevealRefunded(
+      requester?: null,
+      loc?: null,
+      x?: null,
+      y?: null,
+      value?: null,
+      cancelCompleteBlock?: null
+    ): TypedEventFilter<
+      [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
+      {
+        requester: string;
+        loc: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        value: BigNumber;
+        cancelCompleteBlock: BigNumber;
       }
     >;
 
@@ -500,6 +715,8 @@ export class RevealMarket extends BaseContract {
   };
 
   estimateGas: {
+    CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -508,6 +725,16 @@ export class RevealMarket extends BaseContract {
       startIdx: BigNumberish,
       endIdx: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    cancelReveal(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    claimRefund(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     claimReveal(
@@ -559,6 +786,10 @@ export class RevealMarket extends BaseContract {
   };
 
   populateTransaction: {
+    CANCELLED_COUNTDOWN_BLOCKS(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -567,6 +798,16 @@ export class RevealMarket extends BaseContract {
       startIdx: BigNumberish,
       endIdx: BigNumberish,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    cancelReveal(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimRefund(
+      location: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     claimReveal(
