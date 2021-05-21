@@ -11,7 +11,9 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
   const revealMarket = await RevealMarketFactory.deploy(
     CORE_CONTRACT_ADDRESS,
     hre.MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
-    hre.CANCELLED_COUNTDOWN_BLOCKS
+    hre.CANCELLED_COUNTDOWN_BLOCKS,
+    hre.PAYOUT_NUMERATOR,
+    hre.PAYOUT_DENOMINATOR
   );
   await revealMarket.deployTransaction.wait();
 

@@ -16,6 +16,8 @@ declare module "hardhat/types/runtime" {
     ARCHIVE_RPC_URL: string;
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
+    PAYOUT_NUMERATOR: number; //uint8
+    PAYOUT_DENOMINATOR: number; //uint8
   }
 }
 
@@ -29,6 +31,8 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   const oneWeek = 60 * 60 * 24 * 7;
   env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeek) / 1000);
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
+  env.PAYOUT_NUMERATOR = 9;
+  env.PAYOUT_DENOMINATOR = 10;
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

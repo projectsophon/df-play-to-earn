@@ -25,6 +25,8 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "CANCELLED_COUNTDOWN_BLOCKS()": FunctionFragment;
     "DARK_FOREST_CORE_ADDRESS()": FunctionFragment;
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
+    "PAYOUT_DENOMINATOR()": FunctionFragment;
+    "PAYOUT_NUMERATOR()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "cancelReveal(uint256)": FunctionFragment;
     "claimRefund(uint256)": FunctionFragment;
@@ -49,6 +51,14 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PAYOUT_DENOMINATOR",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PAYOUT_NUMERATOR",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -119,6 +129,14 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PAYOUT_DENOMINATOR",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PAYOUT_NUMERATOR",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -230,6 +248,10 @@ export class RevealMarket extends BaseContract {
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<[number]>;
+
+    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<[number]>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -391,6 +413,10 @@ export class RevealMarket extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<number>;
+
+  PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<number>;
+
   bulkGetRevealRequests(
     startIdx: BigNumberish,
     endIdx: BigNumberish,
@@ -524,6 +550,10 @@ export class RevealMarket extends BaseContract {
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<number>;
+
+    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<number>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,
@@ -738,6 +768,10 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    PAYOUT_DENOMINATOR(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -814,6 +848,12 @@ export class RevealMarket extends BaseContract {
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    PAYOUT_DENOMINATOR(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    PAYOUT_NUMERATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     bulkGetRevealRequests(
       startIdx: BigNumberish,

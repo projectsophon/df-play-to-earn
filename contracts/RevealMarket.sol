@@ -28,6 +28,9 @@ contract RevealMarket is Ownable {
     address public DARK_FOREST_CORE_ADDRESS;
     uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 public CANCELLED_COUNTDOWN_BLOCKS;
+    uint8 public PAYOUT_NUMERATOR;
+    uint8 public PAYOUT_DENOMINATOR;
+
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -49,12 +52,16 @@ contract RevealMarket is Ownable {
     constructor(
         address _darkForestCoreAddress,
         uint256 _marketClosedCountdownTimestamp,
-        uint256 _cancelledCountdownBlocks
+        uint256 _cancelledCountdownBlocks,
+        uint8 _payoutNumerator,
+        uint8 _payoutDenominator
     ) {
         DARK_FOREST_CORE_ADDRESS = _darkForestCoreAddress;
 
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
+        PAYOUT_NUMERATOR = _payoutNumerator;
+        PAYOUT_DENOMINATOR = _payoutDenominator;
     }
 
     // At market close, any unwithdrawn funds are swept by us
@@ -107,13 +114,9 @@ contract RevealMarket is Ownable {
         revealRequests[revealRequest.location] = revealRequest;
         revealRequestIds.push(revealRequest.location);
 
-        emit RevealRequested(
-            revealRequest.requester,
-            revealRequest.location,
-            revealRequest.x,
-            revealRequest.y,
-            revealRequest.value
-        );
+        uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
+
+        emit RevealRequested(revealRequest.requester, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
     function cancelReveal(uint256 location) public open {
@@ -156,17 +159,13 @@ contract RevealMarket is Ownable {
         revealRequest.paid = true;
         revealRequests[revealRequest.location] = revealRequest;
 
+        uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
+
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = payable(revealed.revealer).call{value: revealRequest.value}("");
+        (bool success, ) = payable(revealed.revealer).call{value: payout}("");
         require(success, "RevealRequest claim has failed");
 
-        emit RevealCollected(
-            revealed.revealer,
-            revealRequest.location,
-            revealRequest.x,
-            revealRequest.y,
-            revealRequest.value
-        );
+        emit RevealCollected(revealed.revealer, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
     function claimRefund(uint256 location) public open {
@@ -180,8 +179,10 @@ contract RevealMarket is Ownable {
         revealRequest.refunded = true;
         revealRequests[revealRequest.location] = revealRequest;
 
+        uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
+
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = payable(revealRequest.requester).call{value: revealRequest.value}("");
+        (bool success, ) = payable(revealRequest.requester).call{value: payout}("");
         require(success, "RevealRequest claim has failed");
 
         emit RevealRefunded(
@@ -189,7 +190,7 @@ contract RevealMarket is Ownable {
             revealRequest.location,
             revealRequest.x,
             revealRequest.y,
-            revealRequest.value,
+            payout,
             revealRequest.cancelCompleteBlock
         );
     }
