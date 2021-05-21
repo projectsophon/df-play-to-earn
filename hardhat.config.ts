@@ -31,8 +31,8 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   };
   env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
 
-  const oneWeek = 60 * 60 * 24 * 7;
-  env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeek) / 1000);
+  const oneWeekInMs = 1000 * 60 * 60 * 24 * 7;
+  env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeekInMs) / 1000);
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
   env.PAYOUT_NUMERATOR = 9;
   env.PAYOUT_DENOMINATOR = 10;
