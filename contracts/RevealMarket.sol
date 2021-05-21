@@ -3,8 +3,9 @@ pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract RevealMarket is Ownable {
+contract RevealMarket is Ownable, ReentrancyGuard {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCancelled(
@@ -76,7 +77,7 @@ contract RevealMarket is Ownable {
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
-    ) public payable open {
+    ) public payable open nonReentrant {
         require(msg.value >= REQUEST_MINIMUM, "Request value too low");
 
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
@@ -123,7 +124,7 @@ contract RevealMarket is Ownable {
         emit RevealRequested(revealRequest.requester, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
-    function cancelReveal(uint256 location) public open {
+    function cancelReveal(uint256 location) public open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest already claimed");
@@ -142,7 +143,7 @@ contract RevealMarket is Ownable {
         );
     }
 
-    function claimReveal(uint256 location) public open {
+    function claimReveal(uint256 location) public open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
@@ -172,7 +173,7 @@ contract RevealMarket is Ownable {
         emit RevealCollected(revealed.revealer, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
-    function claimRefund(uint256 location) public open {
+    function claimRefund(uint256 location) public open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
