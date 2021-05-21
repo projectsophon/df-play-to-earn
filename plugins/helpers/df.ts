@@ -3,11 +3,8 @@ import type { Planet, LocationId, EthAddress, WorldCoords } from "@darkforest_et
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
 import type { RevealMarket } from "../../types";
 
-// TODO: Move to generated/ dir
-import contractABI from "../RevealMarketABI";
-
-// TODO: Generate
-const contractAddress = "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c";
+import { REVEAL_MARKET_ABI } from "../generated/abi";
+import { REVEAL_MARKET_ADDRESS } from "../generated/contract";
 
 //@ts-expect-error
 const { LOCATION_REVEAL_COOLDOWN }: { LOCATION_REVEAL_COOLDOWN: number } = ui.getContractConstants();
@@ -42,7 +39,7 @@ export function playerName(address?: EthAddress): string {
 
 export async function getContract(): Promise<RevealMarket> {
   //@ts-expect-error
-  return df.loadContract(contractAddress, contractABI) as Promise<RevealMarket>;
+  return df.loadContract(REVEAL_MARKET_ADDRESS, REVEAL_MARKET_ABI) as Promise<RevealMarket>;
 }
 
 // Re-implemented because DF code is too complicated

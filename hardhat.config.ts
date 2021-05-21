@@ -1,4 +1,8 @@
+import type { BigNumber } from "ethers";
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
+
+import * as path from "path";
+import { utils } from "ethers";
 import { HardhatUserConfig, extendEnvironment, task } from "hardhat/config";
 import "hardhat/types/runtime";
 import "@nomiclabs/hardhat-waffle";
@@ -6,8 +10,6 @@ import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
 import "./tasks/compile";
-import type { BigNumber } from "ethers";
-import { utils } from "ethers";
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
@@ -15,6 +17,8 @@ declare module "hardhat/types/runtime" {
       address: string;
       blockNumber: number;
     };
+    outputDir: string;
+
     ARCHIVE_RPC_URL: string;
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
@@ -37,6 +41,8 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.PAYOUT_NUMERATOR = 9;
   env.PAYOUT_DENOMINATOR = 10;
   env.REQUEST_MINIMUM = utils.parseEther("1");
+
+  env.outputDir = path.join(env.config.paths.root, "./plugins/generated/");
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {

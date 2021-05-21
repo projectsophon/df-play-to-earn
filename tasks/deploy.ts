@@ -1,8 +1,11 @@
-import { task, subtask } from "hardhat/config";
+import type { Contract } from "ethers";
 import type { HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments, HardhatArguments } from "hardhat/types";
+
+import * as path from "path";
+import * as fs from "fs/promises";
+import { task, subtask } from "hardhat/config";
 import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
 import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
-import type { Contract } from "ethers";
 
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
@@ -17,6 +20,13 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     hre.REQUEST_MINIMUM
   );
   await revealMarket.deployTransaction.wait();
+
+  await fs.mkdir(hre.outputDir, { recursive: true });
+
+  const outputPath = path.join(hre.outputDir, "./contract.ts");
+  const template = `export const REVEAL_MARKET_ADDRESS = ${JSON.stringify(revealMarket.address)}`;
+
+  await fs.writeFile(outputPath, template, "utf-8");
 
   return revealMarket;
 }
