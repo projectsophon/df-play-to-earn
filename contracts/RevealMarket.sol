@@ -77,7 +77,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
-    ) public payable open nonReentrant {
+    ) external payable open nonReentrant {
         require(msg.value >= REQUEST_MINIMUM, "Request value too low");
 
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
@@ -124,7 +124,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         emit RevealRequested(revealRequest.requester, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
-    function cancelReveal(uint256 location) public open nonReentrant {
+    function cancelReveal(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest already claimed");
@@ -143,7 +143,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         );
     }
 
-    function claimReveal(uint256 location) public open nonReentrant {
+    function claimReveal(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
@@ -173,7 +173,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         emit RevealCollected(revealed.revealer, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
-    function claimRefund(uint256 location) public open nonReentrant {
+    function claimRefund(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
