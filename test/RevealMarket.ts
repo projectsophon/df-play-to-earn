@@ -44,7 +44,9 @@ describe("RevealMarket", function () {
     revealMarket = await RevealMarketFactory.deploy(
       CORE_CONTRACT_ADDRESS,
       current1 + MARKET_CLOSE_INCREASE,
-      hre.CANCELLED_COUNTDOWN_BLOCKS
+      hre.CANCELLED_COUNTDOWN_BLOCKS,
+      hre.PAYOUT_NUMERATOR,
+      hre.PAYOUT_DENOMINATOR
     );
     await revealMarket.deployTransaction.wait();
 
@@ -71,6 +73,9 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
+    const payout = overrides.value
+      .mul(hre.ethers.BigNumber.from(hre.PAYOUT_NUMERATOR))
+      .div(hre.ethers.BigNumber.from(hre.PAYOUT_DENOMINATOR));
 
     const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
 
@@ -80,7 +85,7 @@ describe("RevealMarket", function () {
 
     await expect(revealRequestTx)
       .to.emit(revealMarket, "RevealRequested")
-      .withArgs(deployer.address, locationID, x, y, overrides.value);
+      .withArgs(deployer.address, locationID, x, y, payout);
   });
 
   it("Reverts on invalid RevealProof", async function () {
@@ -179,6 +184,9 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
+    const payout = overrides.value
+      .mul(hre.ethers.BigNumber.from(hre.PAYOUT_NUMERATOR))
+      .div(hre.ethers.BigNumber.from(hre.PAYOUT_DENOMINATOR));
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
@@ -197,9 +205,9 @@ describe("RevealMarket", function () {
     const claimedReceipt = revealMarket.claimReveal(locationID);
     await expect(claimedReceipt)
       .to.emit(revealMarket, "RevealCollected")
-      .withArgs(await player1.getAddress(), locationID, x, y, overrides.value);
+      .withArgs(await player1.getAddress(), locationID, x, y, payout);
 
-    expect(await player1.getBalance()).to.eq(oldBalance.add(overrides.value));
+    expect(await player1.getBalance()).to.eq(oldBalance.add(payout));
   });
 
   it("Revert on rugPull when market still open", async function () {
@@ -327,6 +335,10 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.ethers.utils.parseEther("1.0"),
     };
+    const payout = overrides.value
+      .mul(hre.ethers.BigNumber.from(hre.PAYOUT_NUMERATOR))
+      .div(hre.ethers.BigNumber.from(hre.PAYOUT_DENOMINATOR));
+    const fee = overrides.value.sub(payout);
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
@@ -343,12 +355,12 @@ describe("RevealMarket", function () {
     }
 
     expect(await revealMarket.claimRefund(locationID))
-      .to.changeEtherBalance(deployer, overrides.value)
+      .to.changeEtherBalance(deployer, payout)
       .to.emit(revealMarket, "RevealRefunded");
     //unsure how to get block number for withArgs
     // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
 
-    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
+    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(fee);
   });
 
   it("Revert on claimRefund if already claimed", async function () {
