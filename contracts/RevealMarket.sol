@@ -3,8 +3,9 @@ pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract RevealMarket is Ownable {
+contract RevealMarket is Ownable, ReentrancyGuard {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
     event RevealCancelled(
@@ -24,8 +25,9 @@ contract RevealMarket is Ownable {
         uint256 cancelCompleteBlock
     );
 
+    DarkForestCore private darkForestCore;
+
     /* solhint-disable var-name-mixedcase */
-    address public DARK_FOREST_CORE_ADDRESS;
     uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 public CANCELLED_COUNTDOWN_BLOCKS;
     uint256 public REQUEST_MINIMUM;
@@ -57,7 +59,7 @@ contract RevealMarket is Ownable {
         uint8 _payoutDenominator,
         uint256 _requestMinimum
     ) {
-        DARK_FOREST_CORE_ADDRESS = _darkForestCoreAddress;
+        darkForestCore = DarkForestCore(_darkForestCoreAddress);
 
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
@@ -76,31 +78,21 @@ contract RevealMarket is Ownable {
         uint256[2][2] memory _b,
         uint256[2] memory _c,
         uint256[9] memory _input
-    ) public payable open {
+    ) external payable open nonReentrant {
         require(msg.value >= REQUEST_MINIMUM, "Request value too low");
 
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
         require(possibleRevealRequest.location == 0, "RevealRequest already exists");
 
-        (bool successCheck, ) =
-            // solhint-disable-next-line avoid-low-level-calls
-            DARK_FOREST_CORE_ADDRESS.call(
-                abi.encodeWithSignature(
-                    "checkRevealProof(uint256[2],uint256[2][2],uint256[2],uint256[9])",
-                    _a,
-                    _b,
-                    _c,
-                    _input
-                )
-            );
-        require(successCheck == true, "Invalid reveal proof");
+        try darkForestCore.checkRevealProof(_a, _b, _c, _input) returns (bool success) {
+            // It should NEVER revert here because `checkRevealProof` reverts on all bad values
+            // and only returns if success == true
+            require(success == true, "Disaster with reveal proof");
+        } catch {
+            revert("Invalid reveal proof");
+        }
 
-        (bool successCoords, bytes memory data) =
-            // solhint-disable-next-line avoid-low-level-calls
-            DARK_FOREST_CORE_ADDRESS.call(abi.encodeWithSignature("getRevealedCoords(uint256)", _input[0]));
-        require(successCoords == true, "getRevealedCoords failed");
-
-        RevealedCoords memory revealed = abi.decode(data, (RevealedCoords));
+        DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
 
         RevealRequest memory revealRequest =
@@ -123,7 +115,7 @@ contract RevealMarket is Ownable {
         emit RevealRequested(revealRequest.requester, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
-    function cancelReveal(uint256 location) public open {
+    function cancelReveal(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest already claimed");
@@ -142,7 +134,7 @@ contract RevealMarket is Ownable {
         );
     }
 
-    function claimReveal(uint256 location) public open {
+    function claimReveal(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
@@ -152,12 +144,7 @@ contract RevealMarket is Ownable {
             require(block.number <= revealRequest.cancelCompleteBlock, "RevealRequest was cancelled");
         }
 
-        (bool successCoords, bytes memory data) =
-            // solhint-disable-next-line avoid-low-level-calls
-            DARK_FOREST_CORE_ADDRESS.call(abi.encodeWithSignature("getRevealedCoords(uint256)", location));
-        require(successCoords == true, "getRevealedCoords failed");
-
-        RevealedCoords memory revealed = abi.decode(data, (RevealedCoords));
+        DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(location);
         require(revealed.locationId != 0, "Planet is not revealed");
 
         revealRequest.paid = true;
@@ -172,7 +159,7 @@ contract RevealMarket is Ownable {
         emit RevealCollected(revealed.revealer, revealRequest.location, revealRequest.x, revealRequest.y, payout);
     }
 
-    function claimRefund(uint256 location) public open {
+    function claimRefund(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
         require(revealRequest.paid == false, "RevealRequest has been claimed");
@@ -185,6 +172,7 @@ contract RevealMarket is Ownable {
 
         uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
 
+        // gas future proofing transfer. Call forwards all gas whereas transfer doesnt
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = payable(revealRequest.requester).call{value: payout}("");
         require(success, "RevealRequest claim has failed");
@@ -236,10 +224,20 @@ struct RevealRequest {
     uint256 cancelCompleteBlock;
 }
 
-//todo any way to know this?
-struct RevealedCoords {
-    uint256 locationId;
-    uint256 x;
-    uint256 y;
-    address revealer;
+abstract contract DarkForestCore {
+    struct RevealedCoords {
+        uint256 locationId;
+        uint256 x;
+        uint256 y;
+        address revealer;
+    }
+
+    function checkRevealProof(
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[9] memory input
+    ) public virtual returns (bool);
+
+    function getRevealedCoords(uint256 locationId) public virtual returns (RevealedCoords memory);
 }
