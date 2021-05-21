@@ -186,6 +186,17 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         );
     }
 
+    function getConstants() public view returns (Constants memory) {
+        return
+            Constants({
+                MARKET_CLOSE_COUNTDOWN_TIMESTAMP: MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
+                CANCELLED_COUNTDOWN_BLOCKS: CANCELLED_COUNTDOWN_BLOCKS,
+                PAYOUT_NUMERATOR: PAYOUT_NUMERATOR,
+                PAYOUT_DENOMINATOR: PAYOUT_DENOMINATOR,
+                REQUEST_MINIMUM: REQUEST_MINIMUM
+            });
+    }
+
     function getNRevealRequests() public view returns (uint256) {
         return revealRequestIds.length;
     }
@@ -206,6 +217,16 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     function getAllRevealRequests() public view returns (RevealRequest[] memory) {
         return bulkGetRevealRequests(0, revealRequestIds.length);
     }
+}
+
+struct Constants {
+    /* solhint-disable var-name-mixedcase */
+    uint256 MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
+    uint256 CANCELLED_COUNTDOWN_BLOCKS;
+    uint256 REQUEST_MINIMUM;
+    uint8 PAYOUT_NUMERATOR;
+    uint8 PAYOUT_DENOMINATOR;
+    /* solhint-enable var-name-mixedcase */
 }
 
 struct RevealRequest {

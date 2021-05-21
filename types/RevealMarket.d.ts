@@ -32,6 +32,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "claimRefund(uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
     "getAllRevealRequests()": FunctionFragment;
+    "getConstants()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -79,6 +80,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllRevealRequests",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getConstants",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -157,6 +162,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAllRevealRequests",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getConstants",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -342,6 +351,20 @@ export class RevealMarket extends BaseContract {
       ]
     >;
 
+    getConstants(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [BigNumber, BigNumber, BigNumber, number, number] & {
+          MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
+          CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
+          REQUEST_MINIMUM: BigNumber;
+          PAYOUT_NUMERATOR: number;
+          PAYOUT_DENOMINATOR: number;
+        }
+      ]
+    >;
+
     getNRevealRequests(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getRevealRequest(
@@ -482,6 +505,18 @@ export class RevealMarket extends BaseContract {
     })[]
   >;
 
+  getConstants(
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber, number, number] & {
+      MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
+      CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
+      REQUEST_MINIMUM: BigNumber;
+      PAYOUT_NUMERATOR: number;
+      PAYOUT_DENOMINATOR: number;
+    }
+  >;
+
   getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
   getRevealRequest(
@@ -618,6 +653,18 @@ export class RevealMarket extends BaseContract {
         refunded: boolean;
         cancelCompleteBlock: BigNumber;
       })[]
+    >;
+
+    getConstants(
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber, number, number] & {
+        MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
+        CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
+        REQUEST_MINIMUM: BigNumber;
+        PAYOUT_NUMERATOR: number;
+        PAYOUT_DENOMINATOR: number;
+      }
     >;
 
     getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
@@ -795,6 +842,8 @@ export class RevealMarket extends BaseContract {
 
     getAllRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getConstants(overrides?: CallOverrides): Promise<BigNumber>;
+
     getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRevealRequest(
@@ -877,6 +926,8 @@ export class RevealMarket extends BaseContract {
     getAllRevealRequests(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getConstants(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getNRevealRequests(
       overrides?: CallOverrides
