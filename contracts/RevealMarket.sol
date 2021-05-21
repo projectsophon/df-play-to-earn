@@ -25,14 +25,14 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256 cancelCompleteBlock
     );
 
-    DarkForestCore private darkForestCore;
+    DarkForestCore private immutable darkForestCore;
 
     /* solhint-disable var-name-mixedcase */
-    uint256 public MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
-    uint256 public CANCELLED_COUNTDOWN_BLOCKS;
-    uint256 public REQUEST_MINIMUM;
-    uint8 public PAYOUT_NUMERATOR;
-    uint8 public PAYOUT_DENOMINATOR;
+    uint256 public immutable MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
+    uint256 public immutable CANCELLED_COUNTDOWN_BLOCKS;
+    uint256 public immutable REQUEST_MINIMUM;
+    uint8 public immutable PAYOUT_NUMERATOR;
+    uint8 public immutable PAYOUT_DENOMINATOR;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
