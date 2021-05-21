@@ -220,14 +220,9 @@ describe("RevealMarket", function () {
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    const oldBalance = await deployer.getBalance();
     expect(await revealMarket.rugPull()).to.changeEtherBalance(deployer, overrides.value);
 
-    // types broken https://github.com/EthWorks/Waffle/issues/512
-    expect(await deployer.getBalance()).to.be.closeTo(
-      oldBalance.add(overrides.value) as never,
-      hre.ethers.utils.parseEther(".01") as never
-    );
+    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
   });
 
   it("Revert on requestReveal when market closed", async function () {
