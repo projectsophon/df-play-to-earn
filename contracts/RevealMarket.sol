@@ -191,10 +191,6 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         return revealRequestIds.length;
     }
 
-    function getRevealRequestId(uint256 idx) private view returns (uint256) {
-        return revealRequestIds[idx];
-    }
-
     function getRevealRequest(uint256 location) public view returns (RevealRequest memory) {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
@@ -203,8 +199,8 @@ contract RevealMarket is Ownable, ReentrancyGuard {
 
     function bulkGetRevealRequests(uint256 startIdx, uint256 endIdx) public view returns (RevealRequest[] memory ret) {
         ret = new RevealRequest[](endIdx - startIdx);
-        for (uint256 i = startIdx; i < endIdx; i++) {
-            ret[i - startIdx] = getRevealRequest(getRevealRequestId(i));
+        for (uint256 idx = startIdx; idx < endIdx; idx++) {
+            ret[idx - startIdx] = getRevealRequest(revealRequestIds[idx]);
         }
     }
 
