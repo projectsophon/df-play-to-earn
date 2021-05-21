@@ -44,10 +44,9 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         _;
     }
 
-    // give a 10 block confirmation window so we couldn't front run any last withdraws
     modifier closed() {
         // solhint-disable-next-line not-rely-on-time
-        require(block.timestamp >= MARKET_CLOSE_COUNTDOWN_TIMESTAMP + 10, "Marketplace is still open");
+        require(block.timestamp >= MARKET_CLOSE_COUNTDOWN_TIMESTAMP, "Marketplace is still open");
         _;
     }
 

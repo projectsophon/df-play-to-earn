@@ -10,6 +10,7 @@ import {
   invalidRevealProof,
   garbageRevealProof,
   wrongUniverseRevealProof,
+  MARKET_OPEN_FOR_HOURS,
   MARKET_CLOSE_INCREASE,
 } from "./fixtures";
 
@@ -38,12 +39,10 @@ describe("RevealMarket", function () {
     player1 = await hre.ethers.provider.getSigner(hre.whitelistedPlayer1.address);
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
-    const current1 = (await hre.ethers.provider.getBlock("latest")).timestamp;
-
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
     revealMarket = await RevealMarketFactory.deploy(
       CORE_CONTRACT_ADDRESS,
-      current1 + MARKET_CLOSE_INCREASE,
+      MARKET_OPEN_FOR_HOURS,
       hre.CANCELLED_COUNTDOWN_BLOCKS,
       hre.PAYOUT_NUMERATOR,
       hre.PAYOUT_DENOMINATOR,
