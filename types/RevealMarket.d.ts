@@ -23,6 +23,7 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface RevealMarketInterface extends ethers.utils.Interface {
   functions: {
     "CANCELLED_COUNTDOWN_BLOCKS()": FunctionFragment;
+    "DARK_FOREST_CORE_ADDRESS()": FunctionFragment;
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "cancelReveal(uint256)": FunctionFragment;
@@ -40,6 +41,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   encodeFunctionData(
     functionFragment: "CANCELLED_COUNTDOWN_BLOCKS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "DARK_FOREST_CORE_ADDRESS",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -106,6 +111,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "CANCELLED_COUNTDOWN_BLOCKS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "DARK_FOREST_CORE_ADDRESS",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -215,6 +224,8 @@ export class RevealMarket extends BaseContract {
 
   functions: {
     CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    DARK_FOREST_CORE_ADDRESS(overrides?: CallOverrides): Promise<[string]>;
 
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
@@ -374,6 +385,8 @@ export class RevealMarket extends BaseContract {
 
   CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
 
+  DARK_FOREST_CORE_ADDRESS(overrides?: CallOverrides): Promise<string>;
+
   MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -505,6 +518,8 @@ export class RevealMarket extends BaseContract {
 
   callStatic: {
     CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
+
+    DARK_FOREST_CORE_ADDRESS(overrides?: CallOverrides): Promise<string>;
 
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
@@ -717,6 +732,8 @@ export class RevealMarket extends BaseContract {
   estimateGas: {
     CANCELLED_COUNTDOWN_BLOCKS(overrides?: CallOverrides): Promise<BigNumber>;
 
+    DARK_FOREST_CORE_ADDRESS(overrides?: CallOverrides): Promise<BigNumber>;
+
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -787,6 +804,10 @@ export class RevealMarket extends BaseContract {
 
   populateTransaction: {
     CANCELLED_COUNTDOWN_BLOCKS(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    DARK_FOREST_CORE_ADDRESS(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
