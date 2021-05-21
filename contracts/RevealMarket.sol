@@ -53,7 +53,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
 
     constructor(
         address _darkForestCoreAddress,
-        uint256 _marketClosedCountdownTimestamp,
+        uint256 _marketOpenForHours,
         uint256 _cancelledCountdownBlocks,
         uint8 _payoutNumerator,
         uint8 _payoutDenominator,
@@ -61,7 +61,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     ) {
         darkForestCore = DarkForestCore(_darkForestCoreAddress);
 
-        MARKET_CLOSE_COUNTDOWN_TIMESTAMP = _marketClosedCountdownTimestamp;
+        MARKET_CLOSE_COUNTDOWN_TIMESTAMP = block.timestamp + (_marketOpenForHours * 1 hours);
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
         PAYOUT_NUMERATOR = _payoutNumerator;
         PAYOUT_DENOMINATOR = _payoutDenominator;

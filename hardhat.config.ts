@@ -20,7 +20,7 @@ declare module "hardhat/types/runtime" {
     outputDir: string;
 
     ARCHIVE_RPC_URL: string;
-    MARKET_CLOSE_COUNTDOWN_TIMESTAMP: number;
+    MARKET_OPEN_FOR_HOURS: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
     PAYOUT_NUMERATOR: number; //uint8
     PAYOUT_DENOMINATOR: number; //uint8
@@ -35,8 +35,8 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   };
   env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
 
-  const oneWeekInMs = 1000 * 60 * 60 * 24 * 7;
-  env.MARKET_CLOSE_COUNTDOWN_TIMESTAMP = Math.floor((Date.now() + oneWeekInMs) / 1000);
+  const oneWeekInHours = 24 * 7;
+  env.MARKET_OPEN_FOR_HOURS = oneWeekInHours;
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
   env.PAYOUT_NUMERATOR = 9;
   env.PAYOUT_DENOMINATOR = 10;
