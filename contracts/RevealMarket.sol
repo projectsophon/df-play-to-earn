@@ -31,8 +31,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     uint256 public immutable MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 public immutable CANCELLED_COUNTDOWN_BLOCKS;
     uint256 public immutable REQUEST_MINIMUM;
-    uint8 public immutable PAYOUT_NUMERATOR;
-    uint8 public immutable PAYOUT_DENOMINATOR;
+    uint8 public immutable FEE_PERCENT;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -54,17 +53,15 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         address _darkForestCoreAddress,
         uint256 _marketOpenForHours,
         uint256 _cancelledCountdownBlocks,
-        uint8 _payoutNumerator,
-        uint8 _payoutDenominator,
-        uint256 _requestMinimum
+        uint256 _requestMinimum,
+        uint8 _feePercent
     ) {
         darkForestCore = DarkForestCore(_darkForestCoreAddress);
 
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = block.timestamp + (_marketOpenForHours * 1 hours);
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
-        PAYOUT_NUMERATOR = _payoutNumerator;
-        PAYOUT_DENOMINATOR = _payoutDenominator;
         REQUEST_MINIMUM = _requestMinimum;
+        FEE_PERCENT = _feePercent;
     }
 
     // At market close, any unwithdrawn funds are swept by us
@@ -94,13 +91,16 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
 
+        uint256 fee = ((msg.value * FEE_PERCENT) / 100);
+        uint256 payout = msg.value - fee;
+
         RevealRequest memory revealRequest =
             RevealRequest({
                 requester: msg.sender,
                 location: _input[0],
                 x: _input[2],
                 y: _input[3],
-                value: msg.value,
+                payout: payout,
                 paid: false,
                 refunded: false,
                 cancelCompleteBlock: 0
@@ -109,9 +109,13 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequests[revealRequest.location] = revealRequest;
         revealRequestIds.push(revealRequest.location);
 
-        uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
-
-        emit RevealRequested(revealRequest.requester, revealRequest.location, revealRequest.x, revealRequest.y, payout);
+        emit RevealRequested(
+            revealRequest.requester,
+            revealRequest.location,
+            revealRequest.x,
+            revealRequest.y,
+            revealRequest.payout
+        );
     }
 
     function cancelReveal(uint256 location) external open nonReentrant {
@@ -128,7 +132,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
             revealRequest.location,
             revealRequest.x,
             revealRequest.y,
-            revealRequest.value,
+            revealRequest.payout,
             revealRequest.cancelCompleteBlock
         );
     }
@@ -149,13 +153,17 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequest.paid = true;
         revealRequests[revealRequest.location] = revealRequest;
 
-        uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
-
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = payable(revealed.revealer).call{value: payout}("");
+        (bool success, ) = payable(revealed.revealer).call{value: revealRequest.payout}("");
         require(success, "RevealRequest claim has failed");
 
-        emit RevealCollected(revealed.revealer, revealRequest.location, revealRequest.x, revealRequest.y, payout);
+        emit RevealCollected(
+            revealed.revealer,
+            revealRequest.location,
+            revealRequest.x,
+            revealRequest.y,
+            revealRequest.payout
+        );
     }
 
     function claimRefund(uint256 location) external open nonReentrant {
@@ -169,11 +177,9 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequest.refunded = true;
         revealRequests[revealRequest.location] = revealRequest;
 
-        uint256 payout = (revealRequest.value * PAYOUT_NUMERATOR) / PAYOUT_DENOMINATOR;
-
         // gas future proofing transfer. Call forwards all gas whereas transfer doesnt
         // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = payable(revealRequest.requester).call{value: payout}("");
+        (bool success, ) = payable(revealRequest.requester).call{value: revealRequest.payout}("");
         require(success, "RevealRequest claim has failed");
 
         emit RevealRefunded(
@@ -181,7 +187,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
             revealRequest.location,
             revealRequest.x,
             revealRequest.y,
-            payout,
+            revealRequest.payout,
             revealRequest.cancelCompleteBlock
         );
     }
@@ -191,9 +197,8 @@ contract RevealMarket is Ownable, ReentrancyGuard {
             Constants({
                 MARKET_CLOSE_COUNTDOWN_TIMESTAMP: MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
                 CANCELLED_COUNTDOWN_BLOCKS: CANCELLED_COUNTDOWN_BLOCKS,
-                PAYOUT_NUMERATOR: PAYOUT_NUMERATOR,
-                PAYOUT_DENOMINATOR: PAYOUT_DENOMINATOR,
-                REQUEST_MINIMUM: REQUEST_MINIMUM
+                REQUEST_MINIMUM: REQUEST_MINIMUM,
+                FEE_PERCENT: FEE_PERCENT
             });
     }
 
@@ -224,8 +229,7 @@ struct Constants {
     uint256 MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 CANCELLED_COUNTDOWN_BLOCKS;
     uint256 REQUEST_MINIMUM;
-    uint8 PAYOUT_NUMERATOR;
-    uint8 PAYOUT_DENOMINATOR;
+    uint8 FEE_PERCENT;
     /* solhint-enable var-name-mixedcase */
 }
 
@@ -234,7 +238,7 @@ struct RevealRequest {
     uint256 location;
     uint256 x;
     uint256 y;
-    uint256 value;
+    uint256 payout;
     bool paid;
     bool refunded;
     uint256 cancelCompleteBlock;
