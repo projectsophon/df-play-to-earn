@@ -86,6 +86,16 @@ describe("RevealMarket", function () {
       .withArgs(deployer.address, locationID, x, y, payout);
   });
 
+  it.only("Reverts on requestReveal with Request value too high", async function () {
+    const overrides = {
+      value: hre.ethers.BigNumber.from(Number.MAX_SAFE_INTEGER - 1),
+    };
+
+    const revealRequestTx = revealMarket.requestReveal(...invalidRevealProof, overrides);
+
+    await expect(revealRequestTx).to.be.revertedWith("Request value too high");
+  });
+
   it("Reverts on requestReveal with invalid RevealProof", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,

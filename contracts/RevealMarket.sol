@@ -32,6 +32,8 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     uint256 public immutable CANCELLED_COUNTDOWN_BLOCKS;
     uint256 public immutable REQUEST_MINIMUM;
     uint8 public immutable FEE_PERCENT;
+    // just anything reasonable so when multiplied by percent it cant overflow
+    uint256 public immutable REQUEST_MAXIMUM = 1000000;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -75,6 +77,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256[2] memory _c,
         uint256[9] memory _input
     ) external payable open nonReentrant {
+        require(msg.value <= REQUEST_MAXIMUM, "Request value too high");
         require(msg.value >= REQUEST_MINIMUM, "Request value too low");
 
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];

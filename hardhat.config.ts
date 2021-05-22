@@ -53,6 +53,13 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
 
 const config: HardhatUserConfig = {
   solidity: "0.8.4",
+  networks: {
+    hardhat: {
+      accounts: {
+        accountsBalance: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      },
+    },
+  },
   typechain: {
     outDir: "types",
     target: "ethers-v5",
