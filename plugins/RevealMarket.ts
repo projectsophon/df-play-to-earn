@@ -3,7 +3,7 @@ import { html, render } from "htm/preact";
 import { AppView } from "./views/AppView";
 
 import { getContract } from "./helpers/df";
-import { getRevealRequests, sortByValue } from "./helpers/other";
+import { getRevealRequests, sortByValue, decodeConstants } from "./helpers/other";
 
 class RevealMarketPlugin {
   container: HTMLDivElement | null;
@@ -19,10 +19,12 @@ class RevealMarketPlugin {
     try {
       const contract = await getContract();
 
+      const constants = decodeConstants(await contract.getConstants());
+
       const revealRequests = await getRevealRequests(contract);
       const sortedRequests = sortByValue(revealRequests);
 
-      render(html`<${AppView} contract=${contract} requests=${sortedRequests} />`, container);
+      render(html`<${AppView} contract=${contract} requests=${sortedRequests} constants=${constants} />`, container);
     } catch (err) {
       // TODO: Render error
       console.log("error starting", err);

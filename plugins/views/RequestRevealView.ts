@@ -14,7 +14,9 @@ import {
   planetName,
   getPlanetByLocationId,
 } from "../helpers/df";
-import { requestReveal, RevealRequest } from "../helpers/other";
+import { Constants, feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther } from "../helpers/other";
+import { parseEther } from "@ethersproject/units";
+import { FixedNumber } from "ethers";
 
 const flex = {
   display: "flex",
@@ -37,11 +39,14 @@ const row = {
   margin: "7px 0",
 };
 
-const bottomRow = {
-  ...flex,
-  flex: "1 0",
-  justifyContent: "flex-end",
-  flexDirection: "column",
+const shownStatusMessage = {
+  margin: "auto",
+  height: "24px",
+};
+
+const hiddenStatusMessage = {
+  ...shownStatusMessage,
+  visibility: "hidden",
 };
 
 const paymentInput = {
@@ -69,37 +74,45 @@ type Props = {
   active: boolean;
   contract: RevealMarket;
   revealRequests: RevealRequest[];
+  constants: Constants;
 };
 
-export function RequestRevealView({ active, revealRequests }: Props) {
-  const [pending, setPending] = useState<LocationId | null>(null);
+type StatusMessage = {
+  message: string;
+  color: string;
+  timeout?: number;
+};
 
-  function canRequestReveal(locationId?: LocationId) {
-    if (!locationId) {
-      return false;
-    }
-
-    if (pending) {
-      return false;
-    }
-
-    const planet = getPlanetByLocationId(locationId);
-    if (planet) {
-      return planet.coordsRevealed === false && revealRequests.findIndex((req) => req.location === locationId) === -1;
-    } else {
-      return false;
-    }
+function canRequestReveal(locationId: LocationId, revealRequests: RevealRequest[], pending: LocationId | null) {
+  if (!locationId) {
+    return false;
   }
 
+  if (pending) {
+    return false;
+  }
+
+  const planet = getPlanetByLocationId(locationId);
+  if (planet) {
+    return planet.coordsRevealed === false && revealRequests.findIndex((req) => req.location === locationId) === -1;
+  } else {
+    return false;
+  }
+}
+
+export function RequestRevealView({ active, revealRequests, constants }: Props) {
+  const [pending, setPending] = useState<LocationId | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState(getSelectedLocationId);
   const [balance, setBalance] = useState(getMyBalance);
-  const [canRequest, setCanRequest] = useState(() => canRequestReveal(selectedLocationId));
-  const [xdai, setXdai] = useState("1.0");
-  const [minXdai, setMinXdai] = useState("1.0");
+  const [canRequest, setCanRequest] = useState(() => canRequestReveal(selectedLocationId, revealRequests, pending));
+  const [xdai, setXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
+  const [minXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
 
+  // This explicitly doesn't rerun for `pending` because we want to wait until we get the event from xdai
   useEffect(() => {
-    setCanRequest(canRequestReveal(selectedLocationId));
-  }, [selectedLocationId]);
+    setCanRequest(canRequestReveal(selectedLocationId, revealRequests, pending));
+  }, [selectedLocationId, revealRequests]);
 
   useEffect(() => {
     const sub = subscribeToSelectedLocationId(setSelectedLocationId);
@@ -111,26 +124,61 @@ export function RequestRevealView({ active, revealRequests }: Props) {
     return sub.unsubscribe;
   }, [setBalance]);
 
+  useEffect(() => {
+    let handle: ReturnType<typeof setTimeout>;
+    if (statusMessage?.timeout) {
+      handle = setTimeout(() => setStatusMessage(null), statusMessage.timeout);
+    }
+
+    return () => {
+      if (handle) {
+        clearTimeout(handle);
+      }
+    };
+  }, [statusMessage]);
+
   function onChangeXdai(evt: InputEvent) {
     if (evt.target) {
-      setXdai((evt.target as HTMLInputElement).value);
+      const { value } = evt.target as HTMLInputElement;
+      if (FixedNumber.from(value).subUnsafe(FixedNumber.from(balance)).isNegative()) {
+        setXdai(value);
+      } else {
+        setXdai(`${balance}`);
+      }
     } else {
-      console.log("No event target! How did this happen?");
+      console.error("No event target! How did this happen?");
     }
   }
 
-  // Might not need this with Ivan's fixes
   function onKeyUp(evt: Event) {
     evt.stopPropagation();
+    if (evt.target) {
+      const { value } = evt.target as HTMLInputElement;
+      if (FixedNumber.from(value).subUnsafe(FixedNumber.from(balance)).isNegative()) {
+        setXdai(value);
+      } else {
+        setXdai(`${balance}`);
+      }
+    } else {
+      console.error("No event target! How did this happen?");
+    }
   }
 
-  function onClick() {
+  const totalEther = totalFromEther(xdai, constants.FEE_PERCENT);
+  const feeEther = feeFromEther(totalEther, constants.FEE_PERCENT);
+
+  async function onClick() {
     setCanRequest(false);
+    setStatusMessage({ message: "Sending reveal request... Please wait...", color: "white" });
     setPending(selectedLocationId);
-    requestReveal(selectedLocationId, xdai).then(() => {
+    try {
+      await requestReveal(selectedLocationId, totalEther);
+      setStatusMessage({ message: "Successfully posted reveal request!", color: "#00DC82", timeout: 5000 });
       setPending(null);
-      setCanRequest(canRequestReveal(selectedLocationId));
-    });
+    } catch (err) {
+      setStatusMessage({ message: err.message, color: "#FF6492" });
+      setPending(null);
+    }
   }
 
   return html`
@@ -152,6 +200,7 @@ export function RequestRevealView({ active, revealRequests }: Props) {
             style=${paymentInput}
             value=${xdai}
             min=${minXdai}
+            max=${balance}
             onChange=${onChangeXdai}
             step="0.1"
             onKeyUp=${onKeyUp}
@@ -159,9 +208,20 @@ export function RequestRevealView({ active, revealRequests }: Props) {
           <label>xDai</label>
         </span>
       </div>
-      <div style=${bottomRow}>
-        <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>Request Reveal<//>
+      <div style=${row}>
+        <span>Fee:</span>
+        <span>${feeEther} xDai</span>
       </div>
+      <div style=${row}>
+        <span>Total:</span>
+        <span>${totalEther} xDai</span>
+      </div>
+      <div style=${row}>
+        <span style=${statusMessage ? { ...shownStatusMessage, color: statusMessage.color } : hiddenStatusMessage}
+          >${statusMessage?.message}</span
+        >
+      </div>
+      <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>Request Reveal<//>
     </div>
   `;
 }

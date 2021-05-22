@@ -5,6 +5,7 @@ import type { RevealMarket } from "../../types";
 
 import { REVEAL_MARKET_ABI } from "../generated/abi";
 import { REVEAL_MARKET_ADDRESS } from "../generated/contract";
+import { EMPTY_LOCATION_ID } from "@darkforest_eth/constants";
 
 //@ts-expect-error
 const { LOCATION_REVEAL_COOLDOWN }: { LOCATION_REVEAL_COOLDOWN: number } = ui.getContractConstants();
@@ -58,7 +59,7 @@ export async function revealLocation(x: number, y: number): Promise<void> {
 export function getSelectedLocationId(): LocationId {
   //@ts-expect-error
   const planet = ui.getSelectedPlanet();
-  return planet?.locationId;
+  return planet?.locationId || EMPTY_LOCATION_ID;
 }
 
 export function getMyBalance(): number {

@@ -48,8 +48,10 @@ const revealRequestRow = {
 };
 
 const revealRequestsList = {
+  display: "flex",
+  flexDirection: "column",
   overflow: "scroll",
-  height: "200px",
+  height: "230px",
 };
 
 const warning = {
@@ -66,11 +68,17 @@ const bold = {
   color: "white",
 };
 
+const centered = {
+  margin: "auto",
+};
+
 type Props = {
   active: boolean;
   contract: RevealMarket;
   revealRequests: RevealRequest[];
 };
+
+//df.getNextRevealCountdownInfo()
 
 export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
   const [nextReveal, setNextReveal] = useState(getNextBroadcastAvailableTimestamp);
@@ -84,7 +92,7 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
 
   const rows = revealRequests
     .filter(({ paid }) => !paid)
-    .map(({ location, x, y, value, requester }) => {
+    .map(({ location, x, y, payout, requester }) => {
       function centerPlanet() {
         centerCoords({ x, y });
       }
@@ -101,12 +109,14 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
             <div>
               Reveal <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>
             </div>
-            <div>and receive <span style=${bold}>${value} xDai</span> from ${playerName(requester)}</div>
+            <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
           </div>
           <${Button} onClick=${revealPlanet} enabled=${canReveal}>Reveal<//>
         </div>
       `;
     });
+
+  const message = html`<span style=${centered}>No requests currently.</span>`;
 
   return html`
     <div style=${active ? shown : hidden}>
@@ -114,7 +124,7 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
         <div><span style=${beware}>Beware:</span> You can only reveal once every ${REVEAL_COOLDOWN_HOURS} hours</div>
         <div>Time until your next reveal: <${TimeUntil} timestamp=${nextReveal} ifPassed=${"Now!"} onAvailable=${onAvailable} /></div>
       </div>
-      <div style=${revealRequestsList}>${rows}</div>
+      <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
     </<div>
   `;
 }

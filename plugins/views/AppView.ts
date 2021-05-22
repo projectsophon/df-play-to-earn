@@ -7,7 +7,7 @@ import { locationIdFromDecStr } from "@darkforest_eth/serde";
 import { ViewLink } from "../components/ViewLink";
 import { RequestRevealView } from "./RequestRevealView";
 import { FulfillRequestsView } from "./FulfillRequestsView";
-import { RevealRequest, RawRevealRequest, sortByValue, decodeRevealRequest } from "../helpers/other";
+import { RevealRequest, RawRevealRequest, sortByValue, decodeRevealRequest, Constants } from "../helpers/other";
 
 const flex = {
   display: "flex",
@@ -15,7 +15,7 @@ const flex = {
 };
 
 const viewWrapper = {
-  height: "250px",
+  height: "280px",
 };
 
 enum Views {
@@ -26,9 +26,10 @@ enum Views {
 type Props = {
   contract: RevealMarket;
   requests: RevealRequest[];
+  constants: Constants;
 };
 
-export function AppView({ contract, requests }: Props) {
+export function AppView({ contract, requests, constants }: Props) {
   const [activeView, setActiveView] = useState(Views.FulfillRequests);
   const [revealRequests, setRevealRequests] = useState<RevealRequest[]>(requests);
 
@@ -38,9 +39,9 @@ export function AppView({ contract, requests }: Props) {
       location: RawRevealRequest["location"],
       x: RawRevealRequest["x"],
       y: RawRevealRequest["y"],
-      value: RawRevealRequest["value"]
+      payout: RawRevealRequest["payout"]
     ) {
-      const raw = { requester, location, x, y, value, paid: false } as RawRevealRequest;
+      const raw = { requester, location, x, y, payout, paid: false } as RawRevealRequest;
       const newRequest = decodeRevealRequest(raw);
       setRevealRequests((requests) => sortByValue(requests.concat(newRequest)));
     }
@@ -59,7 +60,7 @@ export function AppView({ contract, requests }: Props) {
       location: RawRevealRequest["location"],
       _x: RawRevealRequest["x"],
       _y: RawRevealRequest["y"],
-      _value: RawRevealRequest["value"]
+      _value: RawRevealRequest["payout"]
     ) {
       const loc = locationIdFromDecStr(location.toString());
       // TODO: Track claimed separately for show/hide
@@ -90,7 +91,12 @@ export function AppView({ contract, requests }: Props) {
         <${ViewLink} active=${requestRevealActive} text="Request a Reveal" onClick=${setRequestRevealActive} />
       </div>
       <div style=${viewWrapper}>
-        <${RequestRevealView} active=${requestRevealActive} contract=${contract} revealRequests=${revealRequests} />
+        <${RequestRevealView}
+          active=${requestRevealActive}
+          contract=${contract}
+          revealRequests=${revealRequests}
+          constants=${constants}
+        />
         <${FulfillRequestsView} active=${fulfillRequestsActive} contract=${contract} revealRequests=${revealRequests} />
       </div>
     </div>
