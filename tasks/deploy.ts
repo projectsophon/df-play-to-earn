@@ -44,6 +44,7 @@ async function deployIntoNode(
       {
         forking: {
           jsonRpcUrl: hre.ARCHIVE_RPC_URL,
+          blockNumber: hre.DEVELOPMENT_BLOCK_NUMBER,
         },
       },
     ],
@@ -58,8 +59,13 @@ async function deployIntoNode(
   console.log(`Deployed contract at: ${revealMarket.address}`);
 
   const [, , piggyBank] = await hre.ethers.getSigners();
-  await piggyBank.sendTransaction({
-    to: hre.whitelistedPlayer1.address,
-    value: hre.ethers.utils.parseEther("1000"),
-  });
+
+  for (const player of hre.players) {
+    if (player.forkFund) {
+      await piggyBank.sendTransaction({
+        to: player.address,
+        value: hre.ethers.utils.parseEther(player.forkFund),
+      });
+    }
+  }
 }

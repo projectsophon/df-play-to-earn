@@ -30,13 +30,13 @@ describe("RevealMarket", function () {
         {
           forking: {
             jsonRpcUrl: hre.ARCHIVE_RPC_URL,
-            blockNumber: hre.whitelistedPlayer1.blockNumber,
+            blockNumber: hre.TEST_BLOCK_NUMBER,
           },
         },
       ],
     });
 
-    player1 = await hre.ethers.provider.getSigner(hre.whitelistedPlayer1.address);
+    player1 = await hre.ethers.provider.getSigner(hre.players[0].address);
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
     const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
@@ -52,7 +52,7 @@ describe("RevealMarket", function () {
 
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
-      params: [hre.whitelistedPlayer1.address],
+      params: [hre.players[0].address],
     });
 
     await piggyBank.sendTransaction({
