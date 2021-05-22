@@ -26,8 +26,8 @@ class RevealMarketPlugin {
 
       render(html`<${AppView} contract=${contract} requests=${sortedRequests} constants=${constants} />`, container);
     } catch (err) {
-      // TODO: Render error
-      console.log("error starting", err);
+      console.error("Error starting RevealRequests plugin.", err);
+      render(html`<div>${err.message}</div>`, this.container);
     }
   }
 

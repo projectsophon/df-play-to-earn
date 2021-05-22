@@ -14,6 +14,7 @@ import {
   revealLocation,
   planetName,
   playerName,
+  getAccount,
 } from "../helpers/df";
 import type { RevealRequest } from "../helpers/other";
 
@@ -51,7 +52,7 @@ const revealRequestsList = {
   display: "flex",
   flexDirection: "column",
   overflow: "scroll",
-  height: "230px",
+  height: "200px",
 };
 
 const warning = {
@@ -72,36 +73,63 @@ const centered = {
   margin: "auto",
 };
 
+const optionsRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  paddingTop: "6px",
+};
+
 type Props = {
   active: boolean;
   contract: RevealMarket;
   revealRequests: RevealRequest[];
 };
 
-//df.getNextRevealCountdownInfo()
-
 export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
   const [nextReveal, setNextReveal] = useState(getNextBroadcastAvailableTimestamp);
 
   const [canReveal, setCanReveal] = useState(() => nextReveal <= Date.now());
+  const [hideMyRequests, setHideMyRequests] = useState(true);
 
   function onAvailable() {
     setNextReveal(getNextBroadcastAvailableTimestamp());
     setCanReveal(true);
   }
 
+  function toggleMyRequests(evt: Event) {
+    if (evt.target) {
+      const { checked } = evt.target as HTMLInputElement;
+      setHideMyRequests(checked);
+    } else {
+      console.error("No event target! How did this happen?");
+    }
+  }
+
   const rows = revealRequests
-    .filter(({ paid }) => !paid)
+    .filter(({ paid, requester }) => {
+      if (paid) {
+        return false;
+      }
+      if (hideMyRequests) {
+        return requester !== getAccount();
+      } else {
+        return true;
+      }
+    })
     .map(({ location, x, y, payout, requester }) => {
       function centerPlanet() {
         centerCoords({ x, y });
       }
       async function revealPlanet() {
         setCanReveal(false);
-        await revealLocation(x, y);
-        await contract.claimReveal(locationIdToDecStr(location));
-        // TODO: When does the player get updated?
-        setNextReveal(getNextBroadcastAvailableTimestamp());
+        try {
+          const nextRevealTimestamp = await revealLocation(x, y);
+          const tx = await contract.claimReveal(locationIdToDecStr(location));
+          await tx.wait();
+          setNextReveal(nextRevealTimestamp);
+        } catch (err) {
+          // TODO: Handle
+        }
       }
       return html`
         <div style=${revealRequestRow} key=${location}>
@@ -125,6 +153,9 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
         <div>Time until your next reveal: <${TimeUntil} timestamp=${nextReveal} ifPassed=${"Now!"} onAvailable=${onAvailable} /></div>
       </div>
       <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
+      <div style=${optionsRow}>
+        <label><input type="checkbox" checked=${hideMyRequests} onChange=${toggleMyRequests} /> Hide my requests</label>
+      </div>
     </<div>
   `;
 }

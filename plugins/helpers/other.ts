@@ -78,9 +78,7 @@ export async function getRevealRequests(contract: RevealMarket): Promise<RevealR
     const revealRequests = rawRevealRequests.map(decodeRevealRequest);
     return revealRequests;
   } catch (err) {
-    // TODO: Handle error better
-    console.error("unable to get reveal requests", err);
-    return [];
+    throw new Error("Unable to load reveal requests. Please reload.");
   }
 }
 

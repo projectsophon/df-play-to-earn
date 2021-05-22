@@ -15,7 +15,6 @@ import {
   getPlanetByLocationId,
 } from "../helpers/df";
 import { Constants, feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther } from "../helpers/other";
-import { parseEther } from "@ethersproject/units";
 import { FixedNumber } from "ethers";
 
 const flex = {
@@ -137,27 +136,33 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
     };
   }, [statusMessage]);
 
+  const maxXdai = minWithoutFee(`${balance}`, constants.FEE_PERCENT);
+
   function onChangeXdai(evt: InputEvent) {
     if (evt.target) {
       const { value } = evt.target as HTMLInputElement;
-      if (FixedNumber.from(value).subUnsafe(FixedNumber.from(balance)).isNegative()) {
+      if (parseFloat(value) < balance) {
         setXdai(value);
       } else {
-        setXdai(`${balance}`);
+        setXdai(maxXdai);
       }
     } else {
       console.error("No event target! How did this happen?");
     }
   }
 
+  // Ivan's fix didn't solve keyup
   function onKeyUp(evt: Event) {
     evt.stopPropagation();
+  }
+
+  function onKeyDown(evt: Event) {
     if (evt.target) {
       const { value } = evt.target as HTMLInputElement;
-      if (FixedNumber.from(value).subUnsafe(FixedNumber.from(balance)).isNegative()) {
+      if (parseFloat(value) < balance) {
         setXdai(value);
       } else {
-        setXdai(`${balance}`);
+        setXdai(maxXdai);
       }
     } else {
       console.error("No event target! How did this happen?");
@@ -200,10 +205,11 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
             style=${paymentInput}
             value=${xdai}
             min=${minXdai}
-            max=${balance}
+            max=${maxXdai}
             onChange=${onChangeXdai}
             step="0.1"
             onKeyUp=${onKeyUp}
+            onKeyDown=${onKeyDown}
           />
           <label>xDai</label>
         </span>

@@ -38,22 +38,35 @@ export function playerName(address?: EthAddress): string {
   return "Unknown";
 }
 
+export function getAccount(): string {
+  //@ts-expect-error
+  return df.account;
+}
+
 export async function getContract(): Promise<RevealMarket> {
   //@ts-expect-error
   return df.loadContract(REVEAL_MARKET_ADDRESS, REVEAL_MARKET_ABI) as Promise<RevealMarket>;
 }
 
-// Re-implemented because DF code is too complicated
-export async function revealLocation(x: number, y: number): Promise<void> {
-  try {
-    //@ts-expect-error
-    const snarkArgs: RevealSnarkContractCallArgs = await df.snarkHelper.getRevealArgs(x, y);
-    // I feel like there's a bug in this
-    //@ts-expect-error
-    await df.contractsAPI.coreContract.revealLocation(...snarkArgs);
-  } catch (err) {
-    console.log(err);
-  }
+export function revealLocation(x: number, y: number): Promise<number> {
+  //@ts-expect-error
+  const location = df.locationFromCoords({ x, y });
+  //@ts-expect-error
+  df.entityStore.addPlanetLocation(location);
+  //@ts-expect-error
+  df.revealLocation(location.hash);
+
+  return new Promise((resolve, reject) => {
+    const handle = setInterval(() => {
+      //@ts-expect-error
+      const revealInfo = df.getNextRevealCountdownInfo();
+      if (!revealInfo.currentlyRevealing) {
+        console.log("debug revealing interval");
+        clearInterval(handle);
+        resolve(getNextBroadcastAvailableTimestamp());
+      }
+    }, 1000);
+  });
 }
 
 export function getSelectedLocationId(): LocationId {
