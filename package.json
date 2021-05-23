@@ -12,7 +12,7 @@
     "lint": "solhint 'contracts/**/*.sol' --max-warnings 0 && eslint .",
     "test": "hardhat compile && hardhat test",
     "format": "prettier --write .",
-    "serve": "node serve.js"
+    "serve": "df-plugin-dev-server"
   },
   "dependencies": {},
   "devDependencies": {
@@ -27,6 +27,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^4.1.0",
     "@openzeppelin/hardhat-upgrades": "^1.8.2",
+    "@projectsophon/df-plugin-dev-server": "^1.0.1",
     "@projectsophon/eslint-config": "0.0.2",
     "@projectsophon/prettier-config": "0.0.0",
     "@projectsophon/tsconfig": "^0.0.0",
@@ -37,7 +38,6 @@
     "@types/node": "^15.3.0",
     "big-integer": "^1.6.48",
     "chai": "^4.3.4",
-    "esbuild": "^0.12.0",
     "eslint": "^7.26.0",
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
