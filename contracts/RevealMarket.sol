@@ -60,6 +60,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     ) {
         darkForestCore = DarkForestCore(_darkForestCoreAddress);
 
+        // solhint-disable-next-line not-rely-on-time
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = block.timestamp + (_marketOpenForHours * 1 hours);
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
         REQUEST_MINIMUM = _requestMinimum;

@@ -10,7 +10,7 @@ import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
 import "./tasks/compile";
-import { assert } from "console";
+import * as assert from "assert";
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
@@ -42,7 +42,8 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.REQUEST_MINIMUM = utils.parseEther("1.25");
   env.REQUEST_MAXIMUM = utils.parseEther("1000000"); // anything less than max/100
   env.FEE_PERCENT = 20;
-  assert(env.FEE_PERCENT < 100);
+
+  assert.ok(env.FEE_PERCENT < 100);
 
   env.outputDir = path.join(env.config.paths.root, "./plugins/generated/");
 });
