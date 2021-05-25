@@ -10,6 +10,7 @@ import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
 import "./tasks/compile";
+import { assert } from "console";
 
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
@@ -23,6 +24,7 @@ declare module "hardhat/types/runtime" {
     MARKET_OPEN_FOR_HOURS: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
     REQUEST_MINIMUM: BigNumber;
+    REQUEST_MAXIMUM: BigNumber;
     FEE_PERCENT: number;
   }
 }
@@ -38,7 +40,9 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.MARKET_OPEN_FOR_HOURS = oneWeekInHours;
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
   env.REQUEST_MINIMUM = utils.parseEther("1.25");
+  env.REQUEST_MAXIMUM = utils.parseEther("1000000"); // anything less than max/100
   env.FEE_PERCENT = 20;
+  assert(env.FEE_PERCENT < 100);
 
   env.outputDir = path.join(env.config.paths.root, "./plugins/generated/");
 });

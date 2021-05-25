@@ -16,6 +16,7 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     hre.MARKET_OPEN_FOR_HOURS,
     hre.CANCELLED_COUNTDOWN_BLOCKS,
     hre.REQUEST_MINIMUM,
+    hre.REQUEST_MAXIMUM,
     hre.FEE_PERCENT
   );
   await revealMarket.deployTransaction.wait();

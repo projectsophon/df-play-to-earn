@@ -31,9 +31,8 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     uint256 public immutable MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 public immutable CANCELLED_COUNTDOWN_BLOCKS;
     uint256 public immutable REQUEST_MINIMUM;
+    uint256 public immutable REQUEST_MAXIMUM;
     uint8 public immutable FEE_PERCENT;
-    // just anything reasonable so when multiplied by percent it cant overflow
-    uint256 public immutable REQUEST_MAXIMUM = 1000000;
     /* solhint-enable var-name-mixedcase */
 
     mapping(uint256 => RevealRequest) private revealRequests;
@@ -56,6 +55,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256 _marketOpenForHours,
         uint256 _cancelledCountdownBlocks,
         uint256 _requestMinimum,
+        uint256 _requestMaximum,
         uint8 _feePercent
     ) {
         darkForestCore = DarkForestCore(_darkForestCoreAddress);
@@ -63,6 +63,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = block.timestamp + (_marketOpenForHours * 1 hours);
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
         REQUEST_MINIMUM = _requestMinimum;
+        REQUEST_MAXIMUM = _requestMaximum;
         FEE_PERCENT = _feePercent;
     }
 
