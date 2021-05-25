@@ -25,6 +25,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "CANCELLED_COUNTDOWN_BLOCKS()": FunctionFragment;
     "FEE_PERCENT()": FunctionFragment;
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
+    "REQUEST_MAXIMUM()": FunctionFragment;
     "REQUEST_MINIMUM()": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "cancelReveal(uint256)": FunctionFragment;
@@ -51,6 +52,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REQUEST_MAXIMUM",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -129,6 +134,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "MARKET_CLOSE_COUNTDOWN_TIMESTAMP",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REQUEST_MAXIMUM",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -248,6 +257,8 @@ export class RevealMarket extends BaseContract {
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    REQUEST_MAXIMUM(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -424,6 +435,8 @@ export class RevealMarket extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  REQUEST_MAXIMUM(overrides?: CallOverrides): Promise<BigNumber>;
+
   REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
   bulkGetRevealRequests(
@@ -570,6 +583,8 @@ export class RevealMarket extends BaseContract {
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    REQUEST_MAXIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -797,6 +812,8 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    REQUEST_MAXIMUM(overrides?: CallOverrides): Promise<BigNumber>;
+
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
     bulkGetRevealRequests(
@@ -875,6 +892,8 @@ export class RevealMarket extends BaseContract {
     MARKET_CLOSE_COUNTDOWN_TIMESTAMP(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    REQUEST_MAXIMUM(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

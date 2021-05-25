@@ -45,6 +45,7 @@ describe("RevealMarket", function () {
       MARKET_OPEN_FOR_HOURS,
       hre.CANCELLED_COUNTDOWN_BLOCKS,
       hre.REQUEST_MINIMUM,
+      hre.REQUEST_MAXIMUM,
       hre.FEE_PERCENT
     );
     await revealMarket.deployTransaction.wait();
@@ -84,6 +85,16 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx)
       .to.emit(revealMarket, "RevealRequested")
       .withArgs(deployer.address, locationID, x, y, payout);
+  });
+
+  it("Reverts on requestReveal with Request value too high", async function () {
+    const overrides = {
+      value: hre.REQUEST_MAXIMUM.add(hre.ethers.BigNumber.from(1)),
+    };
+
+    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+
+    await expect(revealRequestTx).to.be.revertedWith("Request value too high");
   });
 
   it("Reverts on requestReveal with invalid RevealProof", async function () {

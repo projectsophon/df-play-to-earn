@@ -31,6 +31,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     uint256 public immutable MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 public immutable CANCELLED_COUNTDOWN_BLOCKS;
     uint256 public immutable REQUEST_MINIMUM;
+    uint256 public immutable REQUEST_MAXIMUM;
     uint8 public immutable FEE_PERCENT;
     /* solhint-enable var-name-mixedcase */
 
@@ -54,13 +55,16 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256 _marketOpenForHours,
         uint256 _cancelledCountdownBlocks,
         uint256 _requestMinimum,
+        uint256 _requestMaximum,
         uint8 _feePercent
     ) {
         darkForestCore = DarkForestCore(_darkForestCoreAddress);
 
+        // solhint-disable-next-line not-rely-on-time
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP = block.timestamp + (_marketOpenForHours * 1 hours);
         CANCELLED_COUNTDOWN_BLOCKS = _cancelledCountdownBlocks;
         REQUEST_MINIMUM = _requestMinimum;
+        REQUEST_MAXIMUM = _requestMaximum;
         FEE_PERCENT = _feePercent;
     }
 
@@ -75,6 +79,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256[2] memory _c,
         uint256[9] memory _input
     ) external payable open nonReentrant {
+        require(msg.value <= REQUEST_MAXIMUM, "Request value too high");
         require(msg.value >= REQUEST_MINIMUM, "Request value too low");
 
         RevealRequest memory possibleRevealRequest = revealRequests[_input[0]];
