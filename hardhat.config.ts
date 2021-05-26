@@ -12,15 +12,20 @@ import "./tasks/deploy";
 import "./tasks/compile";
 import * as assert from "assert";
 
+interface Player {
+  address: string;
+  forkFund: string;
+}
+
 declare module "hardhat/types/runtime" {
   interface HardhatRuntimeEnvironment {
-    whitelistedPlayer1: {
-      address: string;
-      blockNumber: number;
-    };
+    players: Player[];
     outputDir: string;
 
     ARCHIVE_RPC_URL: string;
+    TEST_BLOCK_NUMBER: number;
+    DEVELOPMENT_BLOCK_NUMBER: number;
+
     MARKET_OPEN_FOR_HOURS: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
     REQUEST_MINIMUM: BigNumber;
@@ -30,22 +35,38 @@ declare module "hardhat/types/runtime" {
 }
 
 extendEnvironment((env: HardhatRuntimeEnvironment) => {
-  env.whitelistedPlayer1 = {
-    address: "0xe0a0a42dE89C695CFfEe76C50C3Da710BB22C112",
-    blockNumber: 16154883, // game created and user whitelisted and abi updated
-  };
-  env.ARCHIVE_RPC_URL = "https://xdai-archive.blockscout.com";
+  // Forking setup
+  env.ARCHIVE_RPC_URL = "https://xdai-archive-df.xdaichain.com";
+  env.TEST_BLOCK_NUMBER = 16154883; // Game created and user whitelisted and abi updated
+  env.DEVELOPMENT_BLOCK_NUMBER = 16177426; // Further along in the game
 
+  env.players = [
+    // the tests use players[0] who needs to be a whitelisted user
+    {
+      address: "0xe0a0a42dE89C695CFfEe76C50C3Da710BB22C112",
+      // lets give our player some free money
+      forkFund: "100",
+    },
+    // you could add more players here if you need to fund more players
+  ];
+
+  // Marketplace contract setup
   const oneWeekInHours = 24 * 7;
   env.MARKET_OPEN_FOR_HOURS = oneWeekInHours;
+  // The timeout countdown after which the RevealRequest is successfuly cancelled
+  // and users can no longer reveal AND/OR collect their reward!
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
+  // The minimum allowable Reveal offer value (fee included)
   env.REQUEST_MINIMUM = utils.parseEther("1.25");
   env.REQUEST_MAXIMUM = utils.parseEther("1000000"); // anything less than max/100
+  // The listing fee to the marketplace. Fee is NOT returned upon successful cancelation.
   env.FEE_PERCENT = 20;
 
-  assert.ok(env.FEE_PERCENT < 100);
-
+  // Plugin setup
   env.outputDir = path.join(env.config.paths.root, "./plugins/generated/");
+
+  // Checks
+  assert.ok(env.FEE_PERCENT < 100);
 });
 
 task("accounts", "Prints the list of accounts", async (args, hre) => {
