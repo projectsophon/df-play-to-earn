@@ -105,6 +105,7 @@ dist
 
 #Hardhat files
 cache
+!cache/hardhat-network-fork/
 artifacts
 
 .openzeppelin

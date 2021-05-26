@@ -15,6 +15,9 @@
     "serve": "df-plugin-dev-server"
   },
   "dependencies": {},
+  "resolutions": {
+    "hardhat": "npm:@phated/hardhat"
+  },
   "devDependencies": {
     "@darkforest_eth/constants": "^6.1.6",
     "@darkforest_eth/contracts": "^6.1.6",

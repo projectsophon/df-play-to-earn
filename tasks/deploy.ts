@@ -43,8 +43,8 @@ async function deployIntoNode(
     params: [
       {
         forking: {
-          jsonRpcUrl: hre.ARCHIVE_RPC_URL,
-          blockNumber: hre.DEVELOPMENT_BLOCK_NUMBER,
+          jsonRpcUrl: hre.config.networks.hardhat.forking?.url,
+          blockNumber: hre.config.networks.hardhat.forking?.blockNumber,
         },
       },
     ],

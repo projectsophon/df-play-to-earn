@@ -35,15 +35,10 @@ declare module "hardhat/types/runtime" {
 }
 
 extendEnvironment((env: HardhatRuntimeEnvironment) => {
-  // Forking setup
-  env.ARCHIVE_RPC_URL = "https://xdai-archive-df.xdaichain.com";
-  env.TEST_BLOCK_NUMBER = 16154883; // Game created and user whitelisted and abi updated
-  env.DEVELOPMENT_BLOCK_NUMBER = 16177426; // Further along in the game
-
   env.players = [
     // the tests use players[0] who needs to be a whitelisted user
     {
-      address: "0xe0a0a42dE89C695CFfEe76C50C3Da710BB22C112",
+      address: "0xa9fcdf168759fbe712a651323b2f98d9ae141215",
       // lets give our player some free money
       forkFund: "100",
     },
@@ -83,6 +78,11 @@ const config: HardhatUserConfig = {
     hardhat: {
       accounts: {
         accountsBalance: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      },
+      forking: {
+        enabled: true,
+        url: "https://xdai-archive.blockscout.com/",
+        blockNumber: 16240564,
       },
     },
   },
