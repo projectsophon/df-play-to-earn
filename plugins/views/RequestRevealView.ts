@@ -1,5 +1,5 @@
 import type { RevealMarket } from "../../types";
-import type { LocationId } from "@darkforest_eth/types";
+import type { LocationId, Planet } from "@darkforest_eth/types";
 
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
@@ -15,7 +15,6 @@ import {
   getPlanetByLocationId,
 } from "../helpers/df";
 import { Constants, feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther } from "../helpers/other";
-import { FixedNumber } from "ethers";
 
 const flex = {
   display: "flex",
@@ -82,8 +81,17 @@ type StatusMessage = {
   timeout?: number;
 };
 
-function canRequestReveal(locationId: LocationId, revealRequests: RevealRequest[], pending: LocationId | null) {
-  if (!locationId) {
+function isRevealed(planet: Planet | undefined) {
+  return planet?.coordsRevealed === true;
+}
+
+function hasPendingRequest(planet: Planet | undefined, revealRequests: RevealRequest[]) {
+  if (!planet) return false;
+  return revealRequests.findIndex((req) => req.location === planet.locationId) !== -1;
+}
+
+function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequest[], pending: LocationId | null) {
+  if (!planet) {
     return false;
   }
 
@@ -91,9 +99,8 @@ function canRequestReveal(locationId: LocationId, revealRequests: RevealRequest[
     return false;
   }
 
-  const planet = getPlanetByLocationId(locationId);
   if (planet) {
-    return planet.coordsRevealed === false && revealRequests.findIndex((req) => req.location === locationId) === -1;
+    return !isRevealed(planet) && !hasPendingRequest(planet, revealRequests);
   } else {
     return false;
   }
@@ -102,16 +109,19 @@ function canRequestReveal(locationId: LocationId, revealRequests: RevealRequest[
 export function RequestRevealView({ active, revealRequests, constants }: Props) {
   const [pending, setPending] = useState<LocationId | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState(getSelectedLocationId);
+
+  const planet = getPlanetByLocationId(selectedLocationId);
+
   const [balance, setBalance] = useState(getMyBalance);
-  const [canRequest, setCanRequest] = useState(() => canRequestReveal(selectedLocationId, revealRequests, pending));
+  const [canRequest, setCanRequest] = useState(() => canRequestReveal(planet, revealRequests, pending));
   const [xdai, setXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
   const [minXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
 
   // This explicitly doesn't rerun for `pending` because we want to wait until we get the event from xdai
   useEffect(() => {
-    setCanRequest(canRequestReveal(selectedLocationId, revealRequests, pending));
-  }, [selectedLocationId, revealRequests]);
+    setCanRequest(canRequestReveal(planet, revealRequests, pending));
+  }, [planet, revealRequests]);
 
   useEffect(() => {
     const sub = subscribeToSelectedLocationId(setSelectedLocationId);
@@ -186,6 +196,19 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
     }
   }
 
+  let btnMessage = "Request Reveal";
+  if (isRevealed(planet)) {
+    btnMessage = "Planet already revealed!";
+  }
+
+  if (hasPendingRequest(planet, revealRequests)) {
+    btnMessage = "Reveal request already exists!";
+  }
+
+  if (pending) {
+    btnMessage = "Requesting...";
+  }
+
   return html`
     <div style=${active ? shown : hidden}>
       <div style=${warning}><span style=${beware}>Beware:</span> You will be spending actual xDai here!</div>
@@ -227,7 +250,7 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
           >${statusMessage?.message}</span
         >
       </div>
-      <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>Request Reveal<//>
+      <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>${btnMessage}<//>
     </div>
   `;
 }
