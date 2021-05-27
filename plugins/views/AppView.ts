@@ -11,7 +11,6 @@ import { RevealRequest, RawRevealRequest, sortByValue, decodeRevealRequest, Cons
 
 const flex = {
   display: "flex",
-  justifyContent: "space-between",
 };
 
 const viewWrapper = {
@@ -19,6 +18,7 @@ const viewWrapper = {
 };
 
 enum Views {
+  CancelRequest,
   RequestReveal,
   FulfillRequests,
 }
@@ -74,9 +74,13 @@ export function AppView({ contract, requests, constants }: Props) {
     };
   }, []);
 
+  const cancelRequestActive = activeView === Views.CancelRequest;
   const requestRevealActive = activeView === Views.RequestReveal;
   const fulfillRequestsActive = activeView === Views.FulfillRequests;
 
+  function setCancelRequestActive() {
+    setActiveView(Views.CancelRequest);
+  }
   function setRequestRevealActive() {
     setActiveView(Views.RequestReveal);
   }
@@ -89,6 +93,7 @@ export function AppView({ contract, requests, constants }: Props) {
       <div style=${flex}>
         <${ViewLink} active=${fulfillRequestsActive} text="Fulfill Requests" onClick=${setFulfillRequestsActive} />
         <${ViewLink} active=${requestRevealActive} text="Request a Reveal" onClick=${setRequestRevealActive} />
+        <${ViewLink} active=${cancelRequestActive} text="Cancel Request" onClick=${setCancelRequestActive} />
       </div>
       <div style=${viewWrapper}>
         <${RequestRevealView}

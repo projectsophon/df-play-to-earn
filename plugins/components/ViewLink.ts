@@ -1,16 +1,21 @@
 import { html } from "htm/preact";
+import { useState } from "preact/hooks";
 
 const viewLink = {
   marginBottom: "10px",
   cursor: "pointer",
+  color: "#a0a0a0",
+  textDecoration: "underline",
+  padding: "4px 8px",
+  borderRadius: "2px",
+  width: "33%",
+  textAlign: "center",
 };
 
 const viewLinkActive = {
   ...viewLink,
-  background: "#4a4a5a",
-  border: "1px solid #a0a0a0",
-  borderRadius: "3px",
-  padding: "0 5px",
+  color: "#080808",
+  backgroundColor: "#00DC82",
 };
 
 const viewLinkInactive = {
@@ -24,5 +29,17 @@ type Props = {
 };
 
 export function ViewLink({ active, text, onClick }: Props) {
-  return html`<div style=${active ? viewLinkActive : viewLinkInactive} onClick=${onClick}>${text}</div>`;
+  const [hovering, setHovering] = useState(false);
+
+  const baseStyle = active ? viewLinkActive : viewLinkInactive;
+  const style = hovering ? { backgroundColor: "#282834", ...baseStyle, color: "#ffffff" } : baseStyle;
+
+  return html`<div
+    style=${style}
+    onClick=${onClick}
+    onMouseOver=${() => setHovering(true)}
+    onMouseOut=${() => setHovering(false)}
+  >
+    ${text}
+  </div>`;
 }
