@@ -48,7 +48,7 @@ export async function getContract(): Promise<RevealMarket> {
   return df.loadContract(REVEAL_MARKET_ADDRESS, REVEAL_MARKET_ABI) as Promise<RevealMarket>;
 }
 
-export function revealLocation(x: number, y: number): Promise<number> {
+export function revealLocation(x: number, y: number): Promise<void> {
   //@ts-expect-error
   const location = df.locationFromCoords({ x, y });
   //@ts-expect-error
@@ -56,14 +56,12 @@ export function revealLocation(x: number, y: number): Promise<number> {
   //@ts-expect-error
   df.revealLocation(location.hash);
 
+  // This is terrible, but we need to do it because DF doesn't give us an await on the function
   return new Promise((resolve, reject) => {
     const handle = setInterval(() => {
-      //@ts-expect-error
-      const revealInfo = df.getNextRevealCountdownInfo();
-      if (!revealInfo.currentlyRevealing) {
-        console.log("debug revealing interval");
+      if (!isCurrentlyRevealing()) {
         clearInterval(handle);
-        resolve(getNextBroadcastAvailableTimestamp());
+        resolve();
       }
     }, 1000);
   });
@@ -97,6 +95,11 @@ export function subscribeToMyBalance(cb: (balance: number) => void): Subscriptio
 export function getNextBroadcastAvailableTimestamp(): number {
   //@ts-expect-error
   return ui.getNextBroadcastAvailableTimestamp();
+}
+
+export function isCurrentlyRevealing(): boolean {
+  //@ts-expect-error
+  return ui.isCurrentlyRevealing();
 }
 
 export function centerCoords(coords: WorldCoords): void {

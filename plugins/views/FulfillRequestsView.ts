@@ -15,6 +15,7 @@ import {
   planetName,
   playerName,
   getAccount,
+  isCurrentlyRevealing,
 } from "../helpers/df";
 import type { RevealRequest } from "../helpers/other";
 
@@ -85,16 +86,34 @@ type Props = {
   revealRequests: RevealRequest[];
 };
 
-export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
-  const [nextReveal, setNextReveal] = useState(getNextBroadcastAvailableTimestamp);
+function timeFromNow() {
+  const nextReveal = getNextBroadcastAvailableTimestamp();
+  return nextReveal - Date.now();
+}
 
-  const [canReveal, setCanReveal] = useState(() => nextReveal <= Date.now());
+export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
+  const [waiting, setWaiting] = useState(timeFromNow);
+  const [canReveal, setCanReveal] = useState(() => waiting <= 0);
   const [hideMyRequests, setHideMyRequests] = useState(true);
 
-  function onAvailable() {
-    setNextReveal(getNextBroadcastAvailableTimestamp());
-    setCanReveal(true);
-  }
+  useEffect(() => {
+    let timer = setInterval(() => {
+      if (isCurrentlyRevealing()) {
+        return;
+      }
+      const waiting = timeFromNow();
+      if (waiting <= 0) {
+        setCanReveal(true);
+      }
+      setWaiting(waiting);
+    }, 1000);
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, []);
 
   function toggleMyRequests(evt: Event) {
     if (evt.target) {
@@ -123,10 +142,14 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
       async function revealPlanet() {
         setCanReveal(false);
         try {
-          const nextRevealTimestamp = await revealLocation(x, y);
+          await revealLocation(x, y);
+        } catch (err) {
+          // TODO: Handle
+          return;
+        }
+        try {
           const tx = await contract.claimReveal(locationIdToDecStr(location));
           await tx.wait();
-          setNextReveal(nextRevealTimestamp);
         } catch (err) {
           // TODO: Handle
         }
@@ -150,7 +173,7 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
     <div style=${active ? shown : hidden}>
       <div style=${warning}>
         <div><span style=${beware}>Beware:</span> You can only reveal once every ${REVEAL_COOLDOWN_HOURS} hours</div>
-        <div>Time until your next reveal: <${TimeUntil} timestamp=${nextReveal} ifPassed=${"Now!"} onAvailable=${onAvailable} /></div>
+        <div>Time until your next reveal: <${TimeUntil} timestamp=${waiting} ifPassed=${"Now!"} /></div>
       </div>
       <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
       <div style=${optionsRow}>
