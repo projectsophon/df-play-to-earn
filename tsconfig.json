@@ -1,5 +1,9 @@
 {
   "extends": "@projectsophon/tsconfig",
+  "compilerOptions": {
+    // TODO: Get Typechain to behave correctly
+    "importsNotUsedAsValues": "remove"
+  },
   "include": ["./tasks/**/*.ts", "./test/**/*.ts", "./types/**/*.ts", "./scripts/**/*.ts", "./plugins/**/*.ts"],
   "files": ["./hardhat.config.ts"]
 }
