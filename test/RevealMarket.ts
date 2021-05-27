@@ -223,6 +223,20 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Marketplace is still open");
   });
 
+  it("Revert on rugPull when not called by owner", async function () {
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
+    await hre.ethers.provider.send("evm_mine", []);
+
+    await expect(revealMarket.connect(player1).rugPull()).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
   it("RugPull sweeps all funds after market close", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
