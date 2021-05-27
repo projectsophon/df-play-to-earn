@@ -22,10 +22,6 @@ declare module "hardhat/types/runtime" {
     players: Player[];
     outputDir: string;
 
-    ARCHIVE_RPC_URL: string;
-    TEST_BLOCK_NUMBER: number;
-    DEVELOPMENT_BLOCK_NUMBER: number;
-
     MARKET_OPEN_FOR_HOURS: number;
     CANCELLED_COUNTDOWN_BLOCKS: number;
     REQUEST_MINIMUM: BigNumber;

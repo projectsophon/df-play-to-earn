@@ -49,7 +49,6 @@ async function deployIntoNode(
       },
     ],
   });
-  console.log(`Forked from ${hre.ARCHIVE_RPC_URL}`);
 
   await hre.run("compile");
 
