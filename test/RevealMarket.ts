@@ -241,13 +241,14 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    expect(await revealMarket.rugPull()).to.changeEtherBalance(deployer, overrides.value);
+    const tx = await revealMarket.rugPull();
+    await expect(tx).to.changeEtherBalance(deployer, overrides.value);
 
     expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
   });
