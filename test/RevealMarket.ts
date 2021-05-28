@@ -228,11 +228,8 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
-
-    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
-    await hre.ethers.provider.send("evm_mine", []);
 
     await expect(revealMarket.connect(player1).rugPull()).to.be.revertedWith("Ownable: caller is not the owner");
   });
