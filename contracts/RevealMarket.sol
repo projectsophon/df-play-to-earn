@@ -83,8 +83,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_input[0]);
         require(revealed.locationId == 0, "Planet already revealed");
 
-        uint256 fee = ((msg.value * FEE_PERCENT) / 100);
-        uint256 payout = msg.value - fee;
+        uint256 payout = (100 * msg.value) / (100 + FEE_PERCENT);
 
         RevealRequest memory revealRequest =
             RevealRequest({
@@ -188,12 +187,12 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     }
 
     function getRevealRequestPage(uint256 pageIdx) public view returns (RevealRequest[] memory) {
-      // Page size is 20 items
-      uint256 startIdx = pageIdx * 20;
-      require(startIdx <= revealRequestIds.length, "Page number too high");
-      uint256 pageEnd = startIdx + 20;
-      uint256 endIdx = pageEnd <= revealRequestIds.length ? pageEnd : revealRequestIds.length;
-      return bulkGetRevealRequests(startIdx, endIdx);
+        // Page size is 20 items
+        uint256 startIdx = pageIdx * 20;
+        require(startIdx <= revealRequestIds.length, "Page number too high");
+        uint256 pageEnd = startIdx + 20;
+        uint256 endIdx = pageEnd <= revealRequestIds.length ? pageEnd : revealRequestIds.length;
+        return bulkGetRevealRequests(startIdx, endIdx);
     }
 }
 

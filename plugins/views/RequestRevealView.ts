@@ -14,7 +14,14 @@ import {
   getPlanetByLocationId,
   colors,
 } from "../helpers/df";
-import { feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther, ViewProps } from "../helpers/other";
+import {
+  feeFromEther,
+  minWithoutFee,
+  requestReveal,
+  RevealRequest,
+  sumEtherStrings,
+  ViewProps,
+} from "../helpers/other";
 import { flex, hidden, beware, warning, fullWidth, shown as baseShown } from "../helpers/styles";
 
 const shown = {
@@ -109,8 +116,8 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
     }
   }
 
-  const totalEther = totalFromEther(xdai, constants.FEE_PERCENT);
-  const feeEther = feeFromEther(totalEther, constants.FEE_PERCENT);
+  const feeEther = feeFromEther(xdai, constants.FEE_PERCENT);
+  const totalEther = sumEtherStrings(xdai, feeEther);
 
   async function onClick() {
     setPending(true);
