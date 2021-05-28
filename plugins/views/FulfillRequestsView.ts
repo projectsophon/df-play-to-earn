@@ -16,6 +16,8 @@ import {
   playerName,
   getAccount,
   isCurrentlyRevealing,
+  subscribeToBlockNumber,
+  getBlockNumber,
 } from "../helpers/df";
 import type { RevealRequest } from "../helpers/other";
 
@@ -86,15 +88,59 @@ type Props = {
   revealRequests: RevealRequest[];
 };
 
+type RowProps = {
+  revealRequest: RevealRequest;
+  canReveal: boolean;
+  onReveal: () => Promise<void>;
+};
+
 function timeFromNow() {
   const nextReveal = getNextBroadcastAvailableTimestamp();
   return nextReveal - Date.now();
+}
+
+function Row({ revealRequest, canReveal, onReveal }: RowProps) {
+  const { x, y, location, payout, requester, cancelCompleteBlock } = revealRequest;
+
+  const [remainingBlocks, setRemainingBlocks] = useState(cancelCompleteBlock - getBlockNumber());
+
+  useEffect(() => {
+    const sub = subscribeToBlockNumber((blockNumber) => {
+      setRemainingBlocks(cancelCompleteBlock - blockNumber);
+    });
+
+    return sub.unsubscribe;
+  }, []);
+
+  function centerPlanet() {
+    centerCoords({ x, y });
+  }
+
+  const cancelWarning =
+    cancelCompleteBlock !== 0
+      ? html`<div>
+          <span style=${beware}>Beware:</span> Only available for <span style=${bold}>${remainingBlocks}</span> more
+          blocks.
+        </div>`
+      : "";
+
+  return html`
+    <div style=${revealRequestRow} key=${location}>
+      <div style=${muted}>
+        <div>Reveal <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
+        <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
+        ${cancelWarning}
+      </div>
+      <${Button} onClick=${onReveal} enabled=${canReveal}>Reveal<//>
+    </div>
+  `;
 }
 
 export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
   const [waiting, setWaiting] = useState(timeFromNow);
   const [canReveal, setCanReveal] = useState(() => waiting <= 0);
   const [hideMyRequests, setHideMyRequests] = useState(true);
+  const [hidePendingCancel, setHidePendingCancel] = useState(false);
 
   useEffect(() => {
     let timer = setInterval(() => {
@@ -124,9 +170,25 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
     }
   }
 
+  function togglePendingCancel(evt: Event) {
+    if (evt.target) {
+      const { checked } = evt.target as HTMLInputElement;
+      setHidePendingCancel(checked);
+    } else {
+      console.error("No event target! How did this happen?");
+    }
+  }
+
   const rows = revealRequests
-    .filter(({ paid, requester }) => {
-      if (paid) {
+    .filter(({ paid, refunded, requester, cancelCompleteBlock }) => {
+      if (paid || refunded) {
+        return false;
+      }
+      if (cancelCompleteBlock - getBlockNumber() <= 0) {
+        return false;
+      }
+
+      if (hidePendingCancel && cancelCompleteBlock > getBlockNumber()) {
         return false;
       }
       if (hideMyRequests) {
@@ -135,36 +197,24 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
         return true;
       }
     })
-    .map(({ location, x, y, payout, requester }) => {
-      function centerPlanet() {
-        centerCoords({ x, y });
-      }
+    .map((revealRequest) => {
       async function revealPlanet() {
         setCanReveal(false);
         try {
-          await revealLocation(x, y);
+          await revealLocation(revealRequest.x, revealRequest.y);
         } catch (err) {
           // TODO: Handle
           return;
         }
         try {
-          const tx = await contract.claimReveal(locationIdToDecStr(location));
+          const tx = await contract.claimReveal(locationIdToDecStr(revealRequest.location));
           await tx.wait();
         } catch (err) {
           // TODO: Handle
         }
       }
-      return html`
-        <div style=${revealRequestRow} key=${location}>
-          <div style=${muted}>
-            <div>
-              Reveal <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>
-            </div>
-            <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
-          </div>
-          <${Button} onClick=${revealPlanet} enabled=${canReveal}>Reveal<//>
-        </div>
-      `;
+
+      return html`<${Row} revealRequest=${revealRequest} onReveal=${revealPlanet} canReveal=${canReveal} />`;
     });
 
   const message = html`<span style=${centered}>No requests currently.</span>`;
@@ -178,6 +228,7 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
       <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
       <div style=${optionsRow}>
         <label><input type="checkbox" checked=${hideMyRequests} onChange=${toggleMyRequests} /> Hide my requests</label>
+        <label><input type="checkbox" checked=${hidePendingCancel} onChange=${togglePendingCancel} /> Hide requests pending cancel</label>
       </div>
     </<div>
   `;

@@ -5,7 +5,7 @@ import type { Awaited, EthAddress, LocationId } from "@darkforest_eth/types";
 import bigInt from "big-integer";
 import { LOCATION_ID_UB } from "@darkforest_eth/constants";
 import { parseEther, formatEther } from "@ethersproject/units";
-import { FixedNumber } from "@ethersproject/bignumber";
+import { FixedNumber, BigNumber } from "@ethersproject/bignumber";
 import { locationIdFromDecStr, address } from "@darkforest_eth/serde";
 
 import { getContract, getPlanetByLocationId, revealSnarkArgs } from "./df";
@@ -20,6 +20,8 @@ export type RevealRequest = {
   y: number;
   payout: string;
   paid: boolean;
+  refunded: boolean;
+  cancelCompleteBlock: number;
 };
 
 export type Constants = {
@@ -59,7 +61,32 @@ export function decodeRevealRequest(raw: RawRevealRequest): RevealRequest {
     y: y,
     payout: formatEther(raw.payout.toString()),
     paid: raw.paid,
+    refunded: raw.refunded,
+    cancelCompleteBlock: raw.cancelCompleteBlock.toNumber(),
   };
+}
+
+export function revealRequestFromEvent(
+  requester: RawRevealRequest["requester"],
+  location: RawRevealRequest["location"],
+  x: RawRevealRequest["x"],
+  y: RawRevealRequest["y"],
+  payout: RawRevealRequest["payout"],
+  paid = false,
+  refunded = false,
+  cancelCompleteBlock = BigNumber.from(0)
+): RevealRequest {
+  const raw = {
+    requester,
+    location,
+    x,
+    y,
+    payout,
+    paid,
+    refunded,
+    cancelCompleteBlock,
+  } as RawRevealRequest;
+  return decodeRevealRequest(raw);
 }
 
 export function decodeConstants(raw: RawConstants): Constants {

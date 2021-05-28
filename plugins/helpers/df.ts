@@ -92,6 +92,11 @@ export function subscribeToMyBalance(cb: (balance: number) => void): Subscriptio
   return df.myBalance$.subscribe(cb);
 }
 
+export function subscribeToBlockNumber(cb: (blockNumber: number) => void): Subscription {
+  //@ts-expect-error
+  return df.ethConnection.blockNumber$.subscribe(cb);
+}
+
 export function getNextBroadcastAvailableTimestamp(): number {
   //@ts-expect-error
   return ui.getNextBroadcastAvailableTimestamp();
@@ -115,4 +120,9 @@ export function getPlanetByLocationId(locationId?: LocationId): Planet | undefin
 export async function revealSnarkArgs(x: number, y: number): Promise<RevealSnarkContractCallArgs> {
   //@ts-expect-error
   return df.snarkHelper.getRevealArgs(x, y);
+}
+
+export function getBlockNumber(): number {
+  //@ts-expect-error
+  return df.ethConnection.blockNumber;
 }
