@@ -68,23 +68,14 @@ describe("RevealMarket", function () {
   });
 
   it("Emits a RevealRequested given a correct RevealProof for unrevealed planet", async function () {
-    const [deployer] = await hre.ethers.getSigners();
-
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
-    const fee = hre.REQUEST_MINIMUM.mul(hre.FEE_PERCENT).div(100);
-    const payout = hre.REQUEST_MINIMUM.sub(fee);
-
     const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
 
     const locationID = validRevealProof[3][0];
-    const x = validRevealProof[3][2];
-    const y = validRevealProof[3][3];
 
-    await expect(revealRequestTx)
-      .to.emit(revealMarket, "RevealRequested")
-      .withArgs(deployer.address, locationID, x, y, payout);
+    await expect(revealRequestTx).to.emit(revealMarket, "RevealRequested").withArgs(locationID);
   });
 
   it("Reverts on requestReveal with Request value too high", async function () {
@@ -200,8 +191,6 @@ describe("RevealMarket", function () {
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
-    const x = validRevealProof[3][2];
-    const y = validRevealProof[3][3];
 
     const cancelReceipt = await revealMarket.cancelReveal(locationID);
     await cancelReceipt.wait();
@@ -211,9 +200,7 @@ describe("RevealMarket", function () {
 
     const oldBalance = await player1.getBalance();
     const claimedReceipt = revealMarket.claimReveal(locationID);
-    await expect(claimedReceipt)
-      .to.emit(revealMarket, "RevealCollected")
-      .withArgs(await player1.getAddress(), locationID, x, y, payout);
+    await expect(claimedReceipt).to.emit(revealMarket, "RevealCollected").withArgs(locationID);
 
     expect(await player1.getBalance()).to.eq(oldBalance.add(payout));
   });
@@ -329,15 +316,11 @@ describe("RevealMarket", function () {
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
-    // const x = validRevealProof[3][2];
-    // const y = validRevealProof[3][3];
 
     const cancelTx = await revealMarket.cancelReveal(locationID);
     await cancelTx.wait();
 
-    //unsure how to get block number for withArgs
-    await expect(cancelTx).to.emit(revealMarket, "RevealCancelled");
-    // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
+    await expect(cancelTx).to.emit(revealMarket, "RevealCancelled").withArgs(locationID);
   });
 
   it("Reverts on cancelReveal if not requester", async function () {
@@ -385,8 +368,6 @@ describe("RevealMarket", function () {
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
-    // const x = validRevealProof[3][2];
-    // const y = validRevealProof[3][3];
 
     const cancelTx = await revealMarket.cancelReveal(locationID);
     await cancelTx.wait();
@@ -395,11 +376,11 @@ describe("RevealMarket", function () {
       await hre.ethers.provider.send("evm_mine", []);
     }
 
-    expect(await revealMarket.claimRefund(locationID))
-      .to.changeEtherBalance(deployer, payout)
-      .to.emit(revealMarket, "RevealRefunded");
-    //unsure how to get block number for withArgs
-    // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
+    const tx = await revealMarket.claimRefund(locationID);
+
+    await expect(tx).to.changeEtherBalance(deployer, payout);
+
+    await expect(tx).to.emit(revealMarket, "RevealRefunded").withArgs(locationID);
 
     expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(fee);
   });

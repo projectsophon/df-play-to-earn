@@ -7,24 +7,10 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 contract RevealMarket is Ownable, ReentrancyGuard {
-    event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 payout);
-    event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 payout);
-    event RevealCancelled(
-        address requester,
-        uint256 loc,
-        uint256 x,
-        uint256 y,
-        uint256 payout,
-        uint256 cancelCompleteBlock
-    );
-    event RevealRefunded(
-        address requester,
-        uint256 loc,
-        uint256 x,
-        uint256 y,
-        uint256 payout,
-        uint256 cancelCompleteBlock
-    );
+    event RevealRequested(uint256 loc);
+    event RevealCollected(uint256 loc);
+    event RevealCancelled(uint256 loc);
+    event RevealRefunded(uint256 loc);
 
     DarkForestCore private immutable darkForestCore;
 
@@ -116,13 +102,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequests[revealRequest.location] = revealRequest;
         revealRequestIds.push(revealRequest.location);
 
-        emit RevealRequested(
-            revealRequest.requester,
-            revealRequest.location,
-            revealRequest.x,
-            revealRequest.y,
-            revealRequest.payout
-        );
+        emit RevealRequested(revealRequest.location);
     }
 
     function cancelReveal(uint256 location) external open nonReentrant {
@@ -135,14 +115,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequest.cancelCompleteBlock = block.number + CANCELLED_COUNTDOWN_BLOCKS;
         revealRequests[revealRequest.location] = revealRequest;
 
-        emit RevealCancelled(
-            revealRequest.requester,
-            revealRequest.location,
-            revealRequest.x,
-            revealRequest.y,
-            revealRequest.payout,
-            revealRequest.cancelCompleteBlock
-        );
+        emit RevealCancelled(revealRequest.location);
     }
 
     function claimReveal(uint256 location) external open nonReentrant {
@@ -164,13 +137,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
 
         Address.sendValue(payable(revealed.revealer), revealRequest.payout);
 
-        emit RevealCollected(
-            revealRequest.collector,
-            revealRequest.location,
-            revealRequest.x,
-            revealRequest.y,
-            revealRequest.payout
-        );
+        emit RevealCollected(revealRequest.location);
     }
 
     function claimRefund(uint256 location) external open nonReentrant {
@@ -186,14 +153,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
 
         Address.sendValue(payable(revealRequest.requester), revealRequest.payout);
 
-        emit RevealRefunded(
-            revealRequest.requester,
-            revealRequest.location,
-            revealRequest.x,
-            revealRequest.y,
-            revealRequest.payout,
-            revealRequest.cancelCompleteBlock
-        );
+        emit RevealRefunded(revealRequest.location);
     }
 
     function getConstants() public view returns (Constants memory) {
