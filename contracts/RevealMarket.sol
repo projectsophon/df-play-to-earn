@@ -126,6 +126,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     function cancelReveal(uint256 location) external open nonReentrant {
         RevealRequest memory revealRequest = revealRequests[location];
         require(revealRequest.location != 0, "No RevealRequest for that Planet");
+        require(revealRequest.requester == msg.sender, "Sender is not requester");
         require(revealRequest.paid == false, "RevealRequest already claimed");
         require(revealRequest.cancelCompleteBlock == 0, "RevealRequest already cancelled");
 
