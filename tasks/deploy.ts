@@ -67,4 +67,8 @@ async function deployIntoNode(
       });
     }
   }
+
+  // So blockNumber keeps incrementing
+  await hre.network.provider.send("evm_setAutomine", [false]);
+  await hre.network.provider.send("evm_setIntervalMining", [5000]);
 }
