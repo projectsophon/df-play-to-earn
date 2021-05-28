@@ -342,6 +342,20 @@ describe("RevealMarket", function () {
     // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
   });
 
+  it("Revert on cancelReveal if not requester", async function () {
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const locationID = validRevealProof[3][0];
+
+    const cancelTx = revealMarket.cancelReveal(locationID);
+    await expect(cancelTx).to.be.revertedWith("Sender is not requester");
+  });
+
   it("Revert on claimRefund when countdown not complete", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
