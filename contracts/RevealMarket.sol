@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 contract RevealMarket is Ownable, ReentrancyGuard {
     event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
@@ -70,7 +71,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
 
     // At market close, any unwithdrawn funds are swept by us
     function rugPull() public onlyOwner closed {
-        payable(owner()).transfer(address(this).balance);
+        Address.sendValue(payable(owner()), address(this).balance);
     }
 
     function requestReveal(
@@ -159,9 +160,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequest.paid = true;
         revealRequests[revealRequest.location] = revealRequest;
 
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = payable(revealed.revealer).call{value: revealRequest.payout}("");
-        require(success, "RevealRequest claim has failed");
+        Address.sendValue(payable(revealed.revealer), revealRequest.payout);
 
         emit RevealCollected(
             revealed.revealer,
@@ -183,10 +182,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         revealRequest.refunded = true;
         revealRequests[revealRequest.location] = revealRequest;
 
-        // gas future proofing transfer. Call forwards all gas whereas transfer doesnt
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, ) = payable(revealRequest.requester).call{value: revealRequest.payout}("");
-        require(success, "RevealRequest claim has failed");
+        Address.sendValue(payable(revealRequest.requester), revealRequest.payout);
 
         emit RevealRefunded(
             revealRequest.requester,
