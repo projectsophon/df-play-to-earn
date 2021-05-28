@@ -487,4 +487,35 @@ describe("RevealMarket", function () {
 
     expect(revealRequests[0].requester).to.eq(await deployer.getAddress());
   });
+
+  it("Returns items in a page with getRevealRequestPage", async function () {
+    const [deployer] = await hre.ethers.getSigners();
+
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    await revealRequestReceipt.wait();
+
+    const nRevealRequests = await revealMarket.getNRevealRequests();
+
+    const revealRequests = await revealMarket.getRevealRequestPage(0);
+
+    expect(revealRequests.length).to.eq(nRevealRequests);
+
+    expect(revealRequests[0].requester).to.eq(await deployer.getAddress());
+  });
+
+  it("Returns no items when none exist with getRevealRequestPage", async function () {
+    const revealRequests = await revealMarket.getRevealRequestPage(0);
+
+    expect(revealRequests.length).to.eq(0);
+  });
+
+  it("Reverts on getRevealRequestPage with too large of page", async function () {
+    const revealRequests = revealMarket.getRevealRequestPage(1);
+
+    await expect(revealRequests).to.be.revertedWith("Page number too high");
+  });
 });
