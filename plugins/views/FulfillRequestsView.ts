@@ -184,12 +184,14 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
       if (paid || refunded) {
         return false;
       }
-      if (cancelCompleteBlock - getBlockNumber() <= 0) {
-        return false;
-      }
+      if (cancelCompleteBlock !== 0) {
+        if (cancelCompleteBlock - getBlockNumber() <= 0) {
+          return false;
+        }
 
-      if (hidePendingCancel && cancelCompleteBlock > getBlockNumber()) {
-        return false;
+        if (hidePendingCancel && cancelCompleteBlock > getBlockNumber()) {
+          return false;
+        }
       }
       if (hideMyRequests) {
         return requester !== getAccount();
