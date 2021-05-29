@@ -1,4 +1,3 @@
-import type { RevealMarket } from "../../types";
 import type { LocationId, Planet } from "@darkforest_eth/types";
 
 import { html } from "htm/preact";
@@ -13,8 +12,9 @@ import {
   subscribeToMyBalance,
   planetName,
   getPlanetByLocationId,
+  colors,
 } from "../helpers/df";
-import { Constants, feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther } from "../helpers/other";
+import { feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther, ViewProps } from "../helpers/other";
 
 const flex = {
   display: "flex",
@@ -37,16 +37,6 @@ const row = {
   margin: "7px 0",
 };
 
-const shownStatusMessage = {
-  margin: "auto",
-  height: "24px",
-};
-
-const hiddenStatusMessage = {
-  ...shownStatusMessage,
-  visibility: "hidden",
-};
-
 const paymentInput = {
   color: "#080808",
   padding: "0 0 0 7px",
@@ -57,7 +47,7 @@ const paymentInput = {
 
 // TODO: Not red?
 const beware = {
-  color: "#FF6492",
+  color: colors.dfred,
 };
 
 const warning = {
@@ -66,19 +56,6 @@ const warning = {
 
 const fullWidth = {
   width: "100%",
-};
-
-type Props = {
-  active: boolean;
-  contract: RevealMarket;
-  revealRequests: RevealRequest[];
-  constants: Constants;
-};
-
-type StatusMessage = {
-  message: string;
-  color: string;
-  timeout?: number;
 };
 
 function isRevealed(planet: Planet | undefined) {
@@ -106,7 +83,7 @@ function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequ
   }
 }
 
-export function RequestRevealView({ active, revealRequests, constants }: Props) {
+export function RequestRevealView({ active, revealRequests, constants, onStatus }: ViewProps) {
   const [pending, setPending] = useState<LocationId | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState(getSelectedLocationId);
 
@@ -116,7 +93,6 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
   const [canRequest, setCanRequest] = useState(() => canRequestReveal(planet, revealRequests, pending));
   const [xdai, setXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
   const [minXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
-  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
 
   // This explicitly doesn't rerun for `pending` because we want to wait until we get the event from xdai
   useEffect(() => {
@@ -132,19 +108,6 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
     const sub = subscribeToMyBalance(setBalance);
     return sub.unsubscribe;
   }, [setBalance]);
-
-  useEffect(() => {
-    let handle: ReturnType<typeof setTimeout>;
-    if (statusMessage?.timeout) {
-      handle = setTimeout(() => setStatusMessage(null), statusMessage.timeout);
-    }
-
-    return () => {
-      if (handle) {
-        clearTimeout(handle);
-      }
-    };
-  }, [statusMessage]);
 
   const maxXdai = minWithoutFee(`${balance}`, constants.FEE_PERCENT);
 
@@ -184,15 +147,16 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
 
   async function onClick() {
     setCanRequest(false);
-    setStatusMessage({ message: "Sending reveal request... Please wait...", color: "white" });
+    onStatus({ message: "Sending reveal request... Please wait...", color: colors.dfwhite });
     setPending(selectedLocationId);
     try {
       await requestReveal(selectedLocationId, totalEther);
-      setStatusMessage({ message: "Successfully posted reveal request!", color: "#00DC82", timeout: 5000 });
+      onStatus({ message: "Successfully posted reveal request!", color: colors.dfgreen, timeout: 5000 });
       setPending(null);
     } catch (err) {
-      setStatusMessage({ message: err.message, color: "#FF6492" });
+      console.error("Error requesting reveal", err);
       setPending(null);
+      onStatus({ message: "Error requesting reveal. Try again.", color: colors.dfred });
     }
   }
 
@@ -244,11 +208,6 @@ export function RequestRevealView({ active, revealRequests, constants }: Props) 
       <div style=${row}>
         <span>Total:</span>
         <span>${totalEther} xDai</span>
-      </div>
-      <div style=${row}>
-        <span style=${statusMessage ? { ...shownStatusMessage, color: statusMessage.color } : hiddenStatusMessage}
-          >${statusMessage?.message}</span
-        >
       </div>
       <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>${btnMessage}<//>
     </div>

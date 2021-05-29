@@ -1,8 +1,6 @@
-import type { RevealMarket } from "../../types";
-
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
-import { locationIdFromDecStr, locationIdToDecStr } from "@darkforest_eth/serde";
+import { locationIdToDecStr } from "@darkforest_eth/serde";
 
 import { Button } from "../components/Button";
 import { TimeUntil } from "../components/TimeUntil";
@@ -18,8 +16,9 @@ import {
   isCurrentlyRevealing,
   subscribeToBlockNumber,
   getBlockNumber,
+  colors,
 } from "../helpers/df";
-import type { RevealRequest } from "../helpers/other";
+import type { RevealRequest, ViewProps } from "../helpers/other";
 
 const flex = {
   display: "flex",
@@ -82,12 +81,6 @@ const optionsRow = {
   paddingTop: "6px",
 };
 
-type Props = {
-  active: boolean;
-  contract: RevealMarket;
-  revealRequests: RevealRequest[];
-};
-
 type RowProps = {
   revealRequest: RevealRequest;
   canReveal: boolean;
@@ -136,7 +129,7 @@ function Row({ revealRequest, canReveal, onReveal }: RowProps) {
   `;
 }
 
-export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
+export function FulfillRequestsView({ active, contract, revealRequests, onStatus }: ViewProps) {
   const [waiting, setWaiting] = useState(timeFromNow);
   const [canReveal, setCanReveal] = useState(() => waiting <= 0);
   const [hideMyRequests, setHideMyRequests] = useState(true);
@@ -202,17 +195,21 @@ export function FulfillRequestsView({ active, contract, revealRequests }: Props)
     .map((revealRequest) => {
       async function revealPlanet() {
         setCanReveal(false);
+        onStatus({ message: "Attempting to reveal... Please wait...", color: colors.dfwhite });
         try {
           await revealLocation(revealRequest.x, revealRequest.y);
         } catch (err) {
-          // TODO: Handle
+          console.error("Error revealing location", err);
+          onStatus({ message: "Error revealing location. Try again.", color: colors.dfred });
           return;
         }
         try {
           const tx = await contract.claimReveal(locationIdToDecStr(revealRequest.location));
           await tx.wait();
+          onStatus({ message: `Successfully claimed ${revealRequest.payout} xDai!`, color: colors.dfgreen });
         } catch (err) {
-          // TODO: Handle
+          console.error("Error claiming reveal payout", err);
+          onStatus({ message: "Error claiming. Are you the revealer?", color: colors.dfred });
         }
       }
 

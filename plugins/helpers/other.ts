@@ -32,6 +32,20 @@ export type Constants = {
   FEE_PERCENT: number;
 };
 
+export type StatusMessage = {
+  message: string;
+  color: string;
+  timeout?: number;
+};
+
+export type ViewProps = {
+  active: boolean;
+  contract: RevealMarket;
+  revealRequests: RevealRequest[];
+  constants: Constants;
+  onStatus: (status: StatusMessage) => void;
+};
+
 export function sortByValue(revealRequests: RevealRequest[]) {
   return revealRequests.sort((a, b) => {
     const aValue = parseEther(a.payout);

@@ -8,14 +8,25 @@ import { ViewLink } from "../components/ViewLink";
 import { RequestRevealView } from "./RequestRevealView";
 import { FulfillRequestsView } from "./FulfillRequestsView";
 import { CancelRequestView } from "./CancelRequestView";
-import { RevealRequest, sortByValue, Constants, decodeRevealRequest } from "../helpers/other";
+import { RevealRequest, sortByValue, Constants, decodeRevealRequest, StatusMessage } from "../helpers/other";
 
 const flex = {
   display: "flex",
 };
 
-const viewWrapper = {
-  height: "280px",
+const messageBar = {
+  ...flex,
+  marginTop: "8px",
+};
+
+const shownStatusMessage = {
+  height: "24px",
+  margin: "auto",
+};
+
+const hiddenStatusMessage = {
+  ...shownStatusMessage,
+  visibility: "hidden",
 };
 
 enum Views {
@@ -33,6 +44,20 @@ type Props = {
 export function AppView({ contract, requests, constants }: Props) {
   const [activeView, setActiveView] = useState(Views.FulfillRequests);
   const [revealRequests, setRevealRequests] = useState<RevealRequest[]>(requests);
+  const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+
+  useEffect(() => {
+    let handle: ReturnType<typeof setTimeout>;
+    if (statusMessage?.timeout) {
+      handle = setTimeout(() => setStatusMessage(null), statusMessage.timeout);
+    }
+
+    return () => {
+      if (handle) {
+        clearTimeout(handle);
+      }
+    };
+  }, [statusMessage]);
 
   async function onRevealRequestChange(location: BigNumber) {
     try {
@@ -43,8 +68,8 @@ export function AppView({ contract, requests, constants }: Props) {
         return sortByValue(updated);
       });
     } catch (err) {
-      // TODO
-      console.log(err);
+      console.error("Error updating requests", err);
+      setStatusMessage({ message: "Error fetching new request. Please reload.", color: "#FF6492" });
     }
   }
 
@@ -83,20 +108,33 @@ export function AppView({ contract, requests, constants }: Props) {
         <${ViewLink} active=${requestRevealActive} text="Request a Reveal" onClick=${setRequestRevealActive} />
         <${ViewLink} active=${cancelRequestActive} text="My Requests" onClick=${setCancelRequestActive} />
       </div>
-      <div style=${viewWrapper}>
+      <div>
         <${RequestRevealView}
           active=${requestRevealActive}
           contract=${contract}
           revealRequests=${revealRequests}
           constants=${constants}
+          onStatus=${setStatusMessage}
         />
-        <${FulfillRequestsView} active=${fulfillRequestsActive} contract=${contract} revealRequests=${revealRequests} />
+        <${FulfillRequestsView}
+          active=${fulfillRequestsActive}
+          contract=${contract}
+          revealRequests=${revealRequests}
+          constants=${constants}
+          onStatus=${setStatusMessage}
+        />
         <${CancelRequestView}
           active=${cancelRequestActive}
           contract=${contract}
           revealRequests=${revealRequests}
           constants=${constants}
+          onStatus=${setStatusMessage}
         />
+      </div>
+      <div style=${messageBar}>
+        <span style=${statusMessage ? { ...shownStatusMessage, color: statusMessage.color } : hiddenStatusMessage}
+          >${statusMessage?.message}</span
+        >
       </div>
     </div>
   `;

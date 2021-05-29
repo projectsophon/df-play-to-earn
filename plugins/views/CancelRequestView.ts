@@ -3,8 +3,16 @@ import { html } from "htm/preact";
 import { useEffect, useState } from "preact/hooks";
 import { RevealMarket } from "../../types";
 import { Button } from "../components/Button";
-import { centerCoords, getAccount, getBlockNumber, planetName, subscribeToBlockNumber } from "../helpers/df";
-import { Constants, RevealRequest } from "../helpers/other";
+import {
+  centerCoords,
+  colors,
+  getAccount,
+  getBlockNumber,
+  planetName,
+  playerName,
+  subscribeToBlockNumber,
+} from "../helpers/df";
+import { RevealRequest, StatusMessage, ViewProps } from "../helpers/other";
 
 const flex = {
   display: "flex",
@@ -26,7 +34,7 @@ const muted = {
 };
 
 const beware = {
-  color: "#FF6492",
+  color: colors.dfred,
 };
 
 const revealRequestRow = {
@@ -61,36 +69,19 @@ const bold = {
   color: "white",
 };
 
-type Props = {
-  active: boolean;
-  contract: RevealMarket;
-  revealRequests: RevealRequest[];
-  constants: Constants;
-};
-
-type PaidRowProps = {
-  revealRequest: RevealRequest;
-};
-
-type CancelRowProps = {
+type RowProps = {
   cancelledCountdownBlocks: number;
   revealRequest: RevealRequest;
   contract: RevealMarket;
+  onStatus: (status: StatusMessage) => void;
 };
 
-type RefundRowProps = {
-  revealRequest: RevealRequest;
-  contract: RevealMarket;
-};
-
-function PaidRow({ revealRequest }: PaidRowProps) {
-  const { x, y, payout, location } = revealRequest;
+function PaidRow({ revealRequest }: RowProps) {
+  const { x, y, payout, location, collector } = revealRequest;
 
   function centerPlanet() {
     centerCoords({ x, y });
   }
-
-  const collector = "Someone";
 
   return html`
     <div style=${revealRequestRow} key=${location}>
@@ -98,13 +89,13 @@ function PaidRow({ revealRequest }: PaidRowProps) {
         <div>
           <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was revealed!
         </div>
-        <div>${collector} claimed <span style=${bold}>${payout} xDai</span>.</div>
+        <div>${playerName(collector)} claimed <span style=${bold}>${payout} xDai</span>.</div>
       </div>
     </div>
   `;
 }
 
-function RefundedRow({ revealRequest }: PaidRowProps) {
+function RefundedRow({ revealRequest }: RowProps) {
   const { x, y, payout, location } = revealRequest;
 
   function centerPlanet() {
@@ -124,7 +115,7 @@ function RefundedRow({ revealRequest }: PaidRowProps) {
   `;
 }
 
-function CancelRow({ cancelledCountdownBlocks, revealRequest, contract }: CancelRowProps) {
+function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus }: RowProps) {
   const { x, y, payout, location } = revealRequest;
 
   const [pending, setPending] = useState(false);
@@ -134,13 +125,19 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract }: Cancel
   }
   async function cancelReveal() {
     setPending(true);
-
+    onStatus({ message: "Attempting to cancel request... Please wait...", color: colors.dfwhite });
     try {
       const tx = await contract.cancelReveal(locationIdToDecStr(location));
       await tx.wait();
       setPending(false);
+      onStatus({
+        message: `Cancel requested. Claim refund in ${cancelledCountdownBlocks} blocks.`,
+        color: colors.dfgreen,
+        timeout: 5000,
+      });
     } catch (err) {
-      // TODO: Handle;
+      console.error("Error cancelling reveal request", err);
+      onStatus({ message: "Error cancelling request. Try again.", color: colors.dfred });
     }
   }
 
@@ -160,7 +157,7 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract }: Cancel
   `;
 }
 
-function RefundRow({ revealRequest, contract }: RefundRowProps) {
+function RefundRow({ revealRequest, contract, onStatus }: RowProps) {
   const { x, y, payout, location, cancelCompleteBlock } = revealRequest;
 
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
@@ -169,13 +166,16 @@ function RefundRow({ revealRequest, contract }: RefundRowProps) {
   function centerPlanet() {
     centerCoords({ x, y });
   }
-  async function cancelReveal() {
+  async function claimRefund() {
     setPending(true);
+    onStatus({ message: "Attempting to claim refund... Please wait...", color: colors.dfwhite });
     try {
       const tx = await contract.claimRefund(locationIdToDecStr(location));
       await tx.wait();
+      onStatus({ message: `Successully claimed ${payout} refund.`, color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
-      // TODO: Handle;
+      console.error("Error claiming refund", err);
+      onStatus({ message: "Error claiming refund. Please try again.", color: colors.dfred });
     }
   }
 
@@ -198,12 +198,12 @@ function RefundRow({ revealRequest, contract }: RefundRowProps) {
         </div>
         <div>for <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>.</div>
       </div>
-      <${Button} onClick=${cancelReveal} enabled=${remainingBlocks <= 0 && !pending}>${message}<//>
+      <${Button} onClick=${claimRefund} enabled=${remainingBlocks <= 0 && !pending}>${message}<//>
     </div>
   `;
 }
 
-export function CancelRequestView({ active, contract, revealRequests, constants }: Props) {
+export function CancelRequestView({ active, contract, revealRequests, constants, onStatus }: ViewProps) {
   const cancelledCountdownBlocks = constants.CANCELLED_COUNTDOWN_BLOCKS;
 
   const rows = revealRequests
@@ -220,9 +220,10 @@ export function CancelRequestView({ active, contract, revealRequests, constants 
           cancelledCountdownBlocks=${cancelledCountdownBlocks}
           revealRequest=${revealRequest}
           contract=${contract}
+          onStatus=${onStatus}
         />`;
       } else {
-        return html`<${RefundRow} revealRequest=${revealRequest} contract=${contract} />`;
+        return html`<${RefundRow} revealRequest=${revealRequest} contract=${contract} onStatus=${onStatus} />`;
       }
     });
 

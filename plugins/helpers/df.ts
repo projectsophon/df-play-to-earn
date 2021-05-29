@@ -12,6 +12,13 @@ const { LOCATION_REVEAL_COOLDOWN }: { LOCATION_REVEAL_COOLDOWN: number } = ui.ge
 
 export const REVEAL_COOLDOWN_HOURS = Math.floor(LOCATION_REVEAL_COOLDOWN / 60 / 60);
 
+// Why aren't these available!?
+export const colors = {
+  dfwhite: "#ffffff",
+  dfred: "#FF6492",
+  dfgreen: "#00DC82",
+};
+
 //@ts-expect-error
 const { getPlanetName }: { getPlanetName(planet?: Planet): string } = df.getProcgenUtils();
 
