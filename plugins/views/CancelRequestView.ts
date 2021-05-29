@@ -69,6 +69,12 @@ const bold = {
   color: "white",
 };
 
+const optionsRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  paddingTop: "6px",
+};
+
 type RowProps = {
   cancelledCountdownBlocks: number;
   revealRequest: RevealRequest;
@@ -172,7 +178,7 @@ function RefundRow({ revealRequest, contract, onStatus }: RowProps) {
     try {
       const tx = await contract.claimRefund(locationIdToDecStr(location));
       await tx.wait();
-      onStatus({ message: `Successully claimed ${payout} refund.`, color: colors.dfgreen, timeout: 5000 });
+      onStatus({ message: `Successully claimed ${payout} xDai refund.`, color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
       console.error("Error claiming refund", err);
       onStatus({ message: "Error claiming refund. Please try again.", color: colors.dfred });
@@ -206,8 +212,40 @@ function RefundRow({ revealRequest, contract, onStatus }: RowProps) {
 export function CancelRequestView({ active, contract, revealRequests, constants, onStatus }: ViewProps) {
   const cancelledCountdownBlocks = constants.CANCELLED_COUNTDOWN_BLOCKS;
 
+  const [hideClaimed, setHideClaimed] = useState(false);
+  const [hideRefunded, setHideRefunded] = useState(false);
+
+  function toggleClaimed(evt: Event) {
+    if (evt.target) {
+      const { checked } = evt.target as HTMLInputElement;
+      setHideClaimed(checked);
+    } else {
+      console.error("No event target! How did this happen?");
+    }
+  }
+  function toggleRefunded(evt: Event) {
+    if (evt.target) {
+      const { checked } = evt.target as HTMLInputElement;
+      setHideRefunded(checked);
+    } else {
+      console.error("No event target! How did this happen?");
+    }
+  }
+
   const rows = revealRequests
-    .filter(({ requester }) => requester === getAccount())
+    .filter(({ paid, refunded, requester }) => {
+      if (hideClaimed) {
+        if (paid) {
+          return false;
+        }
+      }
+      if (hideRefunded) {
+        if (refunded) {
+          return false;
+        }
+      }
+      return requester === getAccount();
+    })
     .map((revealRequest) => {
       if (revealRequest.paid) {
         return html`<${PaidRow} revealRequest=${revealRequest} />`;
@@ -235,6 +273,10 @@ export function CancelRequestView({ active, contract, revealRequests, constants,
         <div><span style=${beware}>Beware:</span> Players can still claim a reveal for ${cancelledCountdownBlocks} blocks after you try to cancel.</div>
       </div>
       <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
+      <div style=${optionsRow}>
+        <label><input type="checkbox" checked=${hideClaimed} onChange=${toggleClaimed} /> Hide claimed</label>
+        <label><input type="checkbox" checked=${hideRefunded} onChange=${toggleRefunded} /> Hide refunded</label>
+      </div>
     </<div>
   `;
 }
