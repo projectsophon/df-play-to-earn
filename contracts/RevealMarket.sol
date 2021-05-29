@@ -7,14 +7,14 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
 contract RevealMarket is Ownable, ReentrancyGuard {
-    event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 value);
-    event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 value);
+    event RevealRequested(address requester, uint256 loc, uint256 x, uint256 y, uint256 payout);
+    event RevealCollected(address collector, uint256 loc, uint256 x, uint256 y, uint256 payout);
     event RevealCancelled(
         address requester,
         uint256 loc,
         uint256 x,
         uint256 y,
-        uint256 value,
+        uint256 payout,
         uint256 cancelCompleteBlock
     );
     event RevealRefunded(
@@ -22,7 +22,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         uint256 loc,
         uint256 x,
         uint256 y,
-        uint256 value,
+        uint256 payout,
         uint256 cancelCompleteBlock
     );
 

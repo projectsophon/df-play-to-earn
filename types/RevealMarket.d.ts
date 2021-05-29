@@ -735,7 +735,7 @@ export class RevealMarket extends BaseContract {
       loc?: null,
       x?: null,
       y?: null,
-      value?: null,
+      payout?: null,
       cancelCompleteBlock?: null
     ): TypedEventFilter<
       [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
@@ -744,7 +744,7 @@ export class RevealMarket extends BaseContract {
         loc: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
         cancelCompleteBlock: BigNumber;
       }
     >;
@@ -754,7 +754,7 @@ export class RevealMarket extends BaseContract {
       loc?: null,
       x?: null,
       y?: null,
-      value?: null
+      payout?: null
     ): TypedEventFilter<
       [string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
@@ -762,7 +762,7 @@ export class RevealMarket extends BaseContract {
         loc: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
       }
     >;
 
@@ -771,7 +771,7 @@ export class RevealMarket extends BaseContract {
       loc?: null,
       x?: null,
       y?: null,
-      value?: null,
+      payout?: null,
       cancelCompleteBlock?: null
     ): TypedEventFilter<
       [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
@@ -780,7 +780,7 @@ export class RevealMarket extends BaseContract {
         loc: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
         cancelCompleteBlock: BigNumber;
       }
     >;
@@ -790,7 +790,7 @@ export class RevealMarket extends BaseContract {
       loc?: null,
       x?: null,
       y?: null,
-      value?: null
+      payout?: null
     ): TypedEventFilter<
       [string, BigNumber, BigNumber, BigNumber, BigNumber],
       {
@@ -798,7 +798,7 @@ export class RevealMarket extends BaseContract {
         loc: BigNumber;
         x: BigNumber;
         y: BigNumber;
-        value: BigNumber;
+        payout: BigNumber;
       }
     >;
   };
