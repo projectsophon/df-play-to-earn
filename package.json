@@ -9,12 +9,11 @@
     "node": "^14"
   },
   "scripts": {
+    "start": "hardhat node",
+    "compile": "hardhat compile",
     "lint": "solhint 'contracts/**/*.sol' --max-warnings 0 && eslint .",
     "test": "hardhat compile && hardhat test",
-    "compile": "hardhat compile",
-    "start": "hardhat node",
-    "format": "prettier --write .",
-    "serve": "df-plugin-dev-server"
+    "format": "prettier --write ."
   },
   "dependencies": {},
   "resolutions": {
