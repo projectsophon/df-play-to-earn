@@ -116,7 +116,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
-  it("Revert on requestReveal with valid RevealProof generated for the wrong universe", async function () {
+  it("Reverts on requestReveal with valid RevealProof generated for the wrong universe", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -148,14 +148,14 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Planet already revealed");
   });
 
-  it("Revert on claimReveal if no RevealRequest for given location", async function () {
+  it("Reverts on claimReveal if no RevealRequest for given location", async function () {
     const locationID = validRevealProof[3][0];
 
     const claimedReceipt = revealMarket.claimReveal(locationID);
     await expect(claimedReceipt).to.be.revertedWith("No RevealRequest for that Planet");
   });
 
-  it("Revert on claimReveal if location has not been revealed", async function () {
+  it("Reverts on claimReveal if location has not been revealed", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -169,7 +169,7 @@ describe("RevealMarket", function () {
     await expect(claimedReceipt).to.be.revertedWith("Planet is not revealed");
   });
 
-  it("Revert on claimReveal if amount has already been claimed", async function () {
+  it("Reverts on claimReveal if amount has already been claimed", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -218,12 +218,12 @@ describe("RevealMarket", function () {
     expect(await player1.getBalance()).to.eq(oldBalance.add(payout));
   });
 
-  it("Revert on rugPull when market still open", async function () {
+  it("Reverts on rugPull when market still open", async function () {
     const revealRequestTx = revealMarket.rugPull();
     await expect(revealRequestTx).to.be.revertedWith("Marketplace is still open");
   });
 
-  it("Revert on rugPull when not called by owner", async function () {
+  it("Reverts on rugPull when not called by owner", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -234,25 +234,26 @@ describe("RevealMarket", function () {
     await expect(revealMarket.connect(player1).rugPull()).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
-  it("RugPull sweeps all funds after market close", async function () {
+  it("Sweeps all funds with rugPull after market close", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    expect(await revealMarket.rugPull()).to.changeEtherBalance(deployer, overrides.value);
+    const tx = await revealMarket.rugPull();
+    await expect(tx).to.changeEtherBalance(deployer, overrides.value);
 
     expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
   });
 
-  it("Revert on requestReveal when value too low", async function () {
+  it("Reverts on requestReveal when value too low", async function () {
     const overrides = {
       value: hre.ethers.utils.parseEther(".1"),
     };
@@ -261,7 +262,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Request value too low");
   });
 
-  it("Revert on requestReveal when market closed", async function () {
+  it("Reverts on requestReveal when market closed", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -273,7 +274,7 @@ describe("RevealMarket", function () {
     await expect(revealRequestTx).to.be.revertedWith("Marketplace has closed");
   });
 
-  it("Revert on claimReveal when market closed", async function () {
+  it("Reverts on claimReveal when market closed", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -293,7 +294,7 @@ describe("RevealMarket", function () {
     await expect(claimedTx).to.be.revertedWith("Marketplace has closed");
   });
 
-  it("Revert on claimReveal when request cancelled countdown has finished", async function () {
+  it("Reverts on claimReveal when request cancelled countdown has finished", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -339,7 +340,7 @@ describe("RevealMarket", function () {
     // .withArgs(deployer.address, locationID, x, y, overrides.value, blockNumber);
   });
 
-  it("Revert on cancelReveal if not requester", async function () {
+  it("Reverts on cancelReveal if not requester", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -353,7 +354,7 @@ describe("RevealMarket", function () {
     await expect(cancelTx).to.be.revertedWith("Sender is not requester");
   });
 
-  it("Revert on claimRefund when countdown not complete", async function () {
+  it("Reverts on claimRefund when countdown not complete", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
@@ -403,7 +404,7 @@ describe("RevealMarket", function () {
     expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(fee);
   });
 
-  it("Revert on claimRefund if already claimed", async function () {
+  it("Reverts on claimRefund if already claimed", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
