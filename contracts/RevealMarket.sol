@@ -226,6 +226,15 @@ contract RevealMarket is Ownable, ReentrancyGuard {
     function getAllRevealRequests() public view returns (RevealRequest[] memory) {
         return bulkGetRevealRequests(0, revealRequestIds.length);
     }
+
+    function getRevealRequestPage(uint256 pageIdx) public view returns (RevealRequest[] memory) {
+      // Page size is 20 items
+      uint256 startIdx = pageIdx * 20;
+      require(startIdx <= revealRequestIds.length, "Page number too high");
+      uint256 pageEnd = startIdx + 20;
+      uint256 endIdx = pageEnd <= revealRequestIds.length ? pageEnd : revealRequestIds.length;
+      return bulkGetRevealRequests(startIdx, endIdx);
+    }
 }
 
 struct Constants {

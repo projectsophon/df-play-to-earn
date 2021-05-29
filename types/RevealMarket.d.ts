@@ -35,6 +35,7 @@ interface RevealMarketInterface extends ethers.utils.Interface {
     "getConstants()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
+    "getRevealRequestPage(uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
@@ -92,6 +93,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getRevealRequest",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRevealRequestPage",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -174,6 +179,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getRevealRequest",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRevealRequestPage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -401,6 +410,35 @@ export class RevealMarket extends BaseContract {
       ]
     >;
 
+    getRevealRequestPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean,
+          boolean,
+          BigNumber
+        ] & {
+          requester: string;
+          collector: string;
+          location: BigNumber;
+          x: BigNumber;
+          y: BigNumber;
+          payout: BigNumber;
+          paid: boolean;
+          refunded: boolean;
+          cancelCompleteBlock: BigNumber;
+        })[]
+      ]
+    >;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
@@ -556,6 +594,33 @@ export class RevealMarket extends BaseContract {
     }
   >;
 
+  getRevealRequestPage(
+    pageIdx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    ([
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean,
+      boolean,
+      BigNumber
+    ] & {
+      requester: string;
+      collector: string;
+      location: BigNumber;
+      x: BigNumber;
+      y: BigNumber;
+      payout: BigNumber;
+      paid: boolean;
+      refunded: boolean;
+      cancelCompleteBlock: BigNumber;
+    })[]
+  >;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
@@ -709,6 +774,33 @@ export class RevealMarket extends BaseContract {
         refunded: boolean;
         cancelCompleteBlock: BigNumber;
       }
+    >;
+
+    getRevealRequestPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      ([
+        string,
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean,
+        boolean,
+        BigNumber
+      ] & {
+        requester: string;
+        collector: string;
+        location: BigNumber;
+        x: BigNumber;
+        y: BigNumber;
+        payout: BigNumber;
+        paid: boolean;
+        refunded: boolean;
+        cancelCompleteBlock: BigNumber;
+      })[]
     >;
 
     owner(overrides?: CallOverrides): Promise<string>;
@@ -868,6 +960,11 @@ export class RevealMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getRevealRequestPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
@@ -950,6 +1047,11 @@ export class RevealMarket extends BaseContract {
 
     getRevealRequest(
       location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRevealRequestPage(
+      pageIdx: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
