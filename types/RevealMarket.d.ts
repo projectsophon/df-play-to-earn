@@ -202,10 +202,10 @@ interface RevealMarketInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "RevealCancelled(address,uint256,uint256,uint256,uint256,uint256)": EventFragment;
-    "RevealCollected(address,uint256,uint256,uint256,uint256)": EventFragment;
-    "RevealRefunded(address,uint256,uint256,uint256,uint256,uint256)": EventFragment;
-    "RevealRequested(address,uint256,uint256,uint256,uint256)": EventFragment;
+    "RevealCancelled(uint256)": EventFragment;
+    "RevealCollected(uint256)": EventFragment;
+    "RevealRefunded(uint256)": EventFragment;
+    "RevealRequested(uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
@@ -843,76 +843,20 @@ export class RevealMarket extends BaseContract {
     >;
 
     RevealCancelled(
-      requester?: null,
-      loc?: null,
-      x?: null,
-      y?: null,
-      payout?: null,
-      cancelCompleteBlock?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
-      {
-        requester: string;
-        loc: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        payout: BigNumber;
-        cancelCompleteBlock: BigNumber;
-      }
-    >;
+      loc?: null
+    ): TypedEventFilter<[BigNumber], { loc: BigNumber }>;
 
     RevealCollected(
-      collector?: null,
-      loc?: null,
-      x?: null,
-      y?: null,
-      payout?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber],
-      {
-        collector: string;
-        loc: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        payout: BigNumber;
-      }
-    >;
+      loc?: null
+    ): TypedEventFilter<[BigNumber], { loc: BigNumber }>;
 
     RevealRefunded(
-      requester?: null,
-      loc?: null,
-      x?: null,
-      y?: null,
-      payout?: null,
-      cancelCompleteBlock?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber],
-      {
-        requester: string;
-        loc: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        payout: BigNumber;
-        cancelCompleteBlock: BigNumber;
-      }
-    >;
+      loc?: null
+    ): TypedEventFilter<[BigNumber], { loc: BigNumber }>;
 
     RevealRequested(
-      requester?: null,
-      loc?: null,
-      x?: null,
-      y?: null,
-      payout?: null
-    ): TypedEventFilter<
-      [string, BigNumber, BigNumber, BigNumber, BigNumber],
-      {
-        requester: string;
-        loc: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
-        payout: BigNumber;
-      }
-    >;
+      loc?: null
+    ): TypedEventFilter<[BigNumber], { loc: BigNumber }>;
   };
 
   estimateGas: {
