@@ -103,6 +103,7 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         RevealRequest memory revealRequest =
             RevealRequest({
                 requester: msg.sender,
+                collector: address(0),
                 location: _input[0],
                 x: _input[2],
                 y: _input[3],
@@ -158,12 +159,13 @@ contract RevealMarket is Ownable, ReentrancyGuard {
         require(revealed.locationId != 0, "Planet is not revealed");
 
         revealRequest.paid = true;
+        revealRequest.collector = revealed.revealer;
         revealRequests[revealRequest.location] = revealRequest;
 
         Address.sendValue(payable(revealed.revealer), revealRequest.payout);
 
         emit RevealCollected(
-            revealed.revealer,
+            revealRequest.collector,
             revealRequest.location,
             revealRequest.x,
             revealRequest.y,
@@ -237,6 +239,7 @@ struct Constants {
 
 struct RevealRequest {
     address requester;
+    address collector;
     uint256 location;
     uint256 x;
     uint256 y;

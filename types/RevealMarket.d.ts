@@ -270,6 +270,7 @@ export class RevealMarket extends BaseContract {
       [
         ([
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -279,6 +280,7 @@ export class RevealMarket extends BaseContract {
           BigNumber
         ] & {
           requester: string;
+          collector: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
@@ -290,6 +292,7 @@ export class RevealMarket extends BaseContract {
       ] & {
         ret: ([
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -299,6 +302,7 @@ export class RevealMarket extends BaseContract {
           BigNumber
         ] & {
           requester: string;
+          collector: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
@@ -331,6 +335,7 @@ export class RevealMarket extends BaseContract {
       [
         ([
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -340,6 +345,7 @@ export class RevealMarket extends BaseContract {
           BigNumber
         ] & {
           requester: string;
+          collector: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
@@ -373,6 +379,7 @@ export class RevealMarket extends BaseContract {
       [
         [
           string,
+          string,
           BigNumber,
           BigNumber,
           BigNumber,
@@ -382,6 +389,7 @@ export class RevealMarket extends BaseContract {
           BigNumber
         ] & {
           requester: string;
+          collector: string;
           location: BigNumber;
           x: BigNumber;
           y: BigNumber;
@@ -446,6 +454,7 @@ export class RevealMarket extends BaseContract {
   ): Promise<
     ([
       string,
+      string,
       BigNumber,
       BigNumber,
       BigNumber,
@@ -455,6 +464,7 @@ export class RevealMarket extends BaseContract {
       BigNumber
     ] & {
       requester: string;
+      collector: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
@@ -485,6 +495,7 @@ export class RevealMarket extends BaseContract {
   ): Promise<
     ([
       string,
+      string,
       BigNumber,
       BigNumber,
       BigNumber,
@@ -494,6 +505,7 @@ export class RevealMarket extends BaseContract {
       BigNumber
     ] & {
       requester: string;
+      collector: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
@@ -523,6 +535,7 @@ export class RevealMarket extends BaseContract {
   ): Promise<
     [
       string,
+      string,
       BigNumber,
       BigNumber,
       BigNumber,
@@ -532,6 +545,7 @@ export class RevealMarket extends BaseContract {
       BigNumber
     ] & {
       requester: string;
+      collector: string;
       location: BigNumber;
       x: BigNumber;
       y: BigNumber;
@@ -595,6 +609,7 @@ export class RevealMarket extends BaseContract {
     ): Promise<
       ([
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -604,6 +619,7 @@ export class RevealMarket extends BaseContract {
         BigNumber
       ] & {
         requester: string;
+        collector: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
@@ -634,6 +650,7 @@ export class RevealMarket extends BaseContract {
     ): Promise<
       ([
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -643,6 +660,7 @@ export class RevealMarket extends BaseContract {
         BigNumber
       ] & {
         requester: string;
+        collector: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
@@ -672,6 +690,7 @@ export class RevealMarket extends BaseContract {
     ): Promise<
       [
         string,
+        string,
         BigNumber,
         BigNumber,
         BigNumber,
@@ -681,6 +700,7 @@ export class RevealMarket extends BaseContract {
         BigNumber
       ] & {
         requester: string;
+        collector: string;
         location: BigNumber;
         x: BigNumber;
         y: BigNumber;
