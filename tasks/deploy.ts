@@ -50,6 +50,16 @@ async function deployIntoNode(
     ],
   });
 
+  const block = await hre.ethers.provider.getBlock("latest");
+  const blockTime = new Date(block.timestamp * 1000);
+  const actualTime = new Date();
+  //@ts-expect-error
+  const timeDiffInMs = actualTime - blockTime;
+  const timeDiffInSec = Math.floor(timeDiffInMs / 1000);
+
+  // Fast forward the mockchain to be now
+  await hre.ethers.provider.send("evm_increaseTime", [timeDiffInSec]);
+
   await hre.run("compile");
 
   await runSuper(args);
