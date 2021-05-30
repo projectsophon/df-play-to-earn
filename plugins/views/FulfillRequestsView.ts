@@ -97,7 +97,7 @@ function timeFromNow() {
 function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
   const { x, y, location, payout, requester, cancelCompleteBlock } = revealRequest;
 
-  const [remainingBlocks, setRemainingBlocks] = useState(cancelCompleteBlock - getBlockNumber());
+  const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
 
   useEffect(() => {
     const sub = subscribeToBlockNumber((blockNumber) => {
@@ -105,7 +105,7 @@ function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
     });
 
     return sub.unsubscribe;
-  }, []);
+  }, [cancelCompleteBlock]);
 
   function centerPlanet() {
     centerCoords({ x, y });

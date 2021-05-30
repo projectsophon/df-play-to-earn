@@ -190,7 +190,7 @@ function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: R
     });
 
     return sub.unsubscribe;
-  });
+  }, [cancelCompleteBlock]);
 
   const message = remainingBlocks > 0 ? "Wait..." : "Claim!";
 
