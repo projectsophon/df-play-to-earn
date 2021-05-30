@@ -5,11 +5,20 @@ import type { RevealMarket } from "../../types";
 
 import { REVEAL_MARKET_ABI } from "../generated/abi";
 import { REVEAL_MARKET_ADDRESS } from "../generated/contract";
+import { EMPTY_LOCATION_ID } from "@darkforest_eth/constants";
 
 //@ts-expect-error
 const { LOCATION_REVEAL_COOLDOWN }: { LOCATION_REVEAL_COOLDOWN: number } = ui.getContractConstants();
 
 export const REVEAL_COOLDOWN_HOURS = Math.floor(LOCATION_REVEAL_COOLDOWN / 60 / 60);
+
+// Why aren't these available!?
+export const colors = {
+  dfwhite: "#ffffff",
+  dfred: "#FF6492",
+  dfgreen: "#00DC82",
+  dfyellow: "#e8e228",
+};
 
 //@ts-expect-error
 const { getPlanetName }: { getPlanetName(planet?: Planet): string } = df.getProcgenUtils();
@@ -37,28 +46,46 @@ export function playerName(address?: EthAddress): string {
   return "Unknown";
 }
 
+export function getAccount(): string {
+  //@ts-expect-error
+  return df.account;
+}
+
 export async function getContract(): Promise<RevealMarket> {
   //@ts-expect-error
   return df.loadContract(REVEAL_MARKET_ADDRESS, REVEAL_MARKET_ABI) as Promise<RevealMarket>;
 }
 
-// Re-implemented because DF code is too complicated
 export async function revealLocation(x: number, y: number): Promise<void> {
-  try {
-    //@ts-expect-error
-    const snarkArgs: RevealSnarkContractCallArgs = await df.snarkHelper.getRevealArgs(x, y);
-    // I feel like there's a bug in this
-    //@ts-expect-error
-    await df.contractsAPI.coreContract.revealLocation(...snarkArgs);
-  } catch (err) {
-    console.log(err);
+  const coords = { x, y };
+  const planet = getPlanetByCoords(coords);
+  if (planet?.coordsRevealed) {
+    // TODO(#58): Once revealer is exposed in the client, we need to check if the player is the revealer
+    // otherwise they will pay the gas for a claim of someone else.
+    return Promise.resolve();
   }
+  //@ts-expect-error
+  const location = df.locationFromCoords(coords);
+  //@ts-expect-error
+  df.entityStore.addPlanetLocation(location);
+  //@ts-expect-error
+  df.revealLocation(location.hash);
+
+  // This is terrible, but we need to do it because DF doesn't give us an await on the function
+  return new Promise((resolve, reject) => {
+    const handle = setInterval(() => {
+      if (!isCurrentlyRevealing()) {
+        clearInterval(handle);
+        resolve();
+      }
+    }, 1000);
+  });
 }
 
 export function getSelectedLocationId(): LocationId {
   //@ts-expect-error
   const planet = ui.getSelectedPlanet();
-  return planet?.locationId;
+  return planet?.locationId || EMPTY_LOCATION_ID;
 }
 
 export function getMyBalance(): number {
@@ -80,9 +107,19 @@ export function subscribeToMyBalance(cb: (balance: number) => void): Subscriptio
   return df.myBalance$.subscribe(cb);
 }
 
+export function subscribeToBlockNumber(cb: (blockNumber: number) => void): Subscription {
+  //@ts-expect-error
+  return df.ethConnection.blockNumber$.subscribe(cb);
+}
+
 export function getNextBroadcastAvailableTimestamp(): number {
   //@ts-expect-error
   return ui.getNextBroadcastAvailableTimestamp();
+}
+
+export function isCurrentlyRevealing(): boolean {
+  //@ts-expect-error
+  return ui.isCurrentlyRevealing();
 }
 
 export function centerCoords(coords: WorldCoords): void {
@@ -95,7 +132,17 @@ export function getPlanetByLocationId(locationId?: LocationId): Planet | undefin
   return df.getPlanetWithId(locationId);
 }
 
+export function getPlanetByCoords(coords: WorldCoords): Planet | undefined {
+  //@ts-expect-error
+  return df.getPlanetWithCoords(coords);
+}
+
 export async function revealSnarkArgs(x: number, y: number): Promise<RevealSnarkContractCallArgs> {
   //@ts-expect-error
   return df.snarkHelper.getRevealArgs(x, y);
+}
+
+export function getBlockNumber(): number {
+  //@ts-expect-error
+  return df.ethConnection.blockNumber;
 }

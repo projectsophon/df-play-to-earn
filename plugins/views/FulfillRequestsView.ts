@@ -1,8 +1,6 @@
-import type { RevealMarket } from "../../types";
-
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
-import { locationIdFromDecStr, locationIdToDecStr } from "@darkforest_eth/serde";
+import { locationIdToDecStr } from "@darkforest_eth/serde";
 
 import { Button } from "../components/Button";
 import { TimeUntil } from "../components/TimeUntil";
@@ -14,107 +12,201 @@ import {
   revealLocation,
   planetName,
   playerName,
+  getAccount,
+  isCurrentlyRevealing,
+  subscribeToBlockNumber,
+  getBlockNumber,
+  colors,
+  getPlanetByCoords,
 } from "../helpers/df";
-import type { RevealRequest } from "../helpers/other";
+import type { RevealRequest, ViewProps } from "../helpers/other";
+import {
+  shown,
+  hidden,
+  muted,
+  bold,
+  centered,
+  warning,
+  beware,
+  scrollList,
+  scrollListItem,
+  jumpLink,
+  optionsRow,
+} from "../helpers/styles";
 
-const flex = {
-  display: "flex",
-  justifyContent: "space-between",
+type RowProps = {
+  revealRequest: RevealRequest;
+  canReveal: boolean;
+  onReveal: () => Promise<void>;
+  text: string;
 };
 
-const shown = {
-  ...flex,
-  width: "100%",
-  flexDirection: "column",
-};
+function timeFromNow() {
+  const nextReveal = getNextBroadcastAvailableTimestamp();
+  return nextReveal - Date.now();
+}
 
-const hidden = {
-  display: "none",
-};
+function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
+  const { x, y, location, payout, requester, cancelCompleteBlock } = revealRequest;
 
-const muted = {
-  color: "#a0a0a0",
-};
+  const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
 
-const beware = {
-  color: "#FF6492",
-};
+  useEffect(() => {
+    const sub = subscribeToBlockNumber((blockNumber) => {
+      setRemainingBlocks(cancelCompleteBlock - blockNumber);
+    });
 
-const revealRequestRow = {
-  ...flex,
-  marginBottom: "7px",
-  paddingBottom: "7px",
-  borderBottom: "1px solid #a0a0a0",
-};
+    return sub.unsubscribe;
+  }, [cancelCompleteBlock]);
 
-const revealRequestsList = {
-  overflow: "scroll",
-  height: "200px",
-};
+  function centerPlanet() {
+    centerCoords({ x, y });
+  }
 
-const warning = {
-  textAlign: "center",
-  height: "50px",
-};
+  const cancelWarning =
+    cancelCompleteBlock !== 0
+      ? html`<div>
+          <span style=${beware}>Beware:</span> Only available for <span style=${bold}>${remainingBlocks}</span> more
+          blocks.
+        </div>`
+      : "";
 
-const planetLink = {
-  color: "#00ADE1",
-  cursor: "pointer",
-};
+  return html`
+    <div style=${scrollListItem}>
+      <div style=${muted}>
+        <div>Reveal <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
+        <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
+        ${cancelWarning}
+      </div>
+      <${Button} onClick=${onReveal} enabled=${canReveal}>${text}<//>
+    </div>
+  `;
+}
 
-const bold = {
-  color: "white",
-};
+export function FulfillRequestsView({ active, contract, revealRequests, onStatus, pending, setPending }: ViewProps) {
+  const [waiting, setWaiting] = useState(timeFromNow);
+  const [canReveal, setCanReveal] = useState(() => waiting <= 0);
+  const [hideMyRequests, setHideMyRequests] = useState(true);
+  const [hidePendingCancel, setHidePendingCancel] = useState(false);
 
-type Props = {
-  active: boolean;
-  contract: RevealMarket;
-  revealRequests: RevealRequest[];
-};
+  useEffect(() => {
+    let timer = setInterval(() => {
+      if (isCurrentlyRevealing()) {
+        return;
+      }
+      const waiting = timeFromNow();
+      if (waiting <= 0) {
+        setCanReveal(true);
+      }
+      setWaiting(waiting);
+    }, 1000);
 
-export function FulfillRequestsView({ active, contract, revealRequests }: Props) {
-  const [nextReveal, setNextReveal] = useState(getNextBroadcastAvailableTimestamp);
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+  }, []);
 
-  const [canReveal, setCanReveal] = useState(() => nextReveal <= Date.now());
+  function toggleMyRequests(evt: Event) {
+    if (evt.target) {
+      const { checked } = evt.target as HTMLInputElement;
+      setHideMyRequests(checked);
+    } else {
+      console.error("No event target! How did this happen?");
+    }
+  }
 
-  function onAvailable() {
-    setNextReveal(getNextBroadcastAvailableTimestamp());
-    setCanReveal(true);
+  function togglePendingCancel(evt: Event) {
+    if (evt.target) {
+      const { checked } = evt.target as HTMLInputElement;
+      setHidePendingCancel(checked);
+    } else {
+      console.error("No event target! How did this happen?");
+    }
   }
 
   const rows = revealRequests
-    .filter(({ paid }) => !paid)
-    .map(({ location, x, y, value, requester }) => {
-      function centerPlanet() {
-        centerCoords({ x, y });
+    .filter(({ paid, refunded, requester, cancelCompleteBlock }) => {
+      if (paid || refunded) {
+        return false;
       }
+      if (cancelCompleteBlock !== 0) {
+        if (cancelCompleteBlock - getBlockNumber() <= 0) {
+          return false;
+        }
+
+        if (hidePendingCancel && cancelCompleteBlock > getBlockNumber()) {
+          return false;
+        }
+      }
+      if (hideMyRequests) {
+        return requester !== getAccount();
+      } else {
+        return true;
+      }
+    })
+    .map((revealRequest) => {
       async function revealPlanet() {
+        setPending(true);
         setCanReveal(false);
-        await revealLocation(x, y);
-        await contract.claimReveal(locationIdToDecStr(location));
-        // TODO: When does the player get updated?
-        setNextReveal(getNextBroadcastAvailableTimestamp());
+        onStatus({ message: "Attempting to reveal... Please wait...", color: colors.dfyellow });
+        try {
+          await revealLocation(revealRequest.x, revealRequest.y);
+        } catch (err) {
+          console.error("Error revealing location", err);
+          setPending(false);
+          onStatus({ message: "Error revealing location. Try again.", color: colors.dfred });
+          return;
+        }
+        try {
+          const tx = await contract.claimReveal(locationIdToDecStr(revealRequest.location));
+          await tx.wait();
+          setPending(false);
+          onStatus({ message: `Successfully claimed ${revealRequest.payout} xDai!`, color: colors.dfgreen });
+        } catch (err) {
+          console.error("Error claiming reveal payout", err);
+          setPending(false);
+          onStatus({ message: "Error claiming. Are you the revealer?", color: colors.dfred });
+        }
       }
-      return html`
-        <div style=${revealRequestRow} key=${location}>
-          <div style=${muted}>
-            <div>
-              Reveal <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>
-            </div>
-            <div>and receive <span style=${bold}>${value} xDai</span> from ${playerName(requester)}</div>
-          </div>
-          <${Button} onClick=${revealPlanet} enabled=${canReveal}>Reveal<//>
-        </div>
-      `;
+
+      const planet = getPlanetByCoords({ x: revealRequest.x, y: revealRequest.y });
+
+      // TODO(#58): Once revealer is exposed in the client, we need to check if the player is the revealer
+      // otherwise they will pay the gas for a claim of someone else.
+      if (planet?.coordsRevealed) {
+        return html`<${Row}
+          key=${revealRequest.location}
+          revealRequest=${revealRequest}
+          onReveal=${revealPlanet}
+          canReveal=${!pending}
+          text="Claim"
+        />`;
+      } else {
+        return html`<${Row}
+          key=${revealRequest.location}
+          revealRequest=${revealRequest}
+          onReveal=${revealPlanet}
+          canReveal=${!pending && canReveal}
+          text="Reveal"
+        />`;
+      }
     });
+
+  const message = html`<span style=${centered}>No requests currently.</span>`;
 
   return html`
     <div style=${active ? shown : hidden}>
       <div style=${warning}>
         <div><span style=${beware}>Beware:</span> You can only reveal once every ${REVEAL_COOLDOWN_HOURS} hours</div>
-        <div>Time until your next reveal: <${TimeUntil} timestamp=${nextReveal} ifPassed=${"Now!"} onAvailable=${onAvailable} /></div>
+        <div>Time until your next reveal: <${TimeUntil} timestamp=${waiting} ifPassed=${"Now!"} /></div>
       </div>
-      <div style=${revealRequestsList}>${rows}</div>
+      <div style=${scrollList}>${rows.length ? rows : message}</div>
+      <div style=${optionsRow}>
+        <label><input type="checkbox" checked=${hideMyRequests} onChange=${toggleMyRequests} /> Hide my requests</label>
+        <label><input type="checkbox" checked=${hidePendingCancel} onChange=${togglePendingCancel} /> Hide requests pending cancel</label>
+      </div>
     </<div>
   `;
 }

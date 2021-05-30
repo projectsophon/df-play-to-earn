@@ -1,5 +1,4 @@
-import type { RevealMarket } from "../../types";
-import type { LocationId } from "@darkforest_eth/types";
+import type { Planet } from "@darkforest_eth/types";
 
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
@@ -13,35 +12,19 @@ import {
   subscribeToMyBalance,
   planetName,
   getPlanetByLocationId,
+  colors,
 } from "../helpers/df";
-import { requestReveal, RevealRequest } from "../helpers/other";
-
-const flex = {
-  display: "flex",
-  justifyContent: "space-between",
-};
+import { feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther, ViewProps } from "../helpers/other";
+import { flex, hidden, beware, warning, fullWidth, shown as baseShown } from "../helpers/styles";
 
 const shown = {
-  ...flex,
-  width: "100%",
+  ...baseShown,
   height: "100%",
-  flexDirection: "column",
-};
-
-const hidden = {
-  display: "none",
 };
 
 const row = {
   ...flex,
   margin: "7px 0",
-};
-
-const bottomRow = {
-  ...flex,
-  flex: "1 0",
-  justifyContent: "flex-end",
-  flexDirection: "column",
 };
 
 const paymentInput = {
@@ -52,54 +35,36 @@ const paymentInput = {
   borderRadius: "3px",
 };
 
-// TODO: Not red?
-const beware = {
-  color: "#FF6492",
-};
+function isRevealed(planet: Planet | undefined) {
+  return planet?.coordsRevealed === true;
+}
 
-const warning = {
-  textAlign: "center",
-};
+function hasPendingRequest(planet: Planet | undefined, revealRequests: RevealRequest[]) {
+  if (!planet) return false;
+  return revealRequests.findIndex((req) => req.location === planet.locationId) !== -1;
+}
 
-const fullWidth = {
-  width: "100%",
-};
-
-type Props = {
-  active: boolean;
-  contract: RevealMarket;
-  revealRequests: RevealRequest[];
-};
-
-export function RequestRevealView({ active, revealRequests }: Props) {
-  const [pending, setPending] = useState<LocationId | null>(null);
-
-  function canRequestReveal(locationId?: LocationId) {
-    if (!locationId) {
-      return false;
-    }
-
-    if (pending) {
-      return false;
-    }
-
-    const planet = getPlanetByLocationId(locationId);
-    if (planet) {
-      return planet.coordsRevealed === false && revealRequests.findIndex((req) => req.location === locationId) === -1;
-    } else {
-      return false;
-    }
+function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequest[]) {
+  if (planet) {
+    return !isRevealed(planet) && !hasPendingRequest(planet, revealRequests);
+  } else {
+    return false;
   }
+}
 
+export function RequestRevealView({ active, revealRequests, constants, onStatus, pending, setPending }: ViewProps) {
   const [selectedLocationId, setSelectedLocationId] = useState(getSelectedLocationId);
+
+  const planet = getPlanetByLocationId(selectedLocationId);
+
   const [balance, setBalance] = useState(getMyBalance);
-  const [canRequest, setCanRequest] = useState(() => canRequestReveal(selectedLocationId));
-  const [xdai, setXdai] = useState("1.0");
-  const [minXdai, setMinXdai] = useState("1.0");
+  const [canRequest, setCanRequest] = useState(() => canRequestReveal(planet, revealRequests));
+  const [xdai, setXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
+  const [minXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
 
   useEffect(() => {
-    setCanRequest(canRequestReveal(selectedLocationId));
-  }, [selectedLocationId]);
+    setCanRequest(canRequestReveal(planet, revealRequests));
+  }, [planet, revealRequests]);
 
   useEffect(() => {
     const sub = subscribeToSelectedLocationId(setSelectedLocationId);
@@ -111,26 +76,72 @@ export function RequestRevealView({ active, revealRequests }: Props) {
     return sub.unsubscribe;
   }, [setBalance]);
 
+  const maxXdai = minWithoutFee(`${balance}`, constants.FEE_PERCENT);
+
   function onChangeXdai(evt: InputEvent) {
     if (evt.target) {
-      setXdai((evt.target as HTMLInputElement).value);
+      const { value } = evt.target as HTMLInputElement;
+      if (parseFloat(value) < balance) {
+        setXdai(value);
+      } else {
+        setXdai(maxXdai);
+      }
     } else {
-      console.log("No event target! How did this happen?");
+      console.error("No event target! How did this happen?");
     }
   }
 
-  // Might not need this with Ivan's fixes
+  // Ivan's fix didn't solve keyup
   function onKeyUp(evt: Event) {
     evt.stopPropagation();
   }
 
-  function onClick() {
+  function onKeyDown(evt: Event) {
+    if (evt.target) {
+      const { value } = evt.target as HTMLInputElement;
+      if (parseFloat(value) < balance) {
+        setXdai(value);
+      } else {
+        setXdai(maxXdai);
+      }
+    } else {
+      console.error("No event target! How did this happen?");
+    }
+  }
+
+  const totalEther = totalFromEther(xdai, constants.FEE_PERCENT);
+  const feeEther = feeFromEther(totalEther, constants.FEE_PERCENT);
+
+  async function onClick() {
+    setPending(true);
     setCanRequest(false);
-    setPending(selectedLocationId);
-    requestReveal(selectedLocationId, xdai).then(() => {
-      setPending(null);
-      setCanRequest(canRequestReveal(selectedLocationId));
-    });
+    onStatus({ message: "Sending reveal request... Please wait...", color: colors.dfyellow });
+    try {
+      await requestReveal(selectedLocationId, totalEther);
+      setPending(false);
+      onStatus({ message: "Successfully posted reveal request!", color: colors.dfgreen, timeout: 5000 });
+    } catch (err) {
+      console.error("Error requesting reveal", err);
+      setPending(false);
+      onStatus({ message: "Error requesting reveal. Try again.", color: colors.dfred });
+    }
+  }
+
+  let btnMessage = "Request Reveal";
+  if (!planet) {
+    btnMessage = "No planet selected.";
+  }
+
+  if (isRevealed(planet)) {
+    btnMessage = "Planet already revealed!";
+  }
+
+  if (hasPendingRequest(planet, revealRequests)) {
+    btnMessage = "Reveal request already exists!";
+  }
+
+  if (pending) {
+    btnMessage = "Wait...";
   }
 
   return html`
@@ -152,16 +163,24 @@ export function RequestRevealView({ active, revealRequests }: Props) {
             style=${paymentInput}
             value=${xdai}
             min=${minXdai}
+            max=${maxXdai}
             onChange=${onChangeXdai}
             step="0.1"
             onKeyUp=${onKeyUp}
+            onKeyDown=${onKeyDown}
           />
           <label>xDai</label>
         </span>
       </div>
-      <div style=${bottomRow}>
-        <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>Request Reveal<//>
+      <div style=${row}>
+        <span>Fee:</span>
+        <span>${feeEther} xDai</span>
       </div>
+      <div style=${row}>
+        <span>Total:</span>
+        <span>${totalEther} xDai</span>
+      </div>
+      <${Button} style=${fullWidth} onClick=${onClick} enabled=${!pending && canRequest}>${btnMessage}<//>
     </div>
   `;
 }

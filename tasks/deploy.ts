@@ -7,6 +7,9 @@ import { task, subtask } from "hardhat/config";
 import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
 import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 
+//@ts-ignore
+import * as devServer from "./dev-server-shim.cjs";
+
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
@@ -81,4 +84,7 @@ async function deployIntoNode(
   // So blockNumber keeps incrementing
   await hre.network.provider.send("evm_setAutomine", [false]);
   await hre.network.provider.send("evm_setIntervalMining", [5000]);
+
+  // Start up the plugin dev-server
+  await devServer.start({ dir: "plugins", ext: [".ts"] });
 }

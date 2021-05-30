@@ -9,12 +9,11 @@
     "node": "^14"
   },
   "scripts": {
+    "start": "hardhat node",
+    "compile": "hardhat compile",
     "lint": "solhint 'contracts/**/*.sol' --max-warnings 0 && eslint .",
     "test": "hardhat compile && hardhat test",
-    "compile": "hardhat compile",
-    "start": "hardhat node",
-    "format": "prettier --write .",
-    "serve": "df-plugin-dev-server"
+    "format": "prettier --write ."
   },
   "dependencies": {},
   "resolutions": {
@@ -32,7 +31,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^4.1.0",
     "@openzeppelin/hardhat-upgrades": "^1.8.2",
-    "@projectsophon/df-plugin-dev-server": "^1.0.1",
+    "@projectsophon/df-plugin-dev-server": "^1.1.0",
     "@projectsophon/eslint-config": "0.0.2",
     "@projectsophon/prettier-config": "0.0.0",
     "@projectsophon/tsconfig": "^0.0.0",
@@ -50,6 +49,7 @@
     "htm": "3.0.4",
     "preact": "^10.5.13",
     "solhint": "^3.3.4",
+    "stable": "^0.1.8",
     "ts-node": "^9.1.1",
     "typechain": "^5.0.0",
     "typescript": "^4.2.4"
