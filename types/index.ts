@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Ownable } from "./Ownable";
+export type { BroadcastMarket } from "./BroadcastMarket";
 export type { DarkForestCore } from "./DarkForestCore";
-export type { RevealMarket } from "./RevealMarket";
 
 export { Ownable__factory } from "./factories/Ownable__factory";
+export { BroadcastMarket__factory } from "./factories/BroadcastMarket__factory";
 export { DarkForestCore__factory } from "./factories/DarkForestCore__factory";
-export { RevealMarket__factory } from "./factories/RevealMarket__factory";

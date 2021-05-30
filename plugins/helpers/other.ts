@@ -1,4 +1,4 @@
-import type { RevealMarket } from "../../types";
+import type { BroadcastMarket } from "../../types";
 import type { Awaited, EthAddress, LocationId } from "@darkforest_eth/types";
 
 //@ts-expect-error
@@ -12,8 +12,8 @@ import { default as stableSort } from "stable";
 
 import { getContract, getPlanetByLocationId, revealSnarkArgs } from "./df";
 
-export type RawRevealRequest = Awaited<ReturnType<RevealMarket["getRevealRequest"]>>;
-export type RawConstants = Awaited<ReturnType<RevealMarket["getConstants"]>>;
+export type RawRevealRequest = Awaited<ReturnType<BroadcastMarket["getRevealRequest"]>>;
+export type RawConstants = Awaited<ReturnType<BroadcastMarket["getConstants"]>>;
 
 export type RevealRequest = {
   requester: EthAddress;
@@ -42,7 +42,7 @@ export type StatusMessage = {
 
 export type ViewProps = {
   active: boolean;
-  contract: RevealMarket;
+  contract: BroadcastMarket;
   revealRequests: RevealRequest[];
   constants: Constants;
   onStatus: (status: StatusMessage) => void;
@@ -96,7 +96,7 @@ export function decodeConstants(raw: RawConstants): Constants {
   };
 }
 
-export async function getRevealRequests(contract: RevealMarket): Promise<Map<LocationId, RevealRequest>> {
+export async function getRevealRequests(contract: BroadcastMarket): Promise<Map<LocationId, RevealRequest>> {
   try {
     const rawRevealRequests = await contract.getAllRevealRequests();
     const revealRequests = rawRevealRequests.map((raw) => {
@@ -105,7 +105,8 @@ export async function getRevealRequests(contract: RevealMarket): Promise<Map<Loc
     });
     return new Map(revealRequests);
   } catch (err) {
-    throw new Error("Unable to load reveal requests. Please reload.");
+    console.log("[BroadcastMarketPlugin] Error getting RevealRequests", err);
+    throw new Error("Unable to load broadcast requests. Please reload.");
   }
 }
 
@@ -134,9 +135,9 @@ export async function requestReveal(locationId: LocationId, xdai: string): Promi
   } catch (err) {
     const subErr2 = err?.error?.error;
     if (subErr2) {
-      console.error("Error submitting request", subErr2.message);
+      console.error("[BroadcastMarketPlugin] Error submitting request", subErr2.message);
     } else {
-      console.error("Error submitting request", err);
+      console.error("[BroadcastMarketPlugin] Error submitting request", err);
     }
     throw new Error("Error submitting request. See console for details.");
   }

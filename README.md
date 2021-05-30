@@ -71,7 +71,7 @@ Once the game launches, you'll log in like normal, importing your private key fr
 Upon finally logging into the game, you'll be able to create a new plugin containing:
 
 ```js
-export { default } from "http://localhost:2222/RevealMarket.js";
+export { default } from "http://localhost:2222/BroadcastMarketPlugin.js";
 ```
 
 ## Setting up a new user

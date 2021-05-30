@@ -1,10 +1,10 @@
 // This file solely exists for @ts-expect-error because DF doesn't provide the global object as types
 import type { Planet, LocationId, EthAddress, WorldCoords } from "@darkforest_eth/types";
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
-import type { RevealMarket } from "../../types";
+import type { BroadcastMarket } from "../../types";
 
-import { REVEAL_MARKET_ABI } from "../generated/abi";
-import { REVEAL_MARKET_ADDRESS } from "../generated/contract";
+import { BROADCAST_MARKET_ABI } from "../generated/abi";
+import { BROADCAST_MARKET_ADDRESS } from "../generated/contract";
 import { EMPTY_LOCATION_ID } from "@darkforest_eth/constants";
 
 //@ts-expect-error
@@ -51,9 +51,9 @@ export function getAccount(): string {
   return df.account;
 }
 
-export async function getContract(): Promise<RevealMarket> {
+export async function getContract(): Promise<BroadcastMarket> {
   //@ts-expect-error
-  return df.loadContract(REVEAL_MARKET_ADDRESS, REVEAL_MARKET_ABI) as Promise<RevealMarket>;
+  return df.loadContract(BROADCAST_MARKET_ADDRESS, BROADCAST_MARKET_ABI) as Promise<BroadcastMarket>;
 }
 
 export async function revealLocation(x: number, y: number): Promise<void> {

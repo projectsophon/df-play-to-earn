@@ -94,7 +94,7 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
         setXdai(maxXdai);
       }
     } else {
-      console.error("No event target! How did this happen?");
+      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
     }
   }
 
@@ -112,7 +112,7 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
         setXdai(maxXdai);
       }
     } else {
-      console.error("No event target! How did this happen?");
+      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
     }
   }
 
@@ -122,29 +122,29 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
   async function onClick() {
     setPending(true);
     setCanRequest(false);
-    onStatus({ message: "Sending reveal request... Please wait...", color: colors.dfyellow });
+    onStatus({ message: "Sending broadcast request... Please wait...", color: colors.dfyellow });
     try {
       await requestReveal(selectedLocationId, totalEther);
       setPending(false);
-      onStatus({ message: "Successfully posted reveal request!", color: colors.dfgreen, timeout: 5000 });
+      onStatus({ message: "Successfully posted broadcast request!", color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
-      console.error("Error requesting reveal", err);
+      console.error("[BroadcastMarketPlugin] Error requesting broadcast", err);
       setPending(false);
-      onStatus({ message: "Error requesting reveal. Try again.", color: colors.dfred });
+      onStatus({ message: "Error requesting broadcast. Try again.", color: colors.dfred });
     }
   }
 
-  let btnMessage = "Request Reveal";
+  let btnMessage = "Request broadcast";
   if (!planet) {
     btnMessage = "No planet selected.";
   }
 
   if (isRevealed(planet)) {
-    btnMessage = "Planet already revealed!";
+    btnMessage = "Planet already broadcasted!";
   }
 
   if (hasPendingRequest(planet, revealRequests)) {
-    btnMessage = "Reveal request already exists!";
+    btnMessage = "Broadcast request already exists!";
   }
 
   if (pending) {
@@ -159,7 +159,7 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
         <span>${balance} xDai</span>
       </div>
       <div style=${row}>
-        <span>Request Reveal of:</span>
+        <span>Request broadcast of:</span>
         <span>${planetName(selectedLocationId)}</span>
       </div>
       <div style=${row}>
