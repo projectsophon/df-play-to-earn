@@ -16,11 +16,11 @@ To develop on this project, or build your own plugins that have interop contract
 git clone --recurse-submodules git://github.com/projectsophon/df-play-to-earn
 ```
 
-That command will clone the project and the https://github.com/projectsophon/hardhat-network-fork submodule.
+That command will clone the project and the [projectsophon/hardhat-network-fork](https://github.com/projectsophon/hardhat-network-fork) submodule.
 
 The submodule contains a cache of the Dark Forest v0.6 Round 1 contract on the xDai network at block 16240564. The cache is pre-seeded from the `0xa9fcdf168759fbe712a651323b2f98d9ae141215` address, so your mileage may vary with loading the cache.
 
-_Note: This project uses a fork of Hardhat until https://github.com/nomiclabs/hardhat/pull/1483 is merged._
+_Note: This project uses a fork of Hardhat until [nomiclabs/hardhat#1483](https://github.com/nomiclabs/hardhat/pull/1483) is merged._
 
 If you need to refetch or update the cache submodule (such as after cleaning the project), you can run the command:
 
@@ -34,7 +34,9 @@ Once you've cloned the project, you need to get all the dependencies. In the pro
 yarn
 ```
 
-You probably need to edit the `hardhat.config.ts` to setup your own player. See [Setting up a new user](#setting-up-a-new-user) for detaults.
+If you started playing after block 16240564 (the morning of May 25th, 2021), you'll need to change the forking `blockNumber` in `hardhat.config.ts` to a block **after** your wallet address was whitelisted in the production game, or the game will keep asking you for a whitelist key.
+
+_Note:_ You probably want to edit the `hardhat.config.ts` to include your own player. See [Setting up a new user](#setting-up-a-new-user) for details.
 
 Once that is done, you'll need to run our local node with a fork of xDai, so run:
 
@@ -64,7 +66,7 @@ yarn start:dev
 
 This will start the game client that connects to our local test net running on `http://localhost:8545` but using the actual production contract addresses that we forked from xDai mainnet!
 
-Once the game launches, you'll log in like normal, importing your private key from your primary account. The first load will probably take 10s of minutes (😭) depending on the xDai RPC node you are forking from but the blocks are cached after that.
+Once the game launches, you'll log in like normal, importing your private key from your primary account. The first load will probably take 10s of minutes 😭😭😭 depending on the xDai RPC node you are forking from but the blocks are cached after that.
 
 Upon finally logging into the game, you'll be able to create a new plugin containing:
 
@@ -74,9 +76,7 @@ export { default } from "http://localhost:2222/RevealMarket.js";
 
 ## Setting up a new user
 
-In `hardhat.config.ts` you need to change the forking `blockNumber` to a block **after** your wallet address was whitelisted in the production game, or the game will keep asking you for a whitelist key. You'll also want add your wallet address as new player object in `env.players` to be dripped some counterfeit xDai.
-
-You'll want to add another object like this:
+If you want to be dripped some counterfeit xDai, add your wallet address as new player object in `env.players` to inside `hardhat.config.ts`. You'll can add another object like this:
 
 ```js
 {
