@@ -46,6 +46,7 @@ export function AppView({ contract, requests, constants }: Props) {
   const [activeView, setActiveView] = useState(Views.FulfillRequests);
   const [revealRequests, setRevealRequests] = useState<RevealRequest[]>(() => sortByValue(requests));
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     let handle: ReturnType<typeof setTimeout>;
@@ -114,6 +115,8 @@ export function AppView({ contract, requests, constants }: Props) {
           revealRequests=${revealRequests}
           constants=${constants}
           onStatus=${setStatusMessage}
+          pending=${pending}
+          setPending=${setPending}
         />
         <${FulfillRequestsView}
           active=${fulfillRequestsActive}
@@ -121,6 +124,8 @@ export function AppView({ contract, requests, constants }: Props) {
           revealRequests=${revealRequests}
           constants=${constants}
           onStatus=${setStatusMessage}
+          pending=${pending}
+          setPending=${setPending}
         />
         <${CancelRequestView}
           active=${cancelRequestActive}
@@ -128,6 +133,8 @@ export function AppView({ contract, requests, constants }: Props) {
           revealRequests=${revealRequests}
           constants=${constants}
           onStatus=${setStatusMessage}
+          pending=${pending}
+          setPending=${setPending}
         />
       </div>
       <div style=${messageBar}>

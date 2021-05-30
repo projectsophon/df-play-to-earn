@@ -17,6 +17,7 @@ export const colors = {
   dfwhite: "#ffffff",
   dfred: "#FF6492",
   dfgreen: "#00DC82",
+  dfyellow: "#e8e228",
 };
 
 //@ts-expect-error
@@ -59,7 +60,7 @@ export async function revealLocation(x: number, y: number): Promise<void> {
   const coords = { x, y };
   const planet = getPlanetByCoords(coords);
   if (planet?.coordsRevealed) {
-    // TODO: Once revealer is exposed in the client, we need to check if the player is the revealer
+    // TODO(#58): Once revealer is exposed in the client, we need to check if the player is the revealer
     // otherwise they will pay the gas for a claim of someone else.
     return Promise.resolve();
   }

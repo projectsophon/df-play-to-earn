@@ -66,7 +66,7 @@ const centered = {
 };
 
 const bold = {
-  color: "white",
+  color: colors.dfwhite,
 };
 
 const optionsRow = {
@@ -80,6 +80,8 @@ type RowProps = {
   revealRequest: RevealRequest;
   contract: RevealMarket;
   onStatus: (status: StatusMessage) => void;
+  pending: boolean;
+  setPending: (pending: boolean) => void;
 };
 
 function PaidRow({ revealRequest }: RowProps) {
@@ -121,17 +123,15 @@ function RefundedRow({ revealRequest }: RowProps) {
   `;
 }
 
-function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus }: RowProps) {
+function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus, pending, setPending }: RowProps) {
   const { x, y, payout, location } = revealRequest;
-
-  const [pending, setPending] = useState(false);
 
   function centerPlanet() {
     centerCoords({ x, y });
   }
   async function cancelReveal() {
     setPending(true);
-    onStatus({ message: "Attempting to cancel request... Please wait...", color: colors.dfwhite });
+    onStatus({ message: "Attempting to cancel request... Please wait...", color: colors.dfyellow });
     try {
       const tx = await contract.cancelReveal(locationIdToDecStr(location));
       await tx.wait();
@@ -163,18 +163,17 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus
   `;
 }
 
-function RefundRow({ revealRequest, contract, onStatus }: RowProps) {
+function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: RowProps) {
   const { x, y, payout, location, cancelCompleteBlock } = revealRequest;
 
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
-  const [pending, setPending] = useState(false);
 
   function centerPlanet() {
     centerCoords({ x, y });
   }
   async function claimRefund() {
     setPending(true);
-    onStatus({ message: "Attempting to claim refund... Please wait...", color: colors.dfwhite });
+    onStatus({ message: "Attempting to claim refund... Please wait...", color: colors.dfyellow });
     try {
       const tx = await contract.claimRefund(locationIdToDecStr(location));
       await tx.wait();
@@ -209,7 +208,15 @@ function RefundRow({ revealRequest, contract, onStatus }: RowProps) {
   `;
 }
 
-export function CancelRequestView({ active, contract, revealRequests, constants, onStatus }: ViewProps) {
+export function CancelRequestView({
+  active,
+  contract,
+  revealRequests,
+  constants,
+  onStatus,
+  pending,
+  setPending,
+}: ViewProps) {
   const cancelledCountdownBlocks = constants.CANCELLED_COUNTDOWN_BLOCKS;
 
   const [hideClaimed, setHideClaimed] = useState(false);
@@ -260,6 +267,8 @@ export function CancelRequestView({ active, contract, revealRequests, constants,
           revealRequest=${revealRequest}
           contract=${contract}
           onStatus=${onStatus}
+          pending=${pending}
+          setPending=${setPending}
         />`;
       } else {
         return html`<${RefundRow}
@@ -267,6 +276,8 @@ export function CancelRequestView({ active, contract, revealRequests, constants,
           revealRequest=${revealRequest}
           contract=${contract}
           onStatus=${onStatus}
+          pending=${pending}
+          setPending=${setPending}
         />`;
       }
     });

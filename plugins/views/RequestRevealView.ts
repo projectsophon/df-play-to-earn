@@ -1,4 +1,4 @@
-import type { LocationId, Planet } from "@darkforest_eth/types";
+import type { Planet } from "@darkforest_eth/types";
 
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
@@ -67,12 +67,8 @@ function hasPendingRequest(planet: Planet | undefined, revealRequests: RevealReq
   return revealRequests.findIndex((req) => req.location === planet.locationId) !== -1;
 }
 
-function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequest[], pending: LocationId | null) {
+function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequest[]) {
   if (!planet) {
-    return false;
-  }
-
-  if (pending) {
     return false;
   }
 
@@ -83,20 +79,18 @@ function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequ
   }
 }
 
-export function RequestRevealView({ active, revealRequests, constants, onStatus }: ViewProps) {
-  const [pending, setPending] = useState<LocationId | null>(null);
+export function RequestRevealView({ active, revealRequests, constants, onStatus, pending, setPending }: ViewProps) {
   const [selectedLocationId, setSelectedLocationId] = useState(getSelectedLocationId);
 
   const planet = getPlanetByLocationId(selectedLocationId);
 
   const [balance, setBalance] = useState(getMyBalance);
-  const [canRequest, setCanRequest] = useState(() => canRequestReveal(planet, revealRequests, pending));
+  const [canRequest, setCanRequest] = useState(() => canRequestReveal(planet, revealRequests));
   const [xdai, setXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
   const [minXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
 
-  // This explicitly doesn't rerun for `pending` because we want to wait until we get the event from xdai
   useEffect(() => {
-    setCanRequest(canRequestReveal(planet, revealRequests, pending));
+    setCanRequest(canRequestReveal(planet, revealRequests));
   }, [planet, revealRequests]);
 
   useEffect(() => {
@@ -146,16 +140,16 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus 
   const feeEther = feeFromEther(totalEther, constants.FEE_PERCENT);
 
   async function onClick() {
+    setPending(true);
     setCanRequest(false);
-    onStatus({ message: "Sending reveal request... Please wait...", color: colors.dfwhite });
-    setPending(selectedLocationId);
+    onStatus({ message: "Sending reveal request... Please wait...", color: colors.dfyellow });
     try {
       await requestReveal(selectedLocationId, totalEther);
+      setPending(false);
       onStatus({ message: "Successfully posted reveal request!", color: colors.dfgreen, timeout: 5000 });
-      setPending(null);
     } catch (err) {
       console.error("Error requesting reveal", err);
-      setPending(null);
+      setPending(false);
       onStatus({ message: "Error requesting reveal. Try again.", color: colors.dfred });
     }
   }
@@ -170,7 +164,7 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus 
   }
 
   if (pending) {
-    btnMessage = "Requesting...";
+    btnMessage = "Wait...";
   }
 
   return html`
@@ -209,7 +203,7 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus 
         <span>Total:</span>
         <span>${totalEther} xDai</span>
       </div>
-      <${Button} style=${fullWidth} onClick=${onClick} enabled=${canRequest}>${btnMessage}<//>
+      <${Button} style=${fullWidth} onClick=${onClick} enabled=${!pending && canRequest}>${btnMessage}<//>
     </div>
   `;
 }

@@ -69,7 +69,7 @@ const planetLink = {
 };
 
 const bold = {
-  color: "white",
+  color: colors.dfwhite,
 };
 
 const centered = {
@@ -131,7 +131,7 @@ function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
   `;
 }
 
-export function FulfillRequestsView({ active, contract, revealRequests, onStatus }: ViewProps) {
+export function FulfillRequestsView({ active, contract, revealRequests, onStatus, pending, setPending }: ViewProps) {
   const [waiting, setWaiting] = useState(timeFromNow);
   const [canReveal, setCanReveal] = useState(() => waiting <= 0);
   const [hideMyRequests, setHideMyRequests] = useState(true);
@@ -196,35 +196,39 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
     })
     .map((revealRequest) => {
       async function revealPlanet() {
+        setPending(true);
         setCanReveal(false);
-        onStatus({ message: "Attempting to reveal... Please wait...", color: colors.dfwhite });
+        onStatus({ message: "Attempting to reveal... Please wait...", color: colors.dfyellow });
         try {
           await revealLocation(revealRequest.x, revealRequest.y);
         } catch (err) {
           console.error("Error revealing location", err);
+          setPending(false);
           onStatus({ message: "Error revealing location. Try again.", color: colors.dfred });
           return;
         }
         try {
           const tx = await contract.claimReveal(locationIdToDecStr(revealRequest.location));
           await tx.wait();
+          setPending(false);
           onStatus({ message: `Successfully claimed ${revealRequest.payout} xDai!`, color: colors.dfgreen });
         } catch (err) {
           console.error("Error claiming reveal payout", err);
+          setPending(false);
           onStatus({ message: "Error claiming. Are you the revealer?", color: colors.dfred });
         }
       }
 
       const planet = getPlanetByCoords({ x: revealRequest.x, y: revealRequest.y });
 
-      // TODO: Once revealer is exposed in the client, we need to check if the player is the revealer
+      // TODO(#58): Once revealer is exposed in the client, we need to check if the player is the revealer
       // otherwise they will pay the gas for a claim of someone else.
       if (planet?.coordsRevealed) {
         return html`<${Row}
           key=${revealRequest.location}
           revealRequest=${revealRequest}
           onReveal=${revealPlanet}
-          canReveal=${true}
+          canReveal=${!pending}
           text="Claim"
         />`;
       } else {
@@ -232,7 +236,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
           key=${revealRequest.location}
           revealRequest=${revealRequest}
           onReveal=${revealPlanet}
-          canReveal=${canReveal}
+          canReveal=${!pending && canReveal}
           text="Reveal"
         />`;
       }

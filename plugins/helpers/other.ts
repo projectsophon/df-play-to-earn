@@ -46,6 +46,8 @@ export type ViewProps = {
   revealRequests: RevealRequest[];
   constants: Constants;
   onStatus: (status: StatusMessage) => void;
+  pending: boolean;
+  setPending: (pending: boolean) => void;
 };
 
 export function sortByValue(revealRequests: Map<LocationId, RevealRequest>) {
