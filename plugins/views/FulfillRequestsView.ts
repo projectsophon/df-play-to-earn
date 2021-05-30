@@ -17,6 +17,7 @@ import {
   subscribeToBlockNumber,
   getBlockNumber,
   colors,
+  getPlanetByCoords,
 } from "../helpers/df";
 import type { RevealRequest, ViewProps } from "../helpers/other";
 
@@ -85,6 +86,7 @@ type RowProps = {
   revealRequest: RevealRequest;
   canReveal: boolean;
   onReveal: () => Promise<void>;
+  text: string;
 };
 
 function timeFromNow() {
@@ -92,7 +94,7 @@ function timeFromNow() {
   return nextReveal - Date.now();
 }
 
-function Row({ revealRequest, canReveal, onReveal }: RowProps) {
+function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
   const { x, y, location, payout, requester, cancelCompleteBlock } = revealRequest;
 
   const [remainingBlocks, setRemainingBlocks] = useState(cancelCompleteBlock - getBlockNumber());
@@ -118,13 +120,13 @@ function Row({ revealRequest, canReveal, onReveal }: RowProps) {
       : "";
 
   return html`
-    <div style=${revealRequestRow} key=${location}>
+    <div style=${revealRequestRow}>
       <div style=${muted}>
         <div>Reveal <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
         <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
         ${cancelWarning}
       </div>
-      <${Button} onClick=${onReveal} enabled=${canReveal}>Reveal<//>
+      <${Button} onClick=${onReveal} enabled=${canReveal}>${text}<//>
     </div>
   `;
 }
@@ -213,7 +215,27 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
         }
       }
 
-      return html`<${Row} revealRequest=${revealRequest} onReveal=${revealPlanet} canReveal=${canReveal} />`;
+      const planet = getPlanetByCoords({ x: revealRequest.x, y: revealRequest.y });
+
+      // TODO: Once revealer is exposed in the client, we need to check if the player is the revealer
+      // otherwise they will pay the gas for a claim of someone else.
+      if (planet?.coordsRevealed) {
+        return html`<${Row}
+          key=${revealRequest.location}
+          revealRequest=${revealRequest}
+          onReveal=${revealPlanet}
+          canReveal=${true}
+          text="Claim"
+        />`;
+      } else {
+        return html`<${Row}
+          key=${revealRequest.location}
+          revealRequest=${revealRequest}
+          onReveal=${revealPlanet}
+          canReveal=${canReveal}
+          text="Reveal"
+        />`;
+      }
     });
 
   const message = html`<span style=${centered}>No requests currently.</span>`;

@@ -55,9 +55,16 @@ export async function getContract(): Promise<RevealMarket> {
   return df.loadContract(REVEAL_MARKET_ADDRESS, REVEAL_MARKET_ABI) as Promise<RevealMarket>;
 }
 
-export function revealLocation(x: number, y: number): Promise<void> {
+export async function revealLocation(x: number, y: number): Promise<void> {
+  const coords = { x, y };
+  const planet = getPlanetByCoords(coords);
+  if (planet?.coordsRevealed) {
+    // TODO: Once revealer is exposed in the client, we need to check if the player is the revealer
+    // otherwise they will pay the gas for a claim of someone else.
+    return Promise.resolve();
+  }
   //@ts-expect-error
-  const location = df.locationFromCoords({ x, y });
+  const location = df.locationFromCoords(coords);
   //@ts-expect-error
   df.entityStore.addPlanetLocation(location);
   //@ts-expect-error
@@ -122,6 +129,11 @@ export function centerCoords(coords: WorldCoords): void {
 export function getPlanetByLocationId(locationId?: LocationId): Planet | undefined {
   //@ts-expect-error
   return df.getPlanetWithId(locationId);
+}
+
+export function getPlanetByCoords(coords: WorldCoords): Planet | undefined {
+  //@ts-expect-error
+  return df.getPlanetWithCoords(coords);
 }
 
 export async function revealSnarkArgs(x: number, y: number): Promise<RevealSnarkContractCallArgs> {
