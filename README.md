@@ -76,7 +76,7 @@ export { default } from "http://localhost:2222/RevealMarket.js";
 
 ## Setting up a new user
 
-If you want to be dripped some counterfeit xDai, add your wallet address as new player object in `env.players` to inside `hardhat.config.ts`. You'll can add another object like this:
+If you want to be dripped some counterfeit xDai, add your wallet address as new player object to `env.players` inside `hardhat.config.ts`. You'll can add another object like this:
 
 ```js
 {
