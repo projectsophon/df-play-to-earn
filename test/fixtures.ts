@@ -1,4 +1,5 @@
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
+import { BigNumber } from "ethers";
 
 export const MARKET_OPEN_FOR_HOURS = 1;
 // In seconds
@@ -110,3 +111,7 @@ export const invalidRevealProof: RevealSnarkContractCallArgs = [
     "0",
   ],
 ];
+
+export function inverse(amount: BigNumber, percent: number): BigNumber {
+  return amount.mul(100).div(BigNumber.from(100 + percent));
+}

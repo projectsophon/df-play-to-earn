@@ -5,7 +5,7 @@ import type { Awaited, EthAddress, LocationId } from "@darkforest_eth/types";
 import bigInt from "big-integer";
 import { LOCATION_ID_UB } from "@darkforest_eth/constants";
 import { parseEther, formatEther } from "@ethersproject/units";
-import { FixedNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 import { locationIdFromDecStr, address } from "@darkforest_eth/serde";
 //@ts-ignore
 import { default as stableSort } from "stable";
@@ -142,21 +142,20 @@ export async function requestReveal(locationId: LocationId, xdai: string): Promi
   }
 }
 
-export function totalFromEther(amount: string, feePercent: number): string {
-  const amountFixed = FixedNumber.from(amount);
-  const payPercentFixed = FixedNumber.from(100 - feePercent);
-  const totalFixed = FixedNumber.from(100).divUnsafe(payPercentFixed).mulUnsafe(amountFixed);
-  return totalFixed.toString();
+export function sumEtherStrings(amount: string, fee: string): string {
+  const totalWei = parseEther(amount).add(parseEther(fee));
+  return formatEther(totalWei);
 }
 
 export function feeFromEther(total: string, feePercent: number): string {
-  const fee = parseEther(total).mul(feePercent).div(100);
-  return formatEther(fee);
+  const feeWei = parseEther(total).mul(BigNumber.from(feePercent)).div(BigNumber.from(100));
+  return formatEther(feeWei);
 }
 
 export function minWithoutFee(minAmount: string, feePercent: number): string {
-  const min = parseEther(minAmount);
-  const fee = min.mul(feePercent).div(100);
-  const payment = min.sub(fee);
-  return formatEther(payment);
+  const payoutWei = parseEther(minAmount)
+    .mul(100)
+    .div(BigNumber.from(100 + feePercent));
+
+  return formatEther(payoutWei);
 }

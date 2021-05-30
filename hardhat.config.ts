@@ -48,7 +48,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   // and users can no longer reveal AND/OR collect their reward!
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
   // The minimum allowable Reveal offer value (fee included)
-  env.REQUEST_MINIMUM = utils.parseEther("1.25");
+  env.REQUEST_MINIMUM = utils.parseEther("1.20");
   env.REQUEST_MAXIMUM = utils.parseEther("1000000"); // anything less than max/100
   // The listing fee to the marketplace. Fee is NOT returned upon successful cancelation.
   env.FEE_PERCENT = 20;

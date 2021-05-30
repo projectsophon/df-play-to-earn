@@ -12,6 +12,7 @@ import {
   wrongUniverseRevealProof,
   MARKET_OPEN_FOR_HOURS,
   MARKET_CLOSE_INCREASE,
+  inverse,
 } from "./fixtures";
 
 describe("RevealMarket", function () {
@@ -184,8 +185,8 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
-    const fee = hre.REQUEST_MINIMUM.mul(hre.FEE_PERCENT).div(100);
-    const payout = hre.REQUEST_MINIMUM.sub(fee);
+
+    const payout = inverse(overrides.value, hre.FEE_PERCENT);
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
@@ -361,8 +362,9 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
-    const fee = hre.REQUEST_MINIMUM.mul(hre.FEE_PERCENT).div(100);
-    const payout = hre.REQUEST_MINIMUM.sub(fee);
+
+    const payout = inverse(overrides.value, hre.FEE_PERCENT);
+    const fee = overrides.value.sub(payout);
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
@@ -416,8 +418,7 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const fee = hre.REQUEST_MINIMUM.mul(hre.FEE_PERCENT).div(100);
-    const payout = hre.REQUEST_MINIMUM.sub(fee);
+    const payout = inverse(overrides.value, hre.FEE_PERCENT);
 
     const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
