@@ -94,6 +94,7 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus
       });
     } catch (err) {
       console.error("Error cancelling reveal request", err);
+      setPending(false);
       onStatus({ message: "Error cancelling request. Try again.", color: colors.dfred });
     }
   }
@@ -128,9 +129,11 @@ function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: R
     try {
       const tx = await contract.claimRefund(locationIdToDecStr(location));
       await tx.wait();
+      setPending(false);
       onStatus({ message: `Successully claimed ${payout} xDai refund.`, color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
       console.error("Error claiming refund", err);
+      setPending(false);
       onStatus({ message: "Error claiming refund. Please try again.", color: colors.dfred });
     }
   }
