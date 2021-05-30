@@ -90,7 +90,7 @@ function PaidRow({ revealRequest }: RowProps) {
   }
 
   return html`
-    <div style=${revealRequestRow} key=${location}>
+    <div style=${revealRequestRow}>
       <div style=${muted}>
         <div>
           <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was revealed!
@@ -109,7 +109,7 @@ function RefundedRow({ revealRequest }: RowProps) {
   }
 
   return html`
-    <div style=${revealRequestRow} key=${location}>
+    <div style=${revealRequestRow}>
       <div style=${muted}>
         <div>
           <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> request
@@ -150,7 +150,7 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus
   const message = pending ? "Wait..." : "Cancel";
 
   return html`
-    <div style=${revealRequestRow} key=${location}>
+    <div style=${revealRequestRow}>
       <div style=${muted}>
         <div>Cancel <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
         <div>
@@ -196,7 +196,7 @@ function RefundRow({ revealRequest, contract, onStatus }: RowProps) {
   const message = remainingBlocks > 0 ? "Wait..." : "Claim!";
 
   return html`
-    <div style=${revealRequestRow} key=${location}>
+    <div style=${revealRequestRow}>
       <div style=${muted}>
         <div>
           Claim refund of <span style=${bold}>${payout} xDai</span> in
@@ -248,20 +248,26 @@ export function CancelRequestView({ active, contract, revealRequests, constants,
     })
     .map((revealRequest) => {
       if (revealRequest.paid) {
-        return html`<${PaidRow} revealRequest=${revealRequest} />`;
+        return html`<${PaidRow} key=${revealRequest.location} revealRequest=${revealRequest} />`;
       }
       if (revealRequest.refunded) {
-        return html`<${RefundedRow} revealRequest=${revealRequest} />`;
+        return html`<${RefundedRow} key=${revealRequest.location} revealRequest=${revealRequest} />`;
       }
       if (revealRequest.cancelCompleteBlock === 0) {
         return html`<${CancelRow}
+          key=${revealRequest.location}
           cancelledCountdownBlocks=${cancelledCountdownBlocks}
           revealRequest=${revealRequest}
           contract=${contract}
           onStatus=${onStatus}
         />`;
       } else {
-        return html`<${RefundRow} revealRequest=${revealRequest} contract=${contract} onStatus=${onStatus} />`;
+        return html`<${RefundRow}
+          key=${revealRequest.location}
+          revealRequest=${revealRequest}
+          contract=${contract}
+          onStatus=${onStatus}
+        />`;
       }
     });
 

@@ -7,6 +7,8 @@ import { LOCATION_ID_UB } from "@darkforest_eth/constants";
 import { parseEther, formatEther } from "@ethersproject/units";
 import { FixedNumber } from "@ethersproject/bignumber";
 import { locationIdFromDecStr, address } from "@darkforest_eth/serde";
+//@ts-ignore
+import { default as stableSort } from "stable";
 
 import { getContract, getPlanetByLocationId, revealSnarkArgs } from "./df";
 
@@ -46,8 +48,8 @@ export type ViewProps = {
   onStatus: (status: StatusMessage) => void;
 };
 
-export function sortByValue(revealRequests: RevealRequest[]) {
-  return revealRequests.sort((a, b) => {
+export function sortByValue(revealRequests: Map<LocationId, RevealRequest>) {
+  return stableSort(Array.from(revealRequests.values()), (a: RevealRequest, b: RevealRequest) => {
     const aValue = parseEther(a.payout);
     const bValue = parseEther(b.payout);
     return bValue.gt(aValue) ? 0 : -1;
@@ -92,11 +94,14 @@ export function decodeConstants(raw: RawConstants): Constants {
   };
 }
 
-export async function getRevealRequests(contract: RevealMarket): Promise<RevealRequest[]> {
+export async function getRevealRequests(contract: RevealMarket): Promise<Map<LocationId, RevealRequest>> {
   try {
     const rawRevealRequests = await contract.getAllRevealRequests();
-    const revealRequests = rawRevealRequests.map(decodeRevealRequest);
-    return revealRequests;
+    const revealRequests = rawRevealRequests.map((raw) => {
+      const req = decodeRevealRequest(raw);
+      return [req.location, req] as [LocationId, RevealRequest];
+    });
+    return new Map(revealRequests);
   } catch (err) {
     throw new Error("Unable to load reveal requests. Please reload.");
   }

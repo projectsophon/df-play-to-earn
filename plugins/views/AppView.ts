@@ -9,6 +9,7 @@ import { RequestRevealView } from "./RequestRevealView";
 import { FulfillRequestsView } from "./FulfillRequestsView";
 import { CancelRequestView } from "./CancelRequestView";
 import { RevealRequest, sortByValue, Constants, decodeRevealRequest, StatusMessage } from "../helpers/other";
+import { LocationId } from "@darkforest_eth/types";
 
 const flex = {
   display: "flex",
@@ -37,13 +38,13 @@ enum Views {
 
 type Props = {
   contract: RevealMarket;
-  requests: RevealRequest[];
+  requests: Map<LocationId, RevealRequest>;
   constants: Constants;
 };
 
 export function AppView({ contract, requests, constants }: Props) {
   const [activeView, setActiveView] = useState(Views.FulfillRequests);
-  const [revealRequests, setRevealRequests] = useState<RevealRequest[]>(requests);
+  const [revealRequests, setRevealRequests] = useState<RevealRequest[]>(() => sortByValue(requests));
   const [statusMessage, setStatusMessage] = useState<StatusMessage | null>(null);
 
   useEffect(() => {
@@ -62,11 +63,9 @@ export function AppView({ contract, requests, constants }: Props) {
   async function onRevealRequestChange(location: BigNumber) {
     try {
       const updatedRequest = decodeRevealRequest(await contract.getRevealRequest(location));
-      setRevealRequests((requests) => {
-        // Remove the old one and add the new one
-        const updated = requests.filter((req) => req.location !== updatedRequest.location).concat(updatedRequest);
-        return sortByValue(updated);
-      });
+      // Replace the old one with the new one
+      requests.set(updatedRequest.location, updatedRequest);
+      setRevealRequests(sortByValue(requests));
     } catch (err) {
       console.error("Error updating requests", err);
       setStatusMessage({ message: "Error fetching new request. Please reload.", color: "#FF6492" });
