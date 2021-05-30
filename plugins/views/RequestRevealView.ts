@@ -15,21 +15,11 @@ import {
   colors,
 } from "../helpers/df";
 import { feeFromEther, minWithoutFee, requestReveal, RevealRequest, totalFromEther, ViewProps } from "../helpers/other";
-
-const flex = {
-  display: "flex",
-  justifyContent: "space-between",
-};
+import { flex, hidden, beware, warning, fullWidth, shown as baseShown } from "../helpers/styles";
 
 const shown = {
-  ...flex,
-  width: "100%",
+  ...baseShown,
   height: "100%",
-  flexDirection: "column",
-};
-
-const hidden = {
-  display: "none",
 };
 
 const row = {
@@ -43,19 +33,6 @@ const paymentInput = {
   width: "100px",
   marginRight: "5px",
   borderRadius: "3px",
-};
-
-// TODO: Not red?
-const beware = {
-  color: colors.dfred,
-};
-
-const warning = {
-  textAlign: "center",
-};
-
-const fullWidth = {
-  width: "100%",
 };
 
 function isRevealed(planet: Planet | undefined) {

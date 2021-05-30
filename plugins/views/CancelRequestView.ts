@@ -13,67 +13,19 @@ import {
   subscribeToBlockNumber,
 } from "../helpers/df";
 import { RevealRequest, StatusMessage, ViewProps } from "../helpers/other";
-
-const flex = {
-  display: "flex",
-  justifyContent: "space-between",
-};
-
-const shown = {
-  ...flex,
-  width: "100%",
-  flexDirection: "column",
-};
-
-const hidden = {
-  display: "none",
-};
-
-const muted = {
-  color: "#a0a0a0",
-};
-
-const beware = {
-  color: colors.dfred,
-};
-
-const revealRequestRow = {
-  ...flex,
-  marginBottom: "7px",
-  paddingBottom: "7px",
-  borderBottom: "1px solid #a0a0a0",
-};
-
-const revealRequestsList = {
-  display: "flex",
-  flexDirection: "column",
-  overflow: "scroll",
-  height: "200px",
-};
-
-const warning = {
-  textAlign: "center",
-  height: "50px",
-};
-
-const planetLink = {
-  color: "#00ADE1",
-  cursor: "pointer",
-};
-
-const centered = {
-  margin: "auto",
-};
-
-const bold = {
-  color: colors.dfwhite,
-};
-
-const optionsRow = {
-  display: "flex",
-  justifyContent: "space-between",
-  paddingTop: "6px",
-};
+import {
+  shown,
+  hidden,
+  beware,
+  muted,
+  bold,
+  centered,
+  warning,
+  scrollList,
+  scrollListItem,
+  jumpLink,
+  optionsRow,
+} from "../helpers/styles";
 
 type RowProps = {
   cancelledCountdownBlocks: number;
@@ -92,10 +44,10 @@ function PaidRow({ revealRequest }: RowProps) {
   }
 
   return html`
-    <div style=${revealRequestRow}>
+    <div style=${scrollListItem}>
       <div style=${muted}>
         <div>
-          <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was revealed!
+          <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was revealed!
         </div>
         <div>${playerName(collector)} claimed <span style=${bold}>${payout} xDai</span>.</div>
       </div>
@@ -111,11 +63,10 @@ function RefundedRow({ revealRequest }: RowProps) {
   }
 
   return html`
-    <div style=${revealRequestRow}>
+    <div style=${scrollListItem}>
       <div style=${muted}>
         <div>
-          <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> request
-          refunded.
+          <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> request refunded.
         </div>
         <div>You got <span style=${bold}>${payout} xDai</span> back.</div>
       </div>
@@ -150,9 +101,9 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus
   const message = pending ? "Wait..." : "Cancel";
 
   return html`
-    <div style=${revealRequestRow}>
+    <div style=${scrollListItem}>
       <div style=${muted}>
-        <div>Cancel <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
+        <div>Cancel <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
         <div>
           and claim <span style=${bold}>${payout} xDai</span> refund in
           <span style=${bold}> ${cancelledCountdownBlocks} blocks</span>.
@@ -195,13 +146,13 @@ function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: R
   const message = remainingBlocks > 0 ? "Wait..." : "Claim!";
 
   return html`
-    <div style=${revealRequestRow}>
+    <div style=${scrollListItem}>
       <div style=${muted}>
         <div>
           Claim refund of <span style=${bold}>${payout} xDai</span> in
           <span style=${bold}> ${remainingBlocks > 0 ? remainingBlocks : 0}</span> blocks
         </div>
-        <div>for <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>.</div>
+        <div>for <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>.</div>
       </div>
       <${Button} onClick=${claimRefund} enabled=${remainingBlocks <= 0 && !pending}>${message}<//>
     </div>
@@ -289,7 +240,7 @@ export function CancelRequestView({
       <div style=${warning}>
         <div><span style=${beware}>Beware:</span> Players can still claim a reveal for ${cancelledCountdownBlocks} blocks after you try to cancel.</div>
       </div>
-      <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
+      <div style=${scrollList}>${rows.length ? rows : message}</div>
       <div style=${optionsRow}>
         <label><input type="checkbox" checked=${hideClaimed} onChange=${toggleClaimed} /> Hide claimed</label>
         <label><input type="checkbox" checked=${hideRefunded} onChange=${toggleRefunded} /> Hide refunded</label>

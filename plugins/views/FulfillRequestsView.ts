@@ -20,67 +20,19 @@ import {
   getPlanetByCoords,
 } from "../helpers/df";
 import type { RevealRequest, ViewProps } from "../helpers/other";
-
-const flex = {
-  display: "flex",
-  justifyContent: "space-between",
-};
-
-const shown = {
-  ...flex,
-  width: "100%",
-  flexDirection: "column",
-};
-
-const hidden = {
-  display: "none",
-};
-
-const muted = {
-  color: "#a0a0a0",
-};
-
-const beware = {
-  color: "#FF6492",
-};
-
-const revealRequestRow = {
-  ...flex,
-  marginBottom: "7px",
-  paddingBottom: "7px",
-  borderBottom: "1px solid #a0a0a0",
-};
-
-const revealRequestsList = {
-  display: "flex",
-  flexDirection: "column",
-  overflow: "scroll",
-  height: "200px",
-};
-
-const warning = {
-  textAlign: "center",
-  height: "50px",
-};
-
-const planetLink = {
-  color: "#00ADE1",
-  cursor: "pointer",
-};
-
-const bold = {
-  color: colors.dfwhite,
-};
-
-const centered = {
-  margin: "auto",
-};
-
-const optionsRow = {
-  display: "flex",
-  justifyContent: "space-between",
-  paddingTop: "6px",
-};
+import {
+  shown,
+  hidden,
+  muted,
+  bold,
+  centered,
+  warning,
+  beware,
+  scrollList,
+  scrollListItem,
+  jumpLink,
+  optionsRow,
+} from "../helpers/styles";
 
 type RowProps = {
   revealRequest: RevealRequest;
@@ -120,9 +72,9 @@ function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
       : "";
 
   return html`
-    <div style=${revealRequestRow}>
+    <div style=${scrollListItem}>
       <div style=${muted}>
-        <div>Reveal <span style=${planetLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
+        <div>Reveal <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
         <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
         ${cancelWarning}
       </div>
@@ -250,7 +202,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
         <div><span style=${beware}>Beware:</span> You can only reveal once every ${REVEAL_COOLDOWN_HOURS} hours</div>
         <div>Time until your next reveal: <${TimeUntil} timestamp=${waiting} ifPassed=${"Now!"} /></div>
       </div>
-      <div style=${revealRequestsList}>${rows.length ? rows : message}</div>
+      <div style=${scrollList}>${rows.length ? rows : message}</div>
       <div style=${optionsRow}>
         <label><input type="checkbox" checked=${hideMyRequests} onChange=${toggleMyRequests} /> Hide my requests</label>
         <label><input type="checkbox" checked=${hidePendingCancel} onChange=${togglePendingCancel} /> Hide requests pending cancel</label>
