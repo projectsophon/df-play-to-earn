@@ -68,10 +68,6 @@ function hasPendingRequest(planet: Planet | undefined, revealRequests: RevealReq
 }
 
 function canRequestReveal(planet: Planet | undefined, revealRequests: RevealRequest[]) {
-  if (!planet) {
-    return false;
-  }
-
   if (planet) {
     return !isRevealed(planet) && !hasPendingRequest(planet, revealRequests);
   } else {
@@ -155,6 +151,10 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
   }
 
   let btnMessage = "Request Reveal";
+  if (!planet) {
+    btnMessage = "No planet selected.";
+  }
+
   if (isRevealed(planet)) {
     btnMessage = "Planet already revealed!";
   }
