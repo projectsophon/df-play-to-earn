@@ -1,7 +1,10 @@
-import { locationIdToDecStr } from "@darkforest_eth/serde";
+import type { BroadcastMarket } from "../../types";
+import type { RevealRequest, StatusMessage, ViewProps } from "../helpers/other";
+
 import { html } from "htm/preact";
 import { useEffect, useState } from "preact/hooks";
-import { BroadcastMarket } from "../../types";
+import { locationIdToDecStr } from "@darkforest_eth/serde";
+
 import { Button } from "../components/Button";
 import {
   centerCoords,
@@ -12,7 +15,6 @@ import {
   playerName,
   subscribeToBlockNumber,
 } from "../helpers/df";
-import { RevealRequest, StatusMessage, ViewProps } from "../helpers/other";
 import {
   shown,
   hidden,
