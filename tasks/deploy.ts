@@ -13,6 +13,8 @@ import * as devServer from "./dev-server-shim.cjs";
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
+  console.log(`deploying on ${hre.network.name} this could take a bit`);
+
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
   const broadcastMarket = await BroadcastMarketFactory.deploy(
     CORE_CONTRACT_ADDRESS,
@@ -23,6 +25,8 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     hre.FEE_PERCENT
   );
   await broadcastMarket.deployTransaction.wait();
+
+  console.log(`Successfully deployed to ${broadcastMarket.address}`);
 
   await fs.mkdir(hre.outputDir, { recursive: true });
 

@@ -12,6 +12,9 @@ import "./tasks/deploy";
 import "./tasks/compile";
 import * as assert from "assert";
 
+require("dotenv").config();
+const { DEPLOYER_MNEMONIC } = process.env;
+
 interface Player {
   address: string;
   forkFund: string;
@@ -68,9 +71,22 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
   }
 });
 
+// The xdai config, but it isn't added to networks unless we have a DEPLOYER_MNEMONIC
+const xdai = {
+  url: "https://xdai.poanetwork.dev/",
+  accounts: {
+    mnemonic: DEPLOYER_MNEMONIC,
+  },
+  chainId: 100,
+};
+
 const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
+    // Check for a DEPLOYER_MNEMONIC before we add xdai/mainnet network to the list of networks
+    // Ex: If you try to deploy to xdai without DEPLOYER_MNEMONIC, you'll see this error:
+    // > Error HH100: Network xdai doesn't exist
+    ...(DEPLOYER_MNEMONIC ? { xdai } : undefined),
     hardhat: {
       accounts: {
         accountsBalance: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
