@@ -2,6 +2,7 @@ import type { Planet } from "@darkforest_eth/types";
 
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
+import { formatEther, parseEther } from "@ethersproject/units";
 
 import { Button } from "../components/Button";
 
@@ -88,10 +89,10 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
   function onChangeXdai(evt: InputEvent) {
     if (evt.target) {
       const { value } = evt.target as HTMLInputElement;
-      if (parseFloat(value) < balance) {
-        setXdai(value);
-      } else {
-        setXdai(maxXdai);
+      try {
+        setXdai(formatEther(parseEther(value)));
+      } catch (err) {
+        console.error("[BroadcastMarketPlugin] Not a valid Ether value.");
       }
     } else {
       console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
@@ -101,19 +102,6 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
   // Ivan's fix didn't solve keyup
   function onKeyUp(evt: Event) {
     evt.stopPropagation();
-  }
-
-  function onKeyDown(evt: Event) {
-    if (evt.target) {
-      const { value } = evt.target as HTMLInputElement;
-      if (parseFloat(value) < balance) {
-        setXdai(value);
-      } else {
-        setXdai(maxXdai);
-      }
-    } else {
-      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
-    }
   }
 
   const feeEther = feeFromEther(xdai, constants.FEE_PERCENT);
@@ -126,10 +114,12 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
     try {
       await requestReveal(selectedLocationId, totalEther);
       setPending(false);
+      setCanRequest(canRequestReveal(planet, revealRequests));
       onStatus({ message: "Successfully posted broadcast request!", color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
       console.error("[BroadcastMarketPlugin] Error requesting broadcast", err);
       setPending(false);
+      setCanRequest(canRequestReveal(planet, revealRequests));
       onStatus({ message: "Error requesting broadcast. Try again.", color: colors.dfred });
     }
   }
@@ -174,7 +164,6 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
             onChange=${onChangeXdai}
             step="0.1"
             onKeyUp=${onKeyUp}
-            onKeyDown=${onKeyDown}
           />
           <label>xDai</label>
         </span>
