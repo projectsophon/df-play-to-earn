@@ -9,6 +9,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "@openzeppelin/hardhat-upgrades";
 import "./tasks/deploy";
+import "./tasks/contract";
 import "./tasks/compile";
 import * as assert from "assert";
 

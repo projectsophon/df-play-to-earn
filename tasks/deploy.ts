@@ -12,7 +12,7 @@ import * as devServer from "./dev-server-shim.cjs";
 
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
-async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
+async function deploy(args: HardhatArguments, hre: HardhatRuntimeEnvironment): Promise<Contract> {
   console.log(`deploying on ${hre.network.name} this could take a bit`);
 
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
@@ -35,15 +35,7 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
 
   await fs.writeFile(outputPath, template, "utf-8");
 
-  const endTime = await broadcastMarket.MARKET_CLOSE_COUNTDOWN_TIMESTAMP();
-  const endDate = new Date(endTime.toNumber() * 1000);
-  console.log(`Market Closes at ${endDate}`);
-
-  const constants = await broadcastMarket.getConstants();
-  console.log("FEE_PERCENT", constants.FEE_PERCENT);
-  console.log("CANCELLED_COUNTDOWN_BLOCKS", constants.CANCELLED_COUNTDOWN_BLOCKS);
-  console.log("REQUEST_MAXIMUM", constants.REQUEST_MAXIMUM);
-  console.log("REQUEST_MINIMUM", constants.REQUEST_MINIMUM);
+  await hre.run("constants", args);
 
   return broadcastMarket;
 }
