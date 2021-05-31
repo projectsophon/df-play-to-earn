@@ -370,10 +370,11 @@ export class BroadcastMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [
-        [BigNumber, BigNumber, BigNumber, number] & {
+        [BigNumber, BigNumber, BigNumber, BigNumber, number] & {
           MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
           CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
           REQUEST_MINIMUM: BigNumber;
+          REQUEST_MAXIMUM: BigNumber;
           FEE_PERCENT: number;
         }
       ]
@@ -557,10 +558,11 @@ export class BroadcastMarket extends BaseContract {
   getConstants(
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, number] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber, number] & {
       MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
       CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
       REQUEST_MINIMUM: BigNumber;
+      REQUEST_MAXIMUM: BigNumber;
       FEE_PERCENT: number;
     }
   >;
@@ -739,10 +741,11 @@ export class BroadcastMarket extends BaseContract {
     getConstants(
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, number] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, number] & {
         MARKET_CLOSE_COUNTDOWN_TIMESTAMP: BigNumber;
         CANCELLED_COUNTDOWN_BLOCKS: BigNumber;
         REQUEST_MINIMUM: BigNumber;
+        REQUEST_MAXIMUM: BigNumber;
         FEE_PERCENT: number;
       }
     >;
