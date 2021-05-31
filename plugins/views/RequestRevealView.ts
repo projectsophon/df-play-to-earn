@@ -126,10 +126,12 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
     try {
       await requestReveal(selectedLocationId, totalEther);
       setPending(false);
+      setCanRequest(canRequestReveal(planet, revealRequests));
       onStatus({ message: "Successfully posted broadcast request!", color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
       console.error("[BroadcastMarketPlugin] Error requesting broadcast", err);
       setPending(false);
+      setCanRequest(canRequestReveal(planet, revealRequests));
       onStatus({ message: "Error requesting broadcast. Try again.", color: colors.dfred });
     }
   }
