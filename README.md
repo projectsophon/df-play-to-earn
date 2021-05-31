@@ -4,7 +4,13 @@ Dark Forest plugins to earn xDai while playing the game.
 
 ## Getting the plugin
 
-// TODO
+The plugin is bundled during the website deploy and published at https://play2earn.projectsophon.com/BroadcastMarketPlugin.js
+
+You can use the plugin from our website by creating a new plugin with the contents:
+
+```js
+export { default } from "https://play2earn.projectsophon.com/BroadcastMarketPlugin.js";
+```
 
 ## Developing plugins with interop contracts
 
