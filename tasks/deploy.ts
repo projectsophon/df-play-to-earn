@@ -35,6 +35,16 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
 
   await fs.writeFile(outputPath, template, "utf-8");
 
+  const endTime = await broadcastMarket.MARKET_CLOSE_COUNTDOWN_TIMESTAMP();
+  const endDate = new Date(endTime.toNumber() * 1000);
+  console.log(`Market Closes at ${endDate}`);
+
+  const constants = await broadcastMarket.getConstants();
+  console.log("FEE_PERCENT", constants.FEE_PERCENT);
+  console.log("CANCELLED_COUNTDOWN_BLOCKS", constants.CANCELLED_COUNTDOWN_BLOCKS);
+  console.log("REQUEST_MAXIMUM", constants.REQUEST_MAXIMUM);
+  console.log("REQUEST_MINIMUM", constants.REQUEST_MINIMUM);
+
   return broadcastMarket;
 }
 
