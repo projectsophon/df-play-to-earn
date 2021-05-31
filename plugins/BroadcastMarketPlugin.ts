@@ -3,9 +3,9 @@ import { html, render } from "htm/preact";
 import { AppView } from "./views/AppView";
 
 import { getContract } from "./helpers/df";
-import { getRevealRequests, sortByValue, decodeConstants } from "./helpers/other";
+import { getRevealRequests, decodeConstants } from "./helpers/other";
 
-class RevealMarketPlugin {
+class BroadcastMarketPlugin {
   container: HTMLDivElement | null;
 
   constructor() {
@@ -14,7 +14,7 @@ class RevealMarketPlugin {
   async render(container: HTMLDivElement) {
     this.container = container;
 
-    container.style.width = "450px";
+    container.style.width = "470px";
 
     try {
       const contract = await getContract();
@@ -25,7 +25,7 @@ class RevealMarketPlugin {
 
       render(html`<${AppView} contract=${contract} requests=${revealRequests} constants=${constants} />`, container);
     } catch (err) {
-      console.error("Error starting RevealRequests plugin.", err);
+      console.error("[BroadcastMarketPlugin] Error starting plugin:", err);
       render(html`<div>${err.message}</div>`, this.container);
     }
   }
@@ -36,4 +36,4 @@ class RevealMarketPlugin {
   }
 }
 
-export default RevealMarketPlugin;
+export default BroadcastMarketPlugin;

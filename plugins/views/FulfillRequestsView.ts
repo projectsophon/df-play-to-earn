@@ -74,7 +74,7 @@ function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
   return html`
     <div style=${scrollListItem}>
       <div style=${muted}>
-        <div>Reveal <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
+        <div>Broadcast <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
         <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
         ${cancelWarning}
       </div>
@@ -113,7 +113,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
       const { checked } = evt.target as HTMLInputElement;
       setHideMyRequests(checked);
     } else {
-      console.error("No event target! How did this happen?");
+      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
     }
   }
 
@@ -122,7 +122,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
       const { checked } = evt.target as HTMLInputElement;
       setHidePendingCancel(checked);
     } else {
-      console.error("No event target! How did this happen?");
+      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
     }
   }
 
@@ -150,13 +150,13 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
       async function revealPlanet() {
         setPending(true);
         setCanReveal(false);
-        onStatus({ message: "Attempting to reveal... Please wait...", color: colors.dfyellow });
+        onStatus({ message: "Attempting to broadcast... Please wait...", color: colors.dfyellow });
         try {
           await revealLocation(revealRequest.x, revealRequest.y);
         } catch (err) {
-          console.error("Error revealing location", err);
+          console.error("[BroadcastMarketPlugin] Error broadcasting location", err);
           setPending(false);
-          onStatus({ message: "Error revealing location. Try again.", color: colors.dfred });
+          onStatus({ message: "Error broadcasting location. Try again.", color: colors.dfred });
           return;
         }
         try {
@@ -165,9 +165,9 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
           setPending(false);
           onStatus({ message: `Successfully claimed ${revealRequest.payout} xDai!`, color: colors.dfgreen });
         } catch (err) {
-          console.error("Error claiming reveal payout", err);
+          console.error("[BroadcastMarketPlugin] Error claiming broadcast payout", err);
           setPending(false);
-          onStatus({ message: "Error claiming. Are you the revealer?", color: colors.dfred });
+          onStatus({ message: "Error claiming. Are you the broadcaster?", color: colors.dfred });
         }
       }
 
@@ -189,7 +189,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
           revealRequest=${revealRequest}
           onReveal=${revealPlanet}
           canReveal=${!pending && canReveal}
-          text="Reveal"
+          text="Broadcast"
         />`;
       }
     });
@@ -199,8 +199,8 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
   return html`
     <div style=${active ? shown : hidden}>
       <div style=${warning}>
-        <div><span style=${beware}>Beware:</span> You can only reveal once every ${REVEAL_COOLDOWN_HOURS} hours</div>
-        <div>Time until your next reveal: <${TimeUntil} timestamp=${waiting} ifPassed=${"Now!"} /></div>
+        <div><span style=${beware}>Beware:</span> You can only broadcast once every ${REVEAL_COOLDOWN_HOURS} hours</div>
+        <div>Time until your next broadcast: <${TimeUntil} timestamp=${waiting} ifPassed=${"Now!"} /></div>
       </div>
       <div style=${scrollList}>${rows.length ? rows : message}</div>
       <div style=${optionsRow}>

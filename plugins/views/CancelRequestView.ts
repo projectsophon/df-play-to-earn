@@ -1,7 +1,7 @@
 import { locationIdToDecStr } from "@darkforest_eth/serde";
 import { html } from "htm/preact";
 import { useEffect, useState } from "preact/hooks";
-import { RevealMarket } from "../../types";
+import { BroadcastMarket } from "../../types";
 import { Button } from "../components/Button";
 import {
   centerCoords,
@@ -30,7 +30,7 @@ import {
 type RowProps = {
   cancelledCountdownBlocks: number;
   revealRequest: RevealRequest;
-  contract: RevealMarket;
+  contract: BroadcastMarket;
   onStatus: (status: StatusMessage) => void;
   pending: boolean;
   setPending: (pending: boolean) => void;
@@ -47,7 +47,7 @@ function PaidRow({ revealRequest }: RowProps) {
     <div style=${scrollListItem}>
       <div style=${muted}>
         <div>
-          <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was revealed!
+          <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was broadcasted!
         </div>
         <div>${playerName(collector)} claimed <span style=${bold}>${payout} xDai</span>.</div>
       </div>
@@ -93,7 +93,7 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus
         timeout: 5000,
       });
     } catch (err) {
-      console.error("Error cancelling reveal request", err);
+      console.error("[BroadcastMarketPlugin] Error cancelling broadcast request", err);
       setPending(false);
       onStatus({ message: "Error cancelling request. Try again.", color: colors.dfred });
     }
@@ -132,7 +132,7 @@ function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: R
       setPending(false);
       onStatus({ message: `Successully claimed ${payout} xDai refund.`, color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
-      console.error("Error claiming refund", err);
+      console.error("[BroadcastMarketPlugin] Error claiming refund", err);
       setPending(false);
       onStatus({ message: "Error claiming refund. Please try again.", color: colors.dfred });
     }
@@ -181,7 +181,7 @@ export function CancelRequestView({
       const { checked } = evt.target as HTMLInputElement;
       setHideClaimed(checked);
     } else {
-      console.error("No event target! How did this happen?");
+      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
     }
   }
   function toggleRefunded(evt: Event) {
@@ -189,7 +189,7 @@ export function CancelRequestView({
       const { checked } = evt.target as HTMLInputElement;
       setHideRefunded(checked);
     } else {
-      console.error("No event target! How did this happen?");
+      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
     }
   }
 
@@ -241,7 +241,7 @@ export function CancelRequestView({
   return html`
     <div style=${active ? shown : hidden}>
       <div style=${warning}>
-        <div><span style=${beware}>Beware:</span> Players can still claim a reveal for ${cancelledCountdownBlocks} blocks after you try to cancel.</div>
+        <div><span style=${beware}>Beware:</span> Players can still claim a broadcast for ${cancelledCountdownBlocks} blocks after you try to cancel.</div>
       </div>
       <div style=${scrollList}>${rows.length ? rows : message}</div>
       <div style=${optionsRow}>

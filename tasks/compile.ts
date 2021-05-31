@@ -12,12 +12,12 @@ async function writeAbi(
 ) {
   await runSuper(args);
 
-  const { abi } = await hre.artifacts.readArtifact("RevealMarket");
+  const { abi } = await hre.artifacts.readArtifact("BroadcastMarket");
 
   await fs.mkdir(hre.outputDir, { recursive: true });
 
   const outputPath = path.join(hre.outputDir, "./abi.ts");
-  const template = `export const REVEAL_MARKET_ABI = ${JSON.stringify(abi)}`;
+  const template = `export const BROADCAST_MARKET_ABI = ${JSON.stringify(abi)}`;
 
   await fs.writeFile(outputPath, template, "utf-8");
 }

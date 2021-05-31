@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-contract RevealMarket is Ownable, ReentrancyGuard {
+contract BroadcastMarket is Ownable, ReentrancyGuard {
     event RevealRequested(uint256 loc);
     event RevealCollected(uint256 loc);
     event RevealCancelled(uint256 loc);

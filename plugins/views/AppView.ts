@@ -1,4 +1,4 @@
-import type { RevealMarket } from "../../types";
+import type { BroadcastMarket } from "../../types";
 import type { BigNumber } from "@ethersproject/bignumber";
 
 import { html } from "htm/preact";
@@ -37,7 +37,7 @@ enum Views {
 }
 
 type Props = {
-  contract: RevealMarket;
+  contract: BroadcastMarket;
   requests: Map<LocationId, RevealRequest>;
   constants: Constants;
 };
@@ -68,7 +68,7 @@ export function AppView({ contract, requests, constants }: Props) {
       requests.set(updatedRequest.location, updatedRequest);
       setRevealRequests(sortByValue(requests));
     } catch (err) {
-      console.error("Error updating requests", err);
+      console.error("[BroadcastMarketPlugin] Error updating requests", err);
       setStatusMessage({ message: "Error fetching new request. Please reload.", color: "#FF6492" });
     }
   }
@@ -105,7 +105,7 @@ export function AppView({ contract, requests, constants }: Props) {
     <div>
       <div style=${flex}>
         <${ViewLink} active=${fulfillRequestsActive} text="Fulfill Requests" onClick=${setFulfillRequestsActive} />
-        <${ViewLink} active=${requestRevealActive} text="Request a Reveal" onClick=${setRequestRevealActive} />
+        <${ViewLink} active=${requestRevealActive} text="Request Broadcast" onClick=${setRequestRevealActive} />
         <${ViewLink} active=${cancelRequestActive} text="My Requests" onClick=${setCancelRequestActive} />
       </div>
       <div>

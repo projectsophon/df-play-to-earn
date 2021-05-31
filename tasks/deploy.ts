@@ -13,8 +13,8 @@ import * as devServer from "./dev-server-shim.cjs";
 task("deploy").setDescription("deploy the plugin contracts").setAction(deploy);
 
 async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
-  const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-  const revealMarket = await RevealMarketFactory.deploy(
+  const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
+  const broadcastMarket = await BroadcastMarketFactory.deploy(
     CORE_CONTRACT_ADDRESS,
     hre.MARKET_OPEN_FOR_HOURS,
     hre.CANCELLED_COUNTDOWN_BLOCKS,
@@ -22,16 +22,16 @@ async function deploy({}, hre: HardhatRuntimeEnvironment): Promise<Contract> {
     hre.REQUEST_MAXIMUM,
     hre.FEE_PERCENT
   );
-  await revealMarket.deployTransaction.wait();
+  await broadcastMarket.deployTransaction.wait();
 
   await fs.mkdir(hre.outputDir, { recursive: true });
 
   const outputPath = path.join(hre.outputDir, "./contract.ts");
-  const template = `export const REVEAL_MARKET_ADDRESS = ${JSON.stringify(revealMarket.address)}`;
+  const template = `export const BROADCAST_MARKET_ADDRESS = ${JSON.stringify(broadcastMarket.address)};`;
 
   await fs.writeFile(outputPath, template, "utf-8");
 
-  return revealMarket;
+  return broadcastMarket;
 }
 
 subtask(TASK_NODE_SERVER_READY).setAction(deployIntoNode);
@@ -67,8 +67,8 @@ async function deployIntoNode(
 
   await runSuper(args);
 
-  const revealMarket = await hre.run("deploy");
-  console.log(`Deployed contract at: ${revealMarket.address}`);
+  const broadcastMarket = await hre.run("deploy");
+  console.log(`Deployed contract at: ${broadcastMarket.address}`);
 
   const [, , piggyBank] = await hre.ethers.getSigners();
 

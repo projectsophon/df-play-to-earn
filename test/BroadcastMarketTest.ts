@@ -2,7 +2,7 @@ import * as hre from "hardhat";
 import { expect } from "chai";
 import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
 import type { Signer } from "ethers";
-import type { RevealMarket } from "../types";
+import type { BroadcastMarket } from "../types";
 import type { DarkForestCore } from "@darkforest_eth/contracts/typechain";
 import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
 import {
@@ -15,10 +15,10 @@ import {
   inverse,
 } from "./fixtures";
 
-describe("RevealMarket", function () {
+describe("BroadcastMarket", function () {
   this.timeout(100000);
 
-  let revealMarket: RevealMarket;
+  let broadcastMarket: BroadcastMarket;
   let player1: Signer;
   let darkForestCore: DarkForestCore;
 
@@ -40,8 +40,8 @@ describe("RevealMarket", function () {
     player1 = await hre.ethers.provider.getSigner(hre.players[0].address);
     darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, player1);
 
-    const RevealMarketFactory = await hre.ethers.getContractFactory("RevealMarket");
-    revealMarket = await RevealMarketFactory.deploy(
+    const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
+    broadcastMarket = await BroadcastMarketFactory.deploy(
       CORE_CONTRACT_ADDRESS,
       MARKET_OPEN_FOR_HOURS,
       hre.CANCELLED_COUNTDOWN_BLOCKS,
@@ -49,7 +49,7 @@ describe("RevealMarket", function () {
       hre.REQUEST_MAXIMUM,
       hre.FEE_PERCENT
     );
-    await revealMarket.deployTransaction.wait();
+    await broadcastMarket.deployTransaction.wait();
 
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
@@ -65,18 +65,18 @@ describe("RevealMarket", function () {
   it("Deployer should be owner after deploy", async function () {
     const [deployer] = await hre.ethers.getSigners();
 
-    expect(await revealMarket.owner()).to.equal(deployer.address);
+    expect(await broadcastMarket.owner()).to.equal(deployer.address);
   });
 
   it("Emits a RevealRequested given a correct RevealProof for unrevealed planet", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
-    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
 
     const locationID = validRevealProof[3][0];
 
-    await expect(revealRequestTx).to.emit(revealMarket, "RevealRequested").withArgs(locationID);
+    await expect(revealRequestTx).to.emit(broadcastMarket, "RevealRequested").withArgs(locationID);
   });
 
   it("Reverts on requestReveal with Request value too high", async function () {
@@ -84,7 +84,7 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MAXIMUM.add(hre.ethers.BigNumber.from(1)),
     };
 
-    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
 
     await expect(revealRequestTx).to.be.revertedWith("Request value too high");
   });
@@ -94,7 +94,7 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestTx = revealMarket.requestReveal(...invalidRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...invalidRevealProof, overrides);
 
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
@@ -103,7 +103,7 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
-    const revealRequestTx = revealMarket.requestReveal(...garbageRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...garbageRevealProof, overrides);
 
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
@@ -112,7 +112,7 @@ describe("RevealMarket", function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
-    const revealRequestTx = revealMarket.requestReveal(...wrongUniverseRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...wrongUniverseRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("Invalid reveal proof");
   });
 
@@ -121,10 +121,10 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
-    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("RevealRequest already exists");
   });
 
@@ -136,14 +136,14 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("Planet already revealed");
   });
 
   it("Reverts on claimReveal if no RevealRequest for given location", async function () {
     const locationID = validRevealProof[3][0];
 
-    const claimedReceipt = revealMarket.claimReveal(locationID);
+    const claimedReceipt = broadcastMarket.claimReveal(locationID);
     await expect(claimedReceipt).to.be.revertedWith("No RevealRequest for that Planet");
   });
 
@@ -152,12 +152,12 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const claimedReceipt = revealMarket.claimReveal(locationID);
+    const claimedReceipt = broadcastMarket.claimReveal(locationID);
     await expect(claimedReceipt).to.be.revertedWith("Planet is not revealed");
   });
 
@@ -166,7 +166,7 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
@@ -174,10 +174,10 @@ describe("RevealMarket", function () {
     const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
     await revealPlanetReceipt.wait();
 
-    const claimedTx = await revealMarket.claimReveal(locationID);
+    const claimedTx = await broadcastMarket.claimReveal(locationID);
     await claimedTx.wait();
 
-    const claimedReceipt = revealMarket.connect(player1).claimReveal(locationID);
+    const claimedReceipt = broadcastMarket.connect(player1).claimReveal(locationID);
     await expect(claimedReceipt).to.be.revertedWith("RevealRequest has been claimed");
   });
 
@@ -188,26 +188,26 @@ describe("RevealMarket", function () {
 
     const payout = inverse(overrides.value, hre.FEE_PERCENT);
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelReceipt = await revealMarket.cancelReveal(locationID);
+    const cancelReceipt = await broadcastMarket.cancelReveal(locationID);
     await cancelReceipt.wait();
 
     const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
     await revealPlanetReceipt.wait();
 
     const oldBalance = await player1.getBalance();
-    const claimedReceipt = revealMarket.claimReveal(locationID);
-    await expect(claimedReceipt).to.emit(revealMarket, "RevealCollected").withArgs(locationID);
+    const claimedReceipt = broadcastMarket.claimReveal(locationID);
+    await expect(claimedReceipt).to.emit(broadcastMarket, "RevealCollected").withArgs(locationID);
 
     expect(await player1.getBalance()).to.eq(oldBalance.add(payout));
   });
 
   it("Reverts on rugPull when market still open", async function () {
-    const revealRequestTx = revealMarket.rugPull();
+    const revealRequestTx = broadcastMarket.rugPull();
     await expect(revealRequestTx).to.be.revertedWith("Marketplace is still open");
   });
 
@@ -216,10 +216,10 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
-    await expect(revealMarket.connect(player1).rugPull()).to.be.revertedWith("Ownable: caller is not the owner");
+    await expect(broadcastMarket.connect(player1).rugPull()).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("Sweeps all funds with rugPull after market close", async function () {
@@ -229,16 +229,16 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    const tx = await revealMarket.rugPull();
+    const tx = await broadcastMarket.rugPull();
     await expect(tx).to.changeEtherBalance(deployer, overrides.value);
 
-    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
+    expect(await hre.ethers.provider.getBalance(broadcastMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
   });
 
   it("Reverts on requestReveal when value too low", async function () {
@@ -246,7 +246,7 @@ describe("RevealMarket", function () {
       value: hre.ethers.utils.parseEther(".1"),
     };
 
-    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("Request value too low");
   });
 
@@ -258,7 +258,7 @@ describe("RevealMarket", function () {
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    const revealRequestTx = revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("Marketplace has closed");
   });
 
@@ -267,7 +267,7 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
@@ -278,7 +278,7 @@ describe("RevealMarket", function () {
     await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
     await hre.ethers.provider.send("evm_mine", []);
 
-    const claimedTx = revealMarket.claimReveal(locationID);
+    const claimedTx = broadcastMarket.claimReveal(locationID);
     await expect(claimedTx).to.be.revertedWith("Marketplace has closed");
   });
 
@@ -287,12 +287,12 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelReceipt = await revealMarket.cancelReveal(locationID);
+    const cancelReceipt = await broadcastMarket.cancelReveal(locationID);
     await cancelReceipt.wait();
 
     for (let i = 0; i <= hre.CANCELLED_COUNTDOWN_BLOCKS; i++) {
@@ -302,7 +302,7 @@ describe("RevealMarket", function () {
     const revealPlanetReceipt = await darkForestCore.connect(player1).revealLocation(...validRevealProof);
     await revealPlanetReceipt.wait();
 
-    const claimedTx = revealMarket.connect(player1).claimReveal(locationID);
+    const claimedTx = broadcastMarket.connect(player1).claimReveal(locationID);
     await expect(claimedTx).to.be.revertedWith("RevealRequest was cancelled");
   });
 
@@ -313,15 +313,15 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelTx = await revealMarket.cancelReveal(locationID);
+    const cancelTx = await broadcastMarket.cancelReveal(locationID);
     await cancelTx.wait();
 
-    await expect(cancelTx).to.emit(revealMarket, "RevealCancelled").withArgs(locationID);
+    await expect(cancelTx).to.emit(broadcastMarket, "RevealCancelled").withArgs(locationID);
   });
 
   it("Reverts on cancelReveal if not requester", async function () {
@@ -329,12 +329,12 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.connect(player1).requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.connect(player1).requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelTx = revealMarket.cancelReveal(locationID);
+    const cancelTx = broadcastMarket.cancelReveal(locationID);
     await expect(cancelTx).to.be.revertedWith("Sender is not requester");
   });
 
@@ -343,15 +343,15 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelTx = await revealMarket.cancelReveal(locationID);
+    const cancelTx = await broadcastMarket.cancelReveal(locationID);
     await cancelTx.wait();
 
-    const refundTx = revealMarket.claimRefund(locationID);
+    const refundTx = broadcastMarket.claimRefund(locationID);
 
     await expect(refundTx).to.be.revertedWith("Cancel countdown not complete");
   });
@@ -366,25 +366,25 @@ describe("RevealMarket", function () {
     const payout = inverse(overrides.value, hre.FEE_PERCENT);
     const fee = overrides.value.sub(payout);
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelTx = await revealMarket.cancelReveal(locationID);
+    const cancelTx = await broadcastMarket.cancelReveal(locationID);
     await cancelTx.wait();
 
     for (let i = 0; i <= hre.CANCELLED_COUNTDOWN_BLOCKS; i++) {
       await hre.ethers.provider.send("evm_mine", []);
     }
 
-    const tx = await revealMarket.claimRefund(locationID);
+    const tx = await broadcastMarket.claimRefund(locationID);
 
     await expect(tx).to.changeEtherBalance(deployer, payout);
 
-    await expect(tx).to.emit(revealMarket, "RevealRefunded").withArgs(locationID);
+    await expect(tx).to.emit(broadcastMarket, "RevealRefunded").withArgs(locationID);
 
-    expect(await hre.ethers.provider.getBalance(revealMarket.address)).to.be.eq(fee);
+    expect(await hre.ethers.provider.getBalance(broadcastMarket.address)).to.be.eq(fee);
   });
 
   it("Reverts on claimRefund if already claimed", async function () {
@@ -392,22 +392,22 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
 
-    const cancelTx = await revealMarket.cancelReveal(locationID);
+    const cancelTx = await broadcastMarket.cancelReveal(locationID);
     await cancelTx.wait();
 
     for (let i = 0; i <= hre.CANCELLED_COUNTDOWN_BLOCKS; i++) {
       await hre.ethers.provider.send("evm_mine", []);
     }
 
-    const refundReceipt = await revealMarket.claimRefund(locationID);
+    const refundReceipt = await broadcastMarket.claimRefund(locationID);
     await refundReceipt.wait();
 
-    const refundtx = revealMarket.claimRefund(locationID);
+    const refundtx = broadcastMarket.claimRefund(locationID);
     await expect(refundtx).to.be.revertedWith("RevealRequest was refunded");
   });
 
@@ -420,14 +420,14 @@ describe("RevealMarket", function () {
 
     const payout = inverse(overrides.value, hre.FEE_PERCENT);
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
     const x = validRevealProof[3][2];
     const y = validRevealProof[3][3];
 
-    const revealRequest = await revealMarket.getRevealRequest(locationID);
+    const revealRequest = await broadcastMarket.getRevealRequest(locationID);
 
     expect(revealRequest.requester).to.eq(await deployer.getAddress());
     expect(revealRequest.location).to.eq(locationID);
@@ -443,10 +443,10 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
-    const nRevealRequests = await revealMarket.getNRevealRequests();
+    const nRevealRequests = await broadcastMarket.getNRevealRequests();
 
     expect(nRevealRequests).to.eq(1);
   });
@@ -458,12 +458,12 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
-    const nRevealRequests = await revealMarket.getNRevealRequests();
+    const nRevealRequests = await broadcastMarket.getNRevealRequests();
 
-    const revealRequests = await revealMarket.bulkGetRevealRequests(0, nRevealRequests);
+    const revealRequests = await broadcastMarket.bulkGetRevealRequests(0, nRevealRequests);
 
     expect(revealRequests.length).to.eq(nRevealRequests);
 
@@ -477,12 +477,12 @@ describe("RevealMarket", function () {
       value: hre.REQUEST_MINIMUM,
     };
 
-    const revealRequestReceipt = await revealMarket.requestReveal(...validRevealProof, overrides);
+    const revealRequestReceipt = await broadcastMarket.requestReveal(...validRevealProof, overrides);
     await revealRequestReceipt.wait();
 
-    const nRevealRequests = await revealMarket.getNRevealRequests();
+    const nRevealRequests = await broadcastMarket.getNRevealRequests();
 
-    const revealRequests = await revealMarket.getRevealRequestPage(0);
+    const revealRequests = await broadcastMarket.getRevealRequestPage(0);
 
     expect(revealRequests.length).to.eq(nRevealRequests);
 
@@ -490,13 +490,13 @@ describe("RevealMarket", function () {
   });
 
   it("Returns no items when none exist with getRevealRequestPage", async function () {
-    const revealRequests = await revealMarket.getRevealRequestPage(0);
+    const revealRequests = await broadcastMarket.getRevealRequestPage(0);
 
     expect(revealRequests.length).to.eq(0);
   });
 
   it("Reverts on getRevealRequestPage with too large of page", async function () {
-    const revealRequests = revealMarket.getRevealRequestPage(1);
+    const revealRequests = broadcastMarket.getRevealRequestPage(1);
 
     await expect(revealRequests).to.be.revertedWith("Page number too high");
   });
