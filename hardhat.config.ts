@@ -12,7 +12,8 @@ import "./tasks/deploy";
 import "./tasks/compile";
 import * as assert from "assert";
 
-require("dotenv").config();
+import * as dotenv from "dotenv";
+dotenv.config();
 const { DEPLOYER_MNEMONIC } = process.env;
 
 interface Player {
