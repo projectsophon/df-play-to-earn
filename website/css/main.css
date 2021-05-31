@@ -241,9 +241,12 @@ body {
   }
 }
 .socialproof {
+  background: #4a4a5a;
+  color: white;
   padding: 90px 0;
 }
 .socialproof a {
+  color: #f64cdf;
   margin-top: 45px;
 }
 .socialproof img {
@@ -334,7 +337,7 @@ body {
 .feature2 {
   color: white;
   background: #4a4a5a;
-  /* border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 .feature2 .col-6:nth-of-type(2n - 1) {
   padding: 90px 90px 90px 20px;
