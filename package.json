@@ -13,7 +13,8 @@
     "lint": "solhint 'contracts/**/*.sol' --max-warnings 0 && eslint .",
     "test": "hardhat compile && hardhat test",
     "deploy": "hardhat deploy --network xdai",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "website": "exit 0"
   },
   "dependencies": {},
   "resolutions": {
