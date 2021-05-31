@@ -109,3 +109,6 @@ cache
 artifacts
 
 .openzeppelin
+
+# Generated files
+website/*.js

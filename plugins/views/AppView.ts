@@ -1,5 +1,6 @@
 import type { BroadcastMarket } from "../../types";
 import type { BigNumber } from "@ethersproject/bignumber";
+import type { LocationId } from "@darkforest_eth/types";
 
 import { html } from "htm/preact";
 import { useState, useEffect } from "preact/hooks";
@@ -9,7 +10,6 @@ import { RequestRevealView } from "./RequestRevealView";
 import { FulfillRequestsView } from "./FulfillRequestsView";
 import { CancelRequestView } from "./CancelRequestView";
 import { RevealRequest, sortByValue, Constants, decodeRevealRequest, StatusMessage } from "../helpers/other";
-import { LocationId } from "@darkforest_eth/types";
 
 const flex = {
   display: "flex",
