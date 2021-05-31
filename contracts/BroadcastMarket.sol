@@ -161,6 +161,7 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
                 MARKET_CLOSE_COUNTDOWN_TIMESTAMP: MARKET_CLOSE_COUNTDOWN_TIMESTAMP,
                 CANCELLED_COUNTDOWN_BLOCKS: CANCELLED_COUNTDOWN_BLOCKS,
                 REQUEST_MINIMUM: REQUEST_MINIMUM,
+                REQUEST_MAXIMUM: REQUEST_MAXIMUM,
                 FEE_PERCENT: FEE_PERCENT
             });
     }
@@ -201,6 +202,7 @@ struct Constants {
     uint256 MARKET_CLOSE_COUNTDOWN_TIMESTAMP;
     uint256 CANCELLED_COUNTDOWN_BLOCKS;
     uint256 REQUEST_MINIMUM;
+    uint256 REQUEST_MAXIMUM;
     uint8 FEE_PERCENT;
     /* solhint-enable var-name-mixedcase */
 }
