@@ -54,7 +54,7 @@ export function sortByValue(revealRequests: Map<LocationId, RevealRequest>) {
   return stableSort(Array.from(revealRequests.values()), (a: RevealRequest, b: RevealRequest) => {
     const aValue = parseEther(a.payout);
     const bValue = parseEther(b.payout);
-    return bValue.gt(aValue) ? 0 : -1;
+    return bValue.gt(aValue);
   });
 }
 
