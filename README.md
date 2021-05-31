@@ -85,6 +85,22 @@ If you want to be dripped some counterfeit xDai, add your wallet address as new 
 }
 ```
 
+## Deploying production contracts
+
+Create a `.env` file with your deployer mnemonic like:
+
+```bash
+DEPLOYER_MNEMONIC=dog dog dog dog dog dog dog dog dog dog dog cat
+```
+
+Adjust contract settings to taste in `extendEnvironment` of `hardhat.config.ts`
+
+Finally run:
+
+```bash
+npx hardhat deploy --network xdai
+```
+
 ## License
 
 GPL-3.0
