@@ -5,10 +5,12 @@
 .footer,
 .header {
   background: #080808;
-  color: #00dc82;
+  /* color: #00dc82; */
+  /* color: #e09aed; */
+  color: white;
 }
 .ctas-button {
-  color: #396bf7;
+  color: #080808;
 }
 @import url("https://fonts.googleapis.com/css?family=Karla:400,700");
 *,
@@ -22,6 +24,7 @@ body {
 }
 /*text*/
 .heading {
+  color: #f64cdf;
   font-weight: 100;
   font-size: 50px;
   line-height: 68px;
