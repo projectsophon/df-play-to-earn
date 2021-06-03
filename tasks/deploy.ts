@@ -1,11 +1,13 @@
 import type { Contract } from "ethers";
 import type { HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments, HardhatArguments } from "hardhat/types";
+import type { DarkForestTokens } from "@darkforest_eth/contracts/typechain";
 
 import * as path from "path";
 import * as fs from "fs/promises";
 import { task, subtask } from "hardhat/config";
 import { TASK_NODE_SERVER_READY } from "hardhat/builtin-tasks/task-names";
-import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { CORE_CONTRACT_ADDRESS, TOKENS_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { DarkForestTokens__factory } from "@darkforest_eth/contracts/typechain";
 
 //@ts-ignore
 import * as devServer from "./dev-server-shim.cjs";
@@ -86,6 +88,14 @@ async function deployIntoNode(
 
   const [, , piggyBank] = await hre.ethers.getSigners();
 
+  await hre.network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [CORE_CONTRACT_ADDRESS],
+  });
+
+  const signer = await hre.ethers.provider.getSigner(CORE_CONTRACT_ADDRESS);
+  const darkForestTokens = DarkForestTokens__factory.connect(TOKENS_CONTRACT_ADDRESS, signer) as DarkForestTokens;
+
   for (const player of hre.players) {
     if (player.forkFund) {
       await piggyBank.sendTransaction({
@@ -93,7 +103,29 @@ async function deployIntoNode(
         value: hre.ethers.utils.parseEther(player.forkFund),
       });
     }
+
+    const rngId = random256Id();
+
+    // counterfeit artifact
+    const createArtifactArgs = {
+      tokenId: rngId,
+      discoverer: player.address,
+      planetId: 1,
+      rarity: 0,
+      biome: 1,
+      artifactType: 9,
+      owner: player.address,
+    };
+
+    const createTx = await darkForestTokens.createArtifact(createArtifactArgs);
+    await createTx.wait();
+    console.log(`created artifactId ${rngId} for ${player.address}`);
   }
+
+  await hre.network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [CORE_CONTRACT_ADDRESS],
+  });
 
   // So blockNumber keeps incrementing
   await hre.network.provider.send("evm_setAutomine", [false]);
@@ -101,4 +133,13 @@ async function deployIntoNode(
 
   // Start up the plugin dev-server
   await devServer.start({ dir: "plugins", ext: [".ts"] });
+}
+
+function random256Id() {
+  const alphabet = "0123456789ABCDEF".split("");
+  let result = "0x";
+  for (let i = 0; i < 256 / 4; i++) {
+    result += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return result;
 }
