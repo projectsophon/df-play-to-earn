@@ -21,7 +21,7 @@ async function getEndTime({}: { address: string }, hre: HardhatRuntimeEnvironmen
   console.log("REQUEST_MINIMUM", formatEther(constants.REQUEST_MINIMUM));
 }
 
-task("rugpull").setDescription("get the constants of the game deployed at").setAction(rugPull);
+task("rugpull").setDescription("withdraw funds to deployer market close").setAction(rugPull);
 
 async function rugPull({}: { address: string }, hre: HardhatRuntimeEnvironment) {
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
@@ -38,4 +38,20 @@ async function rugPull({}: { address: string }, hre: HardhatRuntimeEnvironment) 
 
   const ownerNewBalance = await hre.ethers.provider.getBalance(ownerAddress);
   console.log(`${formatEther(ownerNewBalance)} in owner now, ${formatEther(ownerNewBalance.sub(ownerBalance))} `);
+}
+
+task("list").setDescription("print all brodacast requests").setAction(list);
+
+async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
+  const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
+  const broadcastMarket = BroadcastMarketFactory.attach(BROADCAST_MARKET_ADDRESS);
+
+  const requests = await broadcastMarket.getAllRevealRequests();
+  console.log(requests.length, " total requests");
+
+  console.log("Outstanding refunds or claims (if any):");
+
+  for (const r of requests) {
+    if (!r.paid && !r.refunded) console.log(r.location, r.paid, r.refunded);
+  }
 }
