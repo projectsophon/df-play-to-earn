@@ -17,9 +17,6 @@
     "website": "esbuild plugins/*.ts --bundle --outdir=website --format=esm --target=es2020"
   },
   "dependencies": {},
-  "resolutions": {
-    "hardhat": "npm:@phated/hardhat"
-  },
   "devDependencies": {
     "@darkforest_eth/constants": "^6.1.6",
     "@darkforest_eth/contracts": "^6.1.6",
@@ -48,7 +45,7 @@
     "eslint": "^7.26.0",
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.0.0",
-    "hardhat": "^2.3.0",
+    "hardhat": "^2.4.0",
     "htm": "3.0.4",
     "preact": "^10.5.13",
     "solhint": "^3.3.4",
