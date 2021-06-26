@@ -15,5 +15,5 @@
     "**/node_modules/**": true,
     "cache/**": true,
   },
-  "git.autoRepositoryDetection": false
+  "git.autoRepositoryDetection": "openEditors"
 }
