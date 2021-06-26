@@ -68,13 +68,24 @@ describe("BroadcastMarket", function () {
     expect(await broadcastMarket.owner()).to.equal(deployer.address);
   });
 
-  it("Emits a RevealRequested given a correct RevealProof for unrevealed planet", async function () {
+  it("Emits a RevealRequested given a correct RevealProof for known x,y", async function () {
     const overrides = {
       value: hre.REQUEST_MINIMUM,
     };
     const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
 
     const locationID = validRevealProof[3][0];
+
+    await expect(revealRequestTx).to.emit(broadcastMarket, "RevealRequested").withArgs(locationID);
+  });
+
+  it("Emits a RevealRequested given a correct RevealProof for unknown planet", async function () {
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+    const locationID = validRevealProof[3][0];
+
+    const revealRequestTx = broadcastMarket.requestRevealPlanetId(locationID, overrides);
 
     await expect(revealRequestTx).to.emit(broadcastMarket, "RevealRequested").withArgs(locationID);
   });
@@ -138,6 +149,92 @@ describe("BroadcastMarket", function () {
 
     const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
     await expect(revealRequestTx).to.be.revertedWith("Planet already revealed");
+  });
+
+  it("Reverts on requestReveal when value too low", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther(".1"),
+    };
+
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Request value too low");
+  });
+
+  it("Reverts on requestReveal when market closed", async function () {
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
+    await hre.ethers.provider.send("evm_mine", []);
+
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Marketplace has closed");
+  });
+
+  it("Reverts on requestRevealPlanetId with Request value too high", async function () {
+    const overrides = {
+      value: hre.REQUEST_MAXIMUM.add(hre.ethers.BigNumber.from(1)),
+    };
+
+    const locationID = validRevealProof[3][0];
+
+    const revealRequestTx = broadcastMarket.requestRevealPlanetId(locationID, overrides);
+
+    await expect(revealRequestTx).to.be.revertedWith("Request value too high");
+  });
+
+  it("Reverts on requestRevealPlanetId if a RevealRequest already exists for a planet", async function () {
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    const locationID = validRevealProof[3][0];
+
+    const revealRequestReceipt = await broadcastMarket.requestRevealPlanetId(locationID, overrides);
+    await revealRequestReceipt.wait();
+
+    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("RevealRequest already exists");
+  });
+
+  it("Reverts on requestRevealPlanetId if a planet is already revealed", async function () {
+    const revealPlanetReceipt = await darkForestCore.revealLocation(...validRevealProof);
+    await revealPlanetReceipt.wait();
+
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    const locationID = validRevealProof[3][0];
+
+    const revealRequestTx = broadcastMarket.requestRevealPlanetId(locationID, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Planet already revealed");
+  });
+
+  it("Reverts on requestRevealPlanetId when value too low", async function () {
+    const overrides = {
+      value: hre.ethers.utils.parseEther(".1"),
+    };
+
+    const locationID = validRevealProof[3][0];
+
+    const revealRequestTx = broadcastMarket.requestRevealPlanetId(locationID, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Request value too low");
+  });
+
+  it("Reverts on requestRevealPlanetId when market closed", async function () {
+    const overrides = {
+      value: hre.REQUEST_MINIMUM,
+    };
+
+    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
+    await hre.ethers.provider.send("evm_mine", []);
+
+    const locationID = validRevealProof[3][0];
+
+    const revealRequestTx = broadcastMarket.requestRevealPlanetId(locationID, overrides);
+    await expect(revealRequestTx).to.be.revertedWith("Marketplace has closed");
   });
 
   it("Reverts on claimReveal if no RevealRequest for given location", async function () {
@@ -239,27 +336,6 @@ describe("BroadcastMarket", function () {
     await expect(tx).to.changeEtherBalance(deployer, overrides.value);
 
     expect(await hre.ethers.provider.getBalance(broadcastMarket.address)).to.be.eq(hre.ethers.BigNumber.from(0));
-  });
-
-  it("Reverts on requestReveal when value too low", async function () {
-    const overrides = {
-      value: hre.ethers.utils.parseEther(".1"),
-    };
-
-    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
-    await expect(revealRequestTx).to.be.revertedWith("Request value too low");
-  });
-
-  it("Reverts on requestReveal when market closed", async function () {
-    const overrides = {
-      value: hre.REQUEST_MINIMUM,
-    };
-
-    await hre.ethers.provider.send("evm_increaseTime", [MARKET_CLOSE_INCREASE]);
-    await hre.ethers.provider.send("evm_mine", []);
-
-    const revealRequestTx = broadcastMarket.requestReveal(...validRevealProof, overrides);
-    await expect(revealRequestTx).to.be.revertedWith("Marketplace has closed");
   });
 
   it("Reverts on claimReveal when market closed", async function () {
@@ -431,8 +507,6 @@ describe("BroadcastMarket", function () {
 
     expect(revealRequest.requester).to.eq(await deployer.getAddress());
     expect(revealRequest.location).to.eq(locationID);
-    expect(revealRequest.x).to.eq(x);
-    expect(revealRequest.y).to.eq(y);
     expect(revealRequest.payout).to.eq(payout);
     expect(revealRequest.paid).to.be.false;
   });
@@ -500,4 +574,12 @@ describe("BroadcastMarket", function () {
 
     await expect(revealRequests).to.be.revertedWith("Page number too high");
   });
+
+  it("Reverts on getCoords with nonexistant locationid", async function () {
+    const revealRequests = broadcastMarket.getCoords(1);
+
+    await expect(revealRequests).to.be.revertedWith("No Coord for that Planet");
+  });
+
+  // todo need tests for all the getCoords getters
 });

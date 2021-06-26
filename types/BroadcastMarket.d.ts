@@ -27,18 +27,24 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
     "MARKET_CLOSE_COUNTDOWN_TIMESTAMP()": FunctionFragment;
     "REQUEST_MAXIMUM()": FunctionFragment;
     "REQUEST_MINIMUM()": FunctionFragment;
+    "bulkGetCoords(uint256,uint256)": FunctionFragment;
     "bulkGetRevealRequests(uint256,uint256)": FunctionFragment;
     "cancelReveal(uint256)": FunctionFragment;
     "claimRefund(uint256)": FunctionFragment;
     "claimReveal(uint256)": FunctionFragment;
+    "getAllCoords()": FunctionFragment;
     "getAllRevealRequests()": FunctionFragment;
     "getConstants()": FunctionFragment;
+    "getCoords(uint256)": FunctionFragment;
+    "getCoordsPage(uint256)": FunctionFragment;
+    "getNCoords()": FunctionFragment;
     "getNRevealRequests()": FunctionFragment;
     "getRevealRequest(uint256)": FunctionFragment;
     "getRevealRequestPage(uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "requestReveal(uint256[2],uint256[2][2],uint256[2],uint256[9])": FunctionFragment;
+    "requestRevealPlanetId(uint256)": FunctionFragment;
     "rugPull()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -64,6 +70,10 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "bulkGetCoords",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "bulkGetRevealRequests",
     values: [BigNumberish, BigNumberish]
   ): string;
@@ -80,11 +90,27 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getAllCoords",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getAllRevealRequests",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getConstants",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCoords",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCoordsPage",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getNCoords",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -123,6 +149,10 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
       ]
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "requestRevealPlanetId",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "rugPull", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -150,6 +180,10 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "bulkGetCoords",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "bulkGetRevealRequests",
     data: BytesLike
   ): Result;
@@ -166,6 +200,10 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getAllCoords",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getAllRevealRequests",
     data: BytesLike
   ): Result;
@@ -173,6 +211,12 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
     functionFragment: "getConstants",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getCoords", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getCoordsPage",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getNCoords", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getNRevealRequests",
     data: BytesLike
@@ -192,6 +236,10 @@ interface BroadcastMarketInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "requestReveal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestRevealPlanetId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "rugPull", data: BytesLike): Result;
@@ -271,6 +319,26 @@ export class BroadcastMarket extends BaseContract {
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    bulkGetCoords(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([BigNumber, BigNumber, boolean] & {
+          x: BigNumber;
+          y: BigNumber;
+          isOrigin: boolean;
+        })[]
+      ] & {
+        ret: ([BigNumber, BigNumber, boolean] & {
+          x: BigNumber;
+          y: BigNumber;
+          isOrigin: boolean;
+        })[];
+      }
+    >;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -283,20 +351,18 @@ export class BroadcastMarket extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber,
           boolean,
           boolean,
-          BigNumber
+          boolean
         ] & {
           requester: string;
           collector: string;
           location: BigNumber;
-          x: BigNumber;
-          y: BigNumber;
           payout: BigNumber;
+          cancelCompleteBlock: BigNumber;
+          isKnown: boolean;
           paid: boolean;
           refunded: boolean;
-          cancelCompleteBlock: BigNumber;
         })[]
       ] & {
         ret: ([
@@ -305,20 +371,18 @@ export class BroadcastMarket extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber,
           boolean,
           boolean,
-          BigNumber
+          boolean
         ] & {
           requester: string;
           collector: string;
           location: BigNumber;
-          x: BigNumber;
-          y: BigNumber;
           payout: BigNumber;
+          cancelCompleteBlock: BigNumber;
+          isKnown: boolean;
           paid: boolean;
           refunded: boolean;
-          cancelCompleteBlock: BigNumber;
         })[];
       }
     >;
@@ -338,6 +402,18 @@ export class BroadcastMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getAllCoords(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([BigNumber, BigNumber, boolean] & {
+          x: BigNumber;
+          y: BigNumber;
+          isOrigin: boolean;
+        })[]
+      ]
+    >;
+
     getAllRevealRequests(
       overrides?: CallOverrides
     ): Promise<
@@ -348,20 +424,18 @@ export class BroadcastMarket extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber,
           boolean,
           boolean,
-          BigNumber
+          boolean
         ] & {
           requester: string;
           collector: string;
           location: BigNumber;
-          x: BigNumber;
-          y: BigNumber;
           payout: BigNumber;
+          cancelCompleteBlock: BigNumber;
+          isKnown: boolean;
           paid: boolean;
           refunded: boolean;
-          cancelCompleteBlock: BigNumber;
         })[]
       ]
     >;
@@ -380,6 +454,48 @@ export class BroadcastMarket extends BaseContract {
       ]
     >;
 
+    getCoords(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        [BigNumber, BigNumber, boolean] & {
+          x: BigNumber;
+          y: BigNumber;
+          isOrigin: boolean;
+        }
+      ]
+    >;
+
+    getCoordsPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([
+          string,
+          string,
+          BigNumber,
+          BigNumber,
+          BigNumber,
+          boolean,
+          boolean,
+          boolean
+        ] & {
+          requester: string;
+          collector: string;
+          location: BigNumber;
+          payout: BigNumber;
+          cancelCompleteBlock: BigNumber;
+          isKnown: boolean;
+          paid: boolean;
+          refunded: boolean;
+        })[]
+      ]
+    >;
+
+    getNCoords(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getNRevealRequests(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getRevealRequest(
@@ -393,20 +509,18 @@ export class BroadcastMarket extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber,
           boolean,
           boolean,
-          BigNumber
+          boolean
         ] & {
           requester: string;
           collector: string;
           location: BigNumber;
-          x: BigNumber;
-          y: BigNumber;
           payout: BigNumber;
+          cancelCompleteBlock: BigNumber;
+          isKnown: boolean;
           paid: boolean;
           refunded: boolean;
-          cancelCompleteBlock: BigNumber;
         }
       ]
     >;
@@ -422,20 +536,18 @@ export class BroadcastMarket extends BaseContract {
           BigNumber,
           BigNumber,
           BigNumber,
-          BigNumber,
           boolean,
           boolean,
-          BigNumber
+          boolean
         ] & {
           requester: string;
           collector: string;
           location: BigNumber;
-          x: BigNumber;
-          y: BigNumber;
           payout: BigNumber;
+          cancelCompleteBlock: BigNumber;
+          isKnown: boolean;
           paid: boolean;
           refunded: boolean;
-          cancelCompleteBlock: BigNumber;
         })[]
       ]
     >;
@@ -464,6 +576,11 @@ export class BroadcastMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    requestRevealPlanetId(
+      _planetId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     rugPull(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -486,6 +603,18 @@ export class BroadcastMarket extends BaseContract {
 
   REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
+  bulkGetCoords(
+    startIdx: BigNumberish,
+    endIdx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    ([BigNumber, BigNumber, boolean] & {
+      x: BigNumber;
+      y: BigNumber;
+      isOrigin: boolean;
+    })[]
+  >;
+
   bulkGetRevealRequests(
     startIdx: BigNumberish,
     endIdx: BigNumberish,
@@ -497,20 +626,18 @@ export class BroadcastMarket extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
-      BigNumber,
       boolean,
       boolean,
-      BigNumber
+      boolean
     ] & {
       requester: string;
       collector: string;
       location: BigNumber;
-      x: BigNumber;
-      y: BigNumber;
       payout: BigNumber;
+      cancelCompleteBlock: BigNumber;
+      isKnown: boolean;
       paid: boolean;
       refunded: boolean;
-      cancelCompleteBlock: BigNumber;
     })[]
   >;
 
@@ -529,6 +656,16 @@ export class BroadcastMarket extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getAllCoords(
+    overrides?: CallOverrides
+  ): Promise<
+    ([BigNumber, BigNumber, boolean] & {
+      x: BigNumber;
+      y: BigNumber;
+      isOrigin: boolean;
+    })[]
+  >;
+
   getAllRevealRequests(
     overrides?: CallOverrides
   ): Promise<
@@ -538,20 +675,18 @@ export class BroadcastMarket extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
-      BigNumber,
       boolean,
       boolean,
-      BigNumber
+      boolean
     ] & {
       requester: string;
       collector: string;
       location: BigNumber;
-      x: BigNumber;
-      y: BigNumber;
       payout: BigNumber;
+      cancelCompleteBlock: BigNumber;
+      isKnown: boolean;
       paid: boolean;
       refunded: boolean;
-      cancelCompleteBlock: BigNumber;
     })[]
   >;
 
@@ -567,6 +702,44 @@ export class BroadcastMarket extends BaseContract {
     }
   >;
 
+  getCoords(
+    location: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, boolean] & {
+      x: BigNumber;
+      y: BigNumber;
+      isOrigin: boolean;
+    }
+  >;
+
+  getCoordsPage(
+    pageIdx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<
+    ([
+      string,
+      string,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      boolean,
+      boolean,
+      boolean
+    ] & {
+      requester: string;
+      collector: string;
+      location: BigNumber;
+      payout: BigNumber;
+      cancelCompleteBlock: BigNumber;
+      isKnown: boolean;
+      paid: boolean;
+      refunded: boolean;
+    })[]
+  >;
+
+  getNCoords(overrides?: CallOverrides): Promise<BigNumber>;
+
   getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
   getRevealRequest(
@@ -579,20 +752,18 @@ export class BroadcastMarket extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
-      BigNumber,
       boolean,
       boolean,
-      BigNumber
+      boolean
     ] & {
       requester: string;
       collector: string;
       location: BigNumber;
-      x: BigNumber;
-      y: BigNumber;
       payout: BigNumber;
+      cancelCompleteBlock: BigNumber;
+      isKnown: boolean;
       paid: boolean;
       refunded: boolean;
-      cancelCompleteBlock: BigNumber;
     }
   >;
 
@@ -606,20 +777,18 @@ export class BroadcastMarket extends BaseContract {
       BigNumber,
       BigNumber,
       BigNumber,
-      BigNumber,
       boolean,
       boolean,
-      BigNumber
+      boolean
     ] & {
       requester: string;
       collector: string;
       location: BigNumber;
-      x: BigNumber;
-      y: BigNumber;
       payout: BigNumber;
+      cancelCompleteBlock: BigNumber;
+      isKnown: boolean;
       paid: boolean;
       refunded: boolean;
-      cancelCompleteBlock: BigNumber;
     })[]
   >;
 
@@ -647,6 +816,11 @@ export class BroadcastMarket extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  requestRevealPlanetId(
+    _planetId: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   rugPull(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -669,6 +843,18 @@ export class BroadcastMarket extends BaseContract {
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
+    bulkGetCoords(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      ([BigNumber, BigNumber, boolean] & {
+        x: BigNumber;
+        y: BigNumber;
+        isOrigin: boolean;
+      })[]
+    >;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -680,20 +866,18 @@ export class BroadcastMarket extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber,
         boolean,
         boolean,
-        BigNumber
+        boolean
       ] & {
         requester: string;
         collector: string;
         location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
         payout: BigNumber;
+        cancelCompleteBlock: BigNumber;
+        isKnown: boolean;
         paid: boolean;
         refunded: boolean;
-        cancelCompleteBlock: BigNumber;
       })[]
     >;
 
@@ -712,6 +896,16 @@ export class BroadcastMarket extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    getAllCoords(
+      overrides?: CallOverrides
+    ): Promise<
+      ([BigNumber, BigNumber, boolean] & {
+        x: BigNumber;
+        y: BigNumber;
+        isOrigin: boolean;
+      })[]
+    >;
+
     getAllRevealRequests(
       overrides?: CallOverrides
     ): Promise<
@@ -721,20 +915,18 @@ export class BroadcastMarket extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber,
         boolean,
         boolean,
-        BigNumber
+        boolean
       ] & {
         requester: string;
         collector: string;
         location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
         payout: BigNumber;
+        cancelCompleteBlock: BigNumber;
+        isKnown: boolean;
         paid: boolean;
         refunded: boolean;
-        cancelCompleteBlock: BigNumber;
       })[]
     >;
 
@@ -750,6 +942,44 @@ export class BroadcastMarket extends BaseContract {
       }
     >;
 
+    getCoords(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, boolean] & {
+        x: BigNumber;
+        y: BigNumber;
+        isOrigin: boolean;
+      }
+    >;
+
+    getCoordsPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      ([
+        string,
+        string,
+        BigNumber,
+        BigNumber,
+        BigNumber,
+        boolean,
+        boolean,
+        boolean
+      ] & {
+        requester: string;
+        collector: string;
+        location: BigNumber;
+        payout: BigNumber;
+        cancelCompleteBlock: BigNumber;
+        isKnown: boolean;
+        paid: boolean;
+        refunded: boolean;
+      })[]
+    >;
+
+    getNCoords(overrides?: CallOverrides): Promise<BigNumber>;
+
     getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRevealRequest(
@@ -762,20 +992,18 @@ export class BroadcastMarket extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber,
         boolean,
         boolean,
-        BigNumber
+        boolean
       ] & {
         requester: string;
         collector: string;
         location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
         payout: BigNumber;
+        cancelCompleteBlock: BigNumber;
+        isKnown: boolean;
         paid: boolean;
         refunded: boolean;
-        cancelCompleteBlock: BigNumber;
       }
     >;
 
@@ -789,20 +1017,18 @@ export class BroadcastMarket extends BaseContract {
         BigNumber,
         BigNumber,
         BigNumber,
-        BigNumber,
         boolean,
         boolean,
-        BigNumber
+        boolean
       ] & {
         requester: string;
         collector: string;
         location: BigNumber;
-        x: BigNumber;
-        y: BigNumber;
         payout: BigNumber;
+        cancelCompleteBlock: BigNumber;
+        isKnown: boolean;
         paid: boolean;
         refunded: boolean;
-        cancelCompleteBlock: BigNumber;
       })[]
     >;
 
@@ -825,6 +1051,11 @@ export class BroadcastMarket extends BaseContract {
         BigNumberish,
         BigNumberish
       ],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    requestRevealPlanetId(
+      _planetId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -875,6 +1106,12 @@ export class BroadcastMarket extends BaseContract {
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<BigNumber>;
 
+    bulkGetCoords(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -896,9 +1133,23 @@ export class BroadcastMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getAllCoords(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAllRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
     getConstants(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getCoords(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getCoordsPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getNCoords(overrides?: CallOverrides): Promise<BigNumber>;
 
     getNRevealRequests(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -936,6 +1187,11 @@ export class BroadcastMarket extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    requestRevealPlanetId(
+      _planetId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     rugPull(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -961,6 +1217,12 @@ export class BroadcastMarket extends BaseContract {
 
     REQUEST_MINIMUM(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    bulkGetCoords(
+      startIdx: BigNumberish,
+      endIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     bulkGetRevealRequests(
       startIdx: BigNumberish,
       endIdx: BigNumberish,
@@ -982,11 +1244,25 @@ export class BroadcastMarket extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    getAllCoords(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     getAllRevealRequests(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getConstants(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getCoords(
+      location: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getCoordsPage(
+      pageIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getNCoords(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getNRevealRequests(
       overrides?: CallOverrides
@@ -1023,6 +1299,11 @@ export class BroadcastMarket extends BaseContract {
         BigNumberish,
         BigNumberish
       ],
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requestRevealPlanetId(
+      _planetId: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
