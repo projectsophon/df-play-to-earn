@@ -123,7 +123,7 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
             Coord({
                 x: _input[2],
                 y: _input[3],
-                isInitialized: true
+                isSubmitted: true
             });
 
         RevealRequest memory revealRequest =
@@ -215,7 +215,7 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
 
     function getCoords(uint256 location) public view returns (Coord memory) {
         Coord memory coord = coords[location];
-        require(coord.isInitialized, "No Coord for that Planet");
+        require(coord.isSubmitted, "No Coord for that Planet");
         return coord;
     }
 
@@ -294,7 +294,7 @@ struct RevealRequest {
 struct Coord {
     uint256 x;
     uint256 y;
-    bool isInitialized;
+    bool isSubmitted;
 }
 
 abstract contract DarkForestCore {

@@ -328,13 +328,13 @@ export class BroadcastMarket extends BaseContract {
         ([BigNumber, BigNumber, boolean] & {
           x: BigNumber;
           y: BigNumber;
-          isInitialized: boolean;
+          isSubmitted: boolean;
         })[]
       ] & {
         ret: ([BigNumber, BigNumber, boolean] & {
           x: BigNumber;
           y: BigNumber;
-          isInitialized: boolean;
+          isSubmitted: boolean;
         })[];
       }
     >;
@@ -409,7 +409,7 @@ export class BroadcastMarket extends BaseContract {
         ([BigNumber, BigNumber, boolean] & {
           x: BigNumber;
           y: BigNumber;
-          isInitialized: boolean;
+          isSubmitted: boolean;
         })[]
       ]
     >;
@@ -462,7 +462,7 @@ export class BroadcastMarket extends BaseContract {
         [BigNumber, BigNumber, boolean] & {
           x: BigNumber;
           y: BigNumber;
-          isInitialized: boolean;
+          isSubmitted: boolean;
         }
       ]
     >;
@@ -611,7 +611,7 @@ export class BroadcastMarket extends BaseContract {
     ([BigNumber, BigNumber, boolean] & {
       x: BigNumber;
       y: BigNumber;
-      isInitialized: boolean;
+      isSubmitted: boolean;
     })[]
   >;
 
@@ -662,7 +662,7 @@ export class BroadcastMarket extends BaseContract {
     ([BigNumber, BigNumber, boolean] & {
       x: BigNumber;
       y: BigNumber;
-      isInitialized: boolean;
+      isSubmitted: boolean;
     })[]
   >;
 
@@ -709,7 +709,7 @@ export class BroadcastMarket extends BaseContract {
     [BigNumber, BigNumber, boolean] & {
       x: BigNumber;
       y: BigNumber;
-      isInitialized: boolean;
+      isSubmitted: boolean;
     }
   >;
 
@@ -851,7 +851,7 @@ export class BroadcastMarket extends BaseContract {
       ([BigNumber, BigNumber, boolean] & {
         x: BigNumber;
         y: BigNumber;
-        isInitialized: boolean;
+        isSubmitted: boolean;
       })[]
     >;
 
@@ -902,7 +902,7 @@ export class BroadcastMarket extends BaseContract {
       ([BigNumber, BigNumber, boolean] & {
         x: BigNumber;
         y: BigNumber;
-        isInitialized: boolean;
+        isSubmitted: boolean;
       })[]
     >;
 
@@ -949,7 +949,7 @@ export class BroadcastMarket extends BaseContract {
       [BigNumber, BigNumber, boolean] & {
         x: BigNumber;
         y: BigNumber;
-        isInitialized: boolean;
+        isSubmitted: boolean;
       }
     >;
 
