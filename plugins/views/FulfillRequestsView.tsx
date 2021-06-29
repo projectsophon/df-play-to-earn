@@ -1,4 +1,4 @@
-import { html } from "htm/preact";
+import { h, FunctionComponent } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { locationIdToDecStr } from "@darkforest_eth/serde";
 
@@ -46,7 +46,7 @@ function timeFromNow() {
   return nextReveal - Date.now();
 }
 
-function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
+const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onReveal }) => {
   const { x, y, location, payout, requester, cancelCompleteBlock } = revealRequest;
 
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
@@ -64,24 +64,34 @@ function Row({ text, revealRequest, canReveal, onReveal }: RowProps) {
   }
 
   const cancelWarning =
-    cancelCompleteBlock !== 0
-      ? html`<div>
-          <span style=${beware}>Beware:</span> Only available for <span style=${bold}>${remainingBlocks}</span> more
-          blocks.
-        </div>`
-      : "";
-
-  return html`
-    <div style=${scrollListItem}>
-      <div style=${muted}>
-        <div>Broadcast <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
-        <div>and receive <span style=${bold}>${payout} xDai</span> from ${playerName(requester)}</div>
-        ${cancelWarning}
+    cancelCompleteBlock !== 0 ? (
+      <div>
+        <span style={beware}>Beware:</span> Only available for <span style={bold}>{remainingBlocks}</span> more blocks.
       </div>
-      <${Button} onClick=${onReveal} enabled=${canReveal}>${text}<//>
+    ) : (
+      ""
+    );
+
+  return (
+    <div style={scrollListItem}>
+      <div style={muted}>
+        <div>
+          Broadcast{" "}
+          <span style={jumpLink} onClick={centerPlanet}>
+            {planetName(location)} ({x}, {y})
+          </span>
+        </div>
+        <div>
+          and receive <span style={bold}>{payout} xDai</span> from {playerName(requester)}
+        </div>
+        {cancelWarning}
+      </div>
+      <Button onClick={onReveal} enabled={canReveal}>
+        {text}
+      </Button>
     </div>
-  `;
-}
+  );
+};
 
 export function FulfillRequestsView({ active, contract, revealRequests, onStatus, pending, setPending }: ViewProps) {
   const [waiting, setWaiting] = useState(timeFromNow);
@@ -176,37 +186,50 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
       // TODO(#58): Once revealer is exposed in the client, we need to check if the player is the revealer
       // otherwise they will pay the gas for a claim of someone else.
       if (planet?.coordsRevealed) {
-        return html`<${Row}
-          key=${revealRequest.location}
-          revealRequest=${revealRequest}
-          onReveal=${revealPlanet}
-          canReveal=${!pending}
-          text="Claim"
-        />`;
+        return (
+          <Row
+            key={revealRequest.location}
+            revealRequest={revealRequest}
+            onReveal={revealPlanet}
+            canReveal={!pending}
+            text="Claim"
+          />
+        );
       } else {
-        return html`<${Row}
-          key=${revealRequest.location}
-          revealRequest=${revealRequest}
-          onReveal=${revealPlanet}
-          canReveal=${!pending && canReveal}
-          text="Broadcast"
-        />`;
+        return (
+          <Row
+            key={revealRequest.location}
+            revealRequest={revealRequest}
+            onReveal={revealPlanet}
+            canReveal={!pending && canReveal}
+            text="Broadcast"
+          />
+        );
       }
     });
 
-  const message = html`<span style=${centered}>No requests currently.</span>`;
+  const message = <span style={centered}>No requests currently.</span>;
 
-  return html`
-    <div style=${active ? shown : hidden}>
-      <div style=${warning}>
-        <div><span style=${beware}>Beware:</span> You can only broadcast once every ${REVEAL_COOLDOWN_HOURS} hours</div>
-        <div>Time until your next broadcast: <${TimeUntil} timestamp=${waiting} ifPassed=${"Now!"} /></div>
+  return (
+    <div style={active ? shown : hidden}>
+      <div style={warning}>
+        <div>
+          <span style={beware}>Beware:</span> You can only broadcast once every {REVEAL_COOLDOWN_HOURS} hours
+        </div>
+        <div>
+          Time until your next broadcast: <TimeUntil timestamp={waiting} ifPassed={"Now!"} />
+        </div>
       </div>
-      <div style=${scrollList}>${rows.length ? rows : message}</div>
-      <div style=${optionsRow}>
-        <label><input type="checkbox" checked=${hideMyRequests} onChange=${toggleMyRequests} /> Hide my requests</label>
-        <label><input type="checkbox" checked=${hidePendingCancel} onChange=${togglePendingCancel} /> Hide requests pending cancel</label>
+      <div style={scrollList}>{rows.length ? rows : message}</div>
+      <div style={optionsRow}>
+        <label>
+          <input type="checkbox" checked={hideMyRequests} onChange={toggleMyRequests} /> Hide my requests
+        </label>
+        <label>
+          <input type="checkbox" checked={hidePendingCancel} onChange={togglePendingCancel} /> Hide requests pending
+          cancel
+        </label>
       </div>
-    </<div>
-  `;
+    </div>
+  );
 }

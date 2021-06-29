@@ -2,7 +2,7 @@ import type { BroadcastMarket } from "../../types";
 import type { BigNumber } from "@ethersproject/bignumber";
 import type { LocationId } from "@darkforest_eth/types";
 
-import { html } from "htm/preact";
+import { h } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import { ViewLink } from "../components/ViewLink";
@@ -101,47 +101,47 @@ export function AppView({ contract, requests, constants }: Props) {
     setActiveView(Views.FulfillRequests);
   }
 
-  return html`
+  return (
     <div>
-      <div style=${flex}>
-        <${ViewLink} active=${fulfillRequestsActive} text="Fulfill Requests" onClick=${setFulfillRequestsActive} />
-        <${ViewLink} active=${requestRevealActive} text="Request Broadcast" onClick=${setRequestRevealActive} />
-        <${ViewLink} active=${cancelRequestActive} text="My Requests" onClick=${setCancelRequestActive} />
+      <div style={flex}>
+        <ViewLink active={fulfillRequestsActive} text="Fulfill Requests" onClick={setFulfillRequestsActive} />
+        <ViewLink active={requestRevealActive} text="Request Broadcast" onClick={setRequestRevealActive} />
+        <ViewLink active={cancelRequestActive} text="My Requests" onClick={setCancelRequestActive} />
       </div>
       <div>
-        <${RequestRevealView}
-          active=${requestRevealActive}
-          contract=${contract}
-          revealRequests=${revealRequests}
-          constants=${constants}
-          onStatus=${setStatusMessage}
-          pending=${pending}
-          setPending=${setPending}
+        <RequestRevealView
+          active={requestRevealActive}
+          contract={contract}
+          revealRequests={revealRequests}
+          constants={constants}
+          onStatus={setStatusMessage}
+          pending={pending}
+          setPending={setPending}
         />
-        <${FulfillRequestsView}
-          active=${fulfillRequestsActive}
-          contract=${contract}
-          revealRequests=${revealRequests}
-          constants=${constants}
-          onStatus=${setStatusMessage}
-          pending=${pending}
-          setPending=${setPending}
+        <FulfillRequestsView
+          active={fulfillRequestsActive}
+          contract={contract}
+          revealRequests={revealRequests}
+          constants={constants}
+          onStatus={setStatusMessage}
+          pending={pending}
+          setPending={setPending}
         />
-        <${CancelRequestView}
-          active=${cancelRequestActive}
-          contract=${contract}
-          revealRequests=${revealRequests}
-          constants=${constants}
-          onStatus=${setStatusMessage}
-          pending=${pending}
-          setPending=${setPending}
+        <CancelRequestView
+          active={cancelRequestActive}
+          contract={contract}
+          revealRequests={revealRequests}
+          constants={constants}
+          onStatus={setStatusMessage}
+          pending={pending}
+          setPending={setPending}
         />
       </div>
-      <div style=${messageBar}>
-        <span style=${statusMessage ? { ...shownStatusMessage, color: statusMessage.color } : hiddenStatusMessage}
-          >${statusMessage?.message}</span
-        >
+      <div style={messageBar}>
+        <span style={statusMessage ? { ...shownStatusMessage, color: statusMessage.color } : hiddenStatusMessage}>
+          {statusMessage?.message}
+        </span>
       </div>
     </div>
-  `;
+  );
 }

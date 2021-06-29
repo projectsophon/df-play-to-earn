@@ -1,7 +1,7 @@
 import type { BroadcastMarket } from "../../types";
 import type { RevealRequest, StatusMessage, ViewProps } from "../helpers/other";
 
-import { html } from "htm/preact";
+import { h, FunctionComponent } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { locationIdToDecStr } from "@darkforest_eth/serde";
 
@@ -30,53 +30,76 @@ import {
 } from "../helpers/styles";
 
 type RowProps = {
-  cancelledCountdownBlocks: number;
   revealRequest: RevealRequest;
+};
+
+type RefundRowProps = RowProps & {
   contract: BroadcastMarket;
   onStatus: (status: StatusMessage) => void;
   pending: boolean;
   setPending: (pending: boolean) => void;
 };
 
-function PaidRow({ revealRequest }: RowProps) {
+type CancelRowProps = RefundRowProps & {
+  cancelledCountdownBlocks: number;
+};
+
+const PaidRow: FunctionComponent<RowProps> = ({ revealRequest }) => {
   const { x, y, payout, location, collector } = revealRequest;
 
   function centerPlanet() {
     centerCoords({ x, y });
   }
 
-  return html`
-    <div style=${scrollListItem}>
-      <div style=${muted}>
+  return (
+    <div style={scrollListItem}>
+      <div style={muted}>
         <div>
-          <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> was broadcasted!
+          <span style={jumpLink} onClick={centerPlanet}>
+            {planetName(location)} ({x}, {y})
+          </span>{" "}
+          was broadcasted!
         </div>
-        <div>${playerName(collector)} claimed <span style=${bold}>${payout} xDai</span>.</div>
+        <div>
+          {playerName(collector)} claimed <span style={bold}>{payout} xDai</span>.
+        </div>
       </div>
     </div>
-  `;
-}
+  );
+};
 
-function RefundedRow({ revealRequest }: RowProps) {
+const RefundedRow: FunctionComponent<RowProps> = ({ revealRequest }) => {
   const { x, y, payout, location } = revealRequest;
 
   function centerPlanet() {
     centerCoords({ x, y });
   }
 
-  return html`
-    <div style=${scrollListItem}>
-      <div style=${muted}>
+  return (
+    <div style={scrollListItem}>
+      <div style={muted}>
         <div>
-          <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span> request refunded.
+          <span style={jumpLink} onClick={centerPlanet}>
+            {planetName(location)} ({x}, {y})
+          </span>{" "}
+          request refunded.
         </div>
-        <div>You got <span style=${bold}>${payout} xDai</span> back.</div>
+        <div>
+          You got <span style={bold}>{payout} xDai</span> back.
+        </div>
       </div>
     </div>
-  `;
-}
+  );
+};
 
-function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus, pending, setPending }: RowProps) {
+const CancelRow: FunctionComponent<CancelRowProps> = ({
+  cancelledCountdownBlocks,
+  revealRequest,
+  contract,
+  onStatus,
+  pending,
+  setPending,
+}) => {
   const { x, y, payout, location } = revealRequest;
 
   function centerPlanet() {
@@ -103,21 +126,28 @@ function CancelRow({ cancelledCountdownBlocks, revealRequest, contract, onStatus
 
   const message = pending ? "Wait..." : "Cancel";
 
-  return html`
-    <div style=${scrollListItem}>
-      <div style=${muted}>
-        <div>Cancel <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span></div>
+  return (
+    <div style={scrollListItem}>
+      <div style={muted}>
         <div>
-          and claim <span style=${bold}>${payout} xDai</span> refund in
-          <span style=${bold}> ${cancelledCountdownBlocks} blocks</span>.
+          Cancel{" "}
+          <span style={jumpLink} onClick={centerPlanet}>
+            {planetName(location)} ({x}, {y})
+          </span>
+        </div>
+        <div>
+          and claim <span style={bold}>{payout} xDai</span> refund in
+          <span style={bold}> {cancelledCountdownBlocks} blocks</span>.
         </div>
       </div>
-      <${Button} onClick=${cancelReveal} enabled=${!pending}>${message}<//>
+      <Button onClick={cancelReveal} enabled={!pending}>
+        {message}
+      </Button>
     </div>
-  `;
-}
+  );
+};
 
-function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: RowProps) {
+const RefundRow: FunctionComponent<RefundRowProps> = ({ revealRequest, contract, onStatus, pending, setPending }) => {
   const { x, y, payout, location, cancelCompleteBlock } = revealRequest;
 
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
@@ -150,19 +180,27 @@ function RefundRow({ revealRequest, contract, onStatus, pending, setPending }: R
 
   const message = remainingBlocks > 0 ? "Wait..." : "Claim!";
 
-  return html`
-    <div style=${scrollListItem}>
-      <div style=${muted}>
+  return (
+    <div style={scrollListItem}>
+      <div style={muted}>
         <div>
-          Claim refund of <span style=${bold}>${payout} xDai</span> in
-          <span style=${bold}> ${remainingBlocks > 0 ? remainingBlocks : 0}</span> blocks
+          Claim refund of <span style={bold}>{payout} xDai</span> in
+          <span style={bold}> {remainingBlocks > 0 ? remainingBlocks : 0}</span> blocks
         </div>
-        <div>for <span style=${jumpLink} onClick=${centerPlanet}>${planetName(location)} (${x}, ${y})</span>.</div>
+        <div>
+          for{" "}
+          <span style={jumpLink} onClick={centerPlanet}>
+            {planetName(location)} ({x}, {y})
+          </span>
+          .
+        </div>
       </div>
-      <${Button} onClick=${claimRefund} enabled=${remainingBlocks <= 0 && !pending}>${message}<//>
+      <Button onClick={claimRefund} enabled={remainingBlocks <= 0 && !pending}>
+        {message}
+      </Button>
     </div>
-  `;
-}
+  );
+};
 
 export function CancelRequestView({
   active,
@@ -211,45 +249,56 @@ export function CancelRequestView({
     })
     .map((revealRequest) => {
       if (revealRequest.paid) {
-        return html`<${PaidRow} key=${revealRequest.location} revealRequest=${revealRequest} />`;
+        return <PaidRow key={revealRequest.location} revealRequest={revealRequest} />;
       }
       if (revealRequest.refunded) {
-        return html`<${RefundedRow} key=${revealRequest.location} revealRequest=${revealRequest} />`;
+        return <RefundedRow key={revealRequest.location} revealRequest={revealRequest} />;
       }
       if (revealRequest.cancelCompleteBlock === 0) {
-        return html`<${CancelRow}
-          key=${revealRequest.location}
-          cancelledCountdownBlocks=${cancelledCountdownBlocks}
-          revealRequest=${revealRequest}
-          contract=${contract}
-          onStatus=${onStatus}
-          pending=${pending}
-          setPending=${setPending}
-        />`;
+        return (
+          <CancelRow
+            key={revealRequest.location}
+            cancelledCountdownBlocks={cancelledCountdownBlocks}
+            revealRequest={revealRequest}
+            contract={contract}
+            onStatus={onStatus}
+            pending={pending}
+            setPending={setPending}
+          />
+        );
       } else {
-        return html`<${RefundRow}
-          key=${revealRequest.location}
-          revealRequest=${revealRequest}
-          contract=${contract}
-          onStatus=${onStatus}
-          pending=${pending}
-          setPending=${setPending}
-        />`;
+        return (
+          <RefundRow
+            key={revealRequest.location}
+            revealRequest={revealRequest}
+            contract={contract}
+            onStatus={onStatus}
+            pending={pending}
+            setPending={setPending}
+          />
+        );
       }
     });
 
-  const message = html`<span style=${centered}>No requests currently.</span>`;
+  const message = <span style={centered}>No requests currently.</span>;
 
-  return html`
-    <div style=${active ? shown : hidden}>
-      <div style=${warning}>
-        <div><span style=${beware}>Beware:</span> Players can still claim a broadcast for ${cancelledCountdownBlocks} blocks after you try to cancel.</div>
+  return (
+    <div style={active ? shown : hidden}>
+      <div style={warning}>
+        <div>
+          <span style={beware}>Beware:</span> Players can still claim a broadcast for {cancelledCountdownBlocks} blocks
+          after you try to cancel.
+        </div>
       </div>
-      <div style=${scrollList}>${rows.length ? rows : message}</div>
-      <div style=${optionsRow}>
-        <label><input type="checkbox" checked=${hideClaimed} onChange=${toggleClaimed} /> Hide claimed</label>
-        <label><input type="checkbox" checked=${hideRefunded} onChange=${toggleRefunded} /> Hide refunded</label>
+      <div style={scrollList}>{rows.length ? rows : message}</div>
+      <div style={optionsRow}>
+        <label>
+          <input type="checkbox" checked={hideClaimed} onChange={toggleClaimed} /> Hide claimed
+        </label>
+        <label>
+          <input type="checkbox" checked={hideRefunded} onChange={toggleRefunded} /> Hide refunded
+        </label>
       </div>
-    </<div>
-  `;
+    </div>
+  );
 }

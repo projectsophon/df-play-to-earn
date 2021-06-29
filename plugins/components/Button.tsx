@@ -1,4 +1,4 @@
-import { html } from "htm/preact";
+import { h, FunctionComponent } from "preact";
 
 const styles = {
   enabled: {},
@@ -13,11 +13,14 @@ const styles = {
 type Props = {
   enabled: boolean;
   onClick: () => void;
-  children: unknown;
 };
 
-export function Button({ enabled, onClick, children }: Props) {
+export const Button: FunctionComponent<Props> = ({ enabled, onClick, children }) => {
   const style = enabled ? styles.enabled : styles.disabled;
 
-  return html`<button style=${style} onClick=${onClick} disabled=${!enabled}>${children}</button>`;
-}
+  return (
+    <button style={style} onClick={onClick} disabled={!enabled}>
+      {children}
+    </button>
+  );
+};

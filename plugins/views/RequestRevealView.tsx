@@ -1,6 +1,6 @@
 import type { Planet } from "@darkforest_eth/types";
 
-import { html } from "htm/preact";
+import { h } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { formatEther, parseEther } from "@ethersproject/units";
 
@@ -86,16 +86,12 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
 
   const maxXdai = minWithoutFee(`${balance}`, constants.FEE_PERCENT);
 
-  function onChangeXdai(evt: InputEvent) {
-    if (evt.target) {
-      const { value } = evt.target as HTMLInputElement;
-      try {
-        setXdai(formatEther(parseEther(value)));
-      } catch (err) {
-        console.error("[BroadcastMarketPlugin] Not a valid Ether value.");
-      }
-    } else {
-      console.error("[BroadcastMarketPlugin] No event target! How did this happen?");
+  function onChangeXdai(evt: h.JSX.TargetedEvent<HTMLInputElement>) {
+    const { value } = evt.currentTarget;
+    try {
+      setXdai(formatEther(parseEther(value)));
+    } catch (err) {
+      console.error("[BroadcastMarketPlugin] Not a valid Ether value.");
     }
   }
 
@@ -141,42 +137,46 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
     btnMessage = "Wait...";
   }
 
-  return html`
-    <div style=${active ? shown : hidden}>
-      <div style=${warning}><span style=${beware}>Beware:</span> You will be spending actual xDai here!</div>
-      <div style=${row}>
+  return (
+    <div style={active ? shown : hidden}>
+      <div style={warning}>
+        <span style={beware}>Beware:</span> You will be spending actual xDai here!
+      </div>
+      <div style={row}>
         <span>Your xDai Balance:</span>
-        <span>${balance} xDai</span>
+        <span>{balance} xDai</span>
       </div>
-      <div style=${row}>
+      <div style={row}>
         <span>Request broadcast of:</span>
-        <span>${planetName(selectedLocationId)}</span>
+        <span>{planetName(selectedLocationId)}</span>
       </div>
-      <div style=${row}>
+      <div style={row}>
         <span>Paying:</span>
         <span>
           <input
             type="number"
-            style=${paymentInput}
-            value=${xdai}
-            min=${minXdai}
-            max=${maxXdai}
-            onChange=${onChangeXdai}
+            style={paymentInput}
+            value={xdai}
+            min={minXdai}
+            max={maxXdai}
+            onChange={onChangeXdai}
             step="0.1"
-            onKeyUp=${onKeyUp}
+            onKeyUp={onKeyUp}
           />
           <label>xDai</label>
         </span>
       </div>
-      <div style=${row}>
+      <div style={row}>
         <span>Fee:</span>
-        <span>${feeEther} xDai</span>
+        <span>{feeEther} xDai</span>
       </div>
-      <div style=${row}>
+      <div style={row}>
         <span>Total:</span>
-        <span>${totalEther} xDai</span>
+        <span>{totalEther} xDai</span>
       </div>
-      <${Button} style=${fullWidth} onClick=${onClick} enabled=${!pending && canRequest}>${btnMessage}<//>
+      <Button onClick={onClick} enabled={!pending && canRequest}>
+        {btnMessage}
+      </Button>
     </div>
-  `;
+  );
 }

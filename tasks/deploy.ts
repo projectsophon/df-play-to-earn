@@ -92,5 +92,5 @@ async function deployIntoNode(
   await hre.network.provider.send("evm_setIntervalMining", [5000]);
 
   // Start up the plugin dev-server
-  await devServer.start({ dir: "plugins", ext: [".ts"] });
+  await devServer.start({ preact: true, glob: ["plugins/*.(ts|tsx)"] });
 }
