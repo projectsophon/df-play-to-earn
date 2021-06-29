@@ -39,7 +39,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   env.players = [
     // the tests use players[0] who needs to be a whitelisted user
     {
-      address: "0xa9fcdf168759fbe712a651323b2f98d9ae141215",
+      address: "0xF94a752165Ec74A5F1B3d02dF0Fe2A236BbAA529",
       // lets give our player some free money
       forkFund: "100",
     },
@@ -104,7 +104,7 @@ const config: HardhatUserConfig = {
       forking: {
         enabled: true,
         url: "https://xdai-archive.blockscout.com/",
-        blockNumber: 16240564,
+        blockNumber: 16820046,
       },
     },
   },
