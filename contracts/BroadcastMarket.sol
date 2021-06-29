@@ -25,6 +25,9 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
     mapping(uint256 => RevealRequest) private revealRequests;
     uint256[] private revealRequestIds;
 
+    mapping(uint256 => Coord) private coords;
+    uint256[] private coordIds;
+
     modifier open() {
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp < MARKET_CLOSE_COUNTDOWN_TIMESTAMP, "Marketplace has closed");
@@ -60,6 +63,36 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
         Address.sendValue(payable(owner()), address(this).balance);
     }
 
+    function requestRevealPlanetId(uint256 _planetId) external payable open nonReentrant {
+        require(msg.value <= REQUEST_MAXIMUM, "Request value too high");
+        require(msg.value >= REQUEST_MINIMUM, "Request value too low");
+
+        RevealRequest memory possibleRevealRequest = revealRequests[_planetId];
+        require(possibleRevealRequest.location == 0, "RevealRequest already exists");
+
+        DarkForestCore.RevealedCoords memory revealed = darkForestCore.getRevealedCoords(_planetId);
+        require(revealed.locationId == 0, "Planet already revealed");
+
+        uint256 payout = (100 * msg.value) / (100 + FEE_PERCENT);
+
+        RevealRequest memory revealRequest =
+            RevealRequest({
+                requester: msg.sender,
+                collector: address(0),
+                location: _planetId,
+                payout: payout,
+                paid: false,
+                refunded: false,
+                cancelCompleteBlock: 0,
+                isKnown: false
+            });
+
+        revealRequests[revealRequest.location] = revealRequest;
+        revealRequestIds.push(revealRequest.location);
+
+        emit RevealRequested(revealRequest.location);
+    }
+
     function requestReveal(
         uint256[2] memory _a,
         uint256[2][2] memory _b,
@@ -85,18 +118,22 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
 
         uint256 payout = (100 * msg.value) / (100 + FEE_PERCENT);
 
+        Coord memory coord = Coord({x: _input[2], y: _input[3], isSubmitted: true});
+
         RevealRequest memory revealRequest =
             RevealRequest({
                 requester: msg.sender,
                 collector: address(0),
                 location: _input[0],
-                x: _input[2],
-                y: _input[3],
                 payout: payout,
                 paid: false,
                 refunded: false,
-                cancelCompleteBlock: 0
+                cancelCompleteBlock: 0,
+                isKnown: true
             });
+
+        coords[revealRequest.location] = coord;
+        coordIds.push(revealRequest.location);
 
         revealRequests[revealRequest.location] = revealRequest;
         revealRequestIds.push(revealRequest.location);
@@ -166,6 +203,36 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
             });
     }
 
+    function getNCoords() public view returns (uint256) {
+        return coordIds.length;
+    }
+
+    function getCoords(uint256 location) public view returns (Coord memory) {
+        Coord memory coord = coords[location];
+        require(coord.isSubmitted, "No Coord for that Planet");
+        return coord;
+    }
+
+    function bulkGetCoords(uint256 startIdx, uint256 endIdx) public view returns (Coord[] memory ret) {
+        ret = new Coord[](endIdx - startIdx);
+        for (uint256 idx = startIdx; idx < endIdx; idx++) {
+            ret[idx - startIdx] = getCoords(coordIds[idx]);
+        }
+    }
+
+    function getAllCoords() public view returns (Coord[] memory) {
+        return bulkGetCoords(0, coordIds.length);
+    }
+
+    function getCoordsPage(uint256 pageIdx) public view returns (RevealRequest[] memory) {
+        // Page size is 20 items
+        uint256 startIdx = pageIdx * 20;
+        require(startIdx <= coordIds.length, "Page number too high");
+        uint256 pageEnd = startIdx + 20;
+        uint256 endIdx = pageEnd <= coordIds.length ? pageEnd : coordIds.length;
+        return bulkGetRevealRequests(startIdx, endIdx);
+    }
+
     function getNRevealRequests() public view returns (uint256) {
         return revealRequestIds.length;
     }
@@ -211,12 +278,17 @@ struct RevealRequest {
     address requester;
     address collector;
     uint256 location;
-    uint256 x;
-    uint256 y;
     uint256 payout;
+    uint256 cancelCompleteBlock;
+    bool isKnown;
     bool paid;
     bool refunded;
-    uint256 cancelCompleteBlock;
+}
+
+struct Coord {
+    uint256 x;
+    uint256 y;
+    bool isSubmitted;
 }
 
 abstract contract DarkForestCore {
