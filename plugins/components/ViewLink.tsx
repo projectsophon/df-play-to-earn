@@ -1,4 +1,4 @@
-import { html } from "htm/preact";
+import { h, FunctionComponent } from "preact";
 import { useState } from "preact/hooks";
 
 const viewLink = {
@@ -28,18 +28,15 @@ type Props = {
   onClick: () => void;
 };
 
-export function ViewLink({ active, text, onClick }: Props) {
+export const ViewLink: FunctionComponent<Props> = ({ active, text, onClick }) => {
   const [hovering, setHovering] = useState(false);
 
   const baseStyle = active ? viewLinkActive : viewLinkInactive;
   const style = hovering ? { backgroundColor: "#282834", ...baseStyle, color: "#ffffff" } : baseStyle;
 
-  return html`<div
-    style=${style}
-    onClick=${onClick}
-    onMouseOver=${() => setHovering(true)}
-    onMouseOut=${() => setHovering(false)}
-  >
-    ${text}
-  </div>`;
-}
+  return (
+    <div style={style} onClick={onClick} onMouseOver={() => setHovering(true)} onMouseOut={() => setHovering(false)}>
+      {text}
+    </div>
+  );
+};

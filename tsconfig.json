@@ -1,5 +1,11 @@
 {
   "extends": "@projectsophon/tsconfig",
   "include": ["./tasks/**/*.ts", "./test/**/*.ts", "./types/**/*.ts", "./scripts/**/*.ts", "./plugins/**/*.ts"],
-  "files": ["./hardhat.config.ts"]
+  "files": ["./hardhat.config.ts"],
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "types": ["preact"]
+  }
 }

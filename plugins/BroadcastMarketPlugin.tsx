@@ -1,4 +1,4 @@
-import { html, render } from "htm/preact";
+import { h, render } from "preact";
 
 import { AppView } from "./views/AppView";
 
@@ -23,15 +23,14 @@ class BroadcastMarketPlugin {
 
       const revealRequests = await getRevealRequests(contract);
 
-      render(html`<${AppView} contract=${contract} requests=${revealRequests} constants=${constants} />`, container);
+      render(<AppView contract={contract} requests={revealRequests} constants={constants} />, container);
     } catch (err) {
       console.error("[BroadcastMarketPlugin] Error starting plugin:", err);
-      render(html`<div>${err.message}</div>`, this.container);
+      render(<div>{err.message}</div>, this.container);
     }
   }
 
   destroy() {
-    //@ts-expect-error
     render(null, this.container);
   }
 }
