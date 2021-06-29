@@ -63,9 +63,7 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
         Address.sendValue(payable(owner()), address(this).balance);
     }
 
-    function requestRevealPlanetId(
-        uint256 _planetId
-    ) external payable open nonReentrant {
+    function requestRevealPlanetId(uint256 _planetId) external payable open nonReentrant {
         require(msg.value <= REQUEST_MAXIMUM, "Request value too high");
         require(msg.value >= REQUEST_MINIMUM, "Request value too low");
 
@@ -94,6 +92,7 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
 
         emit RevealRequested(revealRequest.location);
     }
+
     function requestReveal(
         uint256[2] memory _a,
         uint256[2][2] memory _b,
@@ -119,12 +118,7 @@ contract BroadcastMarket is Ownable, ReentrancyGuard {
 
         uint256 payout = (100 * msg.value) / (100 + FEE_PERCENT);
 
-        Coord memory coord =
-            Coord({
-                x: _input[2],
-                y: _input[3],
-                isSubmitted: true
-            });
+        Coord memory coord = Coord({x: _input[2], y: _input[3], isSubmitted: true});
 
         RevealRequest memory revealRequest =
             RevealRequest({
