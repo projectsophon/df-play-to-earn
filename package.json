@@ -15,7 +15,7 @@
     "test": "hardhat compile && hardhat test",
     "deploy": "hardhat deploy --network xdai",
     "format": "prettier --write .",
-    "website": "esbuild plugins/*.ts --bundle --outdir=website --format=esm --target=es2020"
+    "website": "esbuild plugins/*.tsx --bundle --outdir=website --format=esm --target=es2020"
   },
   "dependencies": {},
   "devDependencies": {
