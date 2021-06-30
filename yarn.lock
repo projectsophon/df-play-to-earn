@@ -840,9 +840,16 @@
     proper-lockfile "^4.1.1"
     solidity-ast "^0.4.15"
 
-"@projectsophon/df-plugin-dev-server@link:../df-plugin-dev-server":
-  version "0.0.0"
-  uid ""
+"@projectsophon/df-plugin-dev-server@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@projectsophon/df-plugin-dev-server/-/df-plugin-dev-server-1.3.0.tgz#1224204e5510bd55f39930b80e64280872f24541"
+  integrity sha512-7TjIFZ1ojm3rHqSuHkVE6zJaw8hJdPrd/J7C74OoiCYYalKUDEMfBZTMDQQ22rO+7AXJW1f+YD0L5WNrlQ7zEA==
+  dependencies:
+    chalk "^4.1.1"
+    esbuild "^0.12.1"
+    fast-glob "^3.2.6"
+    get-port "^5.1.1"
+    yargs "^17.0.1"
 
 "@projectsophon/eslint-config@0.0.2":
   version "0.0.2"
