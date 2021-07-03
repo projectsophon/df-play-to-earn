@@ -72,7 +72,7 @@ task("generate", "generate a valid proof for an x,y pair")
   .addParam("y", "y value", undefined, types.string)
   .setAction(generate);
 
-async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
+async function generate({ x, y }: { x: string; y: string }, hre: HardhatRuntimeEnvironment) {
   const darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, hre.ethers.provider);
   const constants = await darkForestCore.snarkConstants();
 
@@ -103,7 +103,7 @@ task("request:coords", "request a reveal")
   .addParam("y", "y value", undefined, types.string)
   .setAction(requestCoords);
 
-async function requestCoords({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
+async function requestCoords({ x, y }: { x: string; y: string }, hre: HardhatRuntimeEnvironment) {
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
   const broadcastMarket = BroadcastMarketFactory.attach(BROADCAST_MARKET_ADDRESS);
 
