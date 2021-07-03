@@ -1,5 +1,6 @@
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 import type { RevealSnarkInput, RevealSnarkContractCallArgs, SnarkJSProofAndSignals } from "@darkforest_eth/snarks";
+import type { LocationId } from "@darkforest_eth/types";
 
 import { task, types } from "hardhat/config";
 import { formatEther } from "ethers/lib/utils";
@@ -7,6 +8,7 @@ import { formatEther } from "ethers/lib/utils";
 import { buildContractCallArgs, revealSnarkWasmPath, revealSnarkZkeyPath } from "@darkforest_eth/snarks";
 import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
 import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+import { locationIdToDecStr } from "@darkforest_eth/serde";
 
 // @ts-ignore
 import * as snarkjs from "snarkjs";
@@ -49,7 +51,7 @@ async function rugPull({}: { address: string }, hre: HardhatRuntimeEnvironment) 
   console.log(`${formatEther(ownerNewBalance)} in owner now, ${formatEther(ownerNewBalance.sub(ownerBalance))} `);
 }
 
-task("list").setDescription("print all brodacast requests").setAction(list);
+task("list").setDescription("print all broadcast requests").setAction(list);
 
 async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
@@ -66,11 +68,11 @@ async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
 }
 
 task("generate", "generate a valid proof for an x,y pair")
-  .addParam("x", "x value", undefined, types.int)
-  .addParam("y", "y value", undefined, types.int)
+  .addParam("x", "x value", undefined, types.string)
+  .addParam("y", "y value", undefined, types.string)
   .setAction(generate);
 
-async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
+async function generate({ x, y }: { x: string; y: string }, hre: HardhatRuntimeEnvironment) {
   const darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, hre.ethers.provider);
   const constants = await darkForestCore.snarkConstants();
 
@@ -94,4 +96,47 @@ async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeE
   console.log(ret);
 
   return ret;
+}
+
+task("request:coords", "request a reveal")
+  .addParam("x", "x value", undefined, types.string)
+  .addParam("y", "y value", undefined, types.string)
+  .setAction(requestCoords);
+
+async function requestCoords({ x, y }: { x: string; y: string }, hre: HardhatRuntimeEnvironment) {
+  const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
+  const broadcastMarket = BroadcastMarketFactory.attach(BROADCAST_MARKET_ADDRESS);
+
+  const overrides = {
+    value: hre.REQUEST_MINIMUM,
+  };
+
+  const proof: RevealSnarkContractCallArgs = await hre.run("generate", { x, y });
+
+  const revealRequestTx = await broadcastMarket.requestReveal(...proof, overrides);
+  await revealRequestTx.wait();
+
+  await hre.run("list");
+  return;
+}
+
+task("request:locationId", "request a reveal")
+  .addPositionalParam("locationId", "0 padded hex value of locationDec, no 0x prefix", undefined, types.string)
+  .setAction(requestLocationId);
+
+async function requestLocationId({ locationId }: { locationId: string }, hre: HardhatRuntimeEnvironment) {
+  const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
+  const broadcastMarket = BroadcastMarketFactory.attach(BROADCAST_MARKET_ADDRESS);
+
+  const overrides = {
+    value: hre.REQUEST_MINIMUM,
+  };
+
+  const locationDecString = locationIdToDecStr(locationId as LocationId);
+
+  const revealRequestTx = await broadcastMarket.requestRevealPlanetId(locationDecString, overrides);
+  await revealRequestTx.wait();
+
+  await hre.run("list");
+  return;
 }
