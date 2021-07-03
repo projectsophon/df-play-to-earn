@@ -116,7 +116,7 @@ async function requestCoords({ x, y }: { x: number; y: number }, hre: HardhatRun
   const revealRequestTx = await broadcastMarket.requestReveal(...proof, overrides);
   await revealRequestTx.wait();
 
-  console.log("requested"); // todo add more logging
+  await hre.run("list");
   return;
 }
 
@@ -137,6 +137,6 @@ async function requestLocationId({ locationId }: { locationId: string }, hre: Ha
   const revealRequestTx = await broadcastMarket.requestRevealPlanetId(locationDecString, overrides);
   await revealRequestTx.wait();
 
-  console.log("requested"); // todo add more logging
+  await hre.run("list");
   return;
 }
