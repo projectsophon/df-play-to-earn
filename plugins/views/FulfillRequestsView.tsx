@@ -17,7 +17,6 @@ import {
   subscribeToBlockNumber,
   getBlockNumber,
   colors,
-  getPlanetByCoords,
   getPlanetByLocationId,
   isLocatable,
   getLocatablePlanetByLocationId,
@@ -93,7 +92,7 @@ const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onRe
             <span style={jumpLink} onClick={centerPlanet}>
               {planetName(location)} ({coords.x}, {coords.y})
             </span>
-          ) : null}
+          ) : <span style={bold}>{planetName(location)}</span>}
         </div>
         <div>
           and receive <span style={bold}>{payout} xDai</span> from {playerName(requester)}
@@ -165,7 +164,9 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
         }
       }
       if (hideMyRequests) {
-        return requester !== getAccount();
+        if (requester === getAccount()) {
+          return true;
+        }
       }
 
       if (isKnown) {

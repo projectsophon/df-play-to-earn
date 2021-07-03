@@ -147,7 +147,10 @@ export function getBlockNumber(): number {
   return df.ethConnection.blockNumber;
 }
 
-export function isLocatable(planet: Planet): planet is LocatablePlanet {
+export function isLocatable(planet?: Planet): planet is LocatablePlanet {
+  if (!planet) {
+    return false;
+  }
   return (planet as LocatablePlanet).location !== undefined;
 }
 
