@@ -1,5 +1,5 @@
 // This file solely exists for @ts-expect-error because DF doesn't provide the global object as types
-import type { Planet, LocationId, EthAddress, WorldCoords } from "@darkforest_eth/types";
+import type { Planet, LocationId, EthAddress, WorldCoords, LocatablePlanet } from "@darkforest_eth/types";
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
 import type { BroadcastMarket } from "../../types";
 
@@ -145,4 +145,15 @@ export async function revealSnarkArgs(x: number, y: number): Promise<RevealSnark
 export function getBlockNumber(): number {
   //@ts-expect-error
   return df.ethConnection.blockNumber;
+}
+
+export function isLocatable(planet: Planet): planet is LocatablePlanet {
+  return (planet as LocatablePlanet).location !== undefined;
+}
+
+export function getLocatablePlanetByLocationId(locationId?: LocationId): LocatablePlanet | undefined {
+  const planet = getPlanetByLocationId(locationId);
+  if (planet && isLocatable(planet)) {
+    return planet;
+  }
 }

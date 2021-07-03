@@ -18,8 +18,11 @@ import {
   getBlockNumber,
   colors,
   getPlanetByCoords,
+  getPlanetByLocationId,
+  isLocatable,
+  getLocatablePlanetByLocationId,
 } from "../helpers/df";
-import type { RevealRequest, ViewProps } from "../helpers/other";
+import { decodeCoords, RevealRequest, ViewProps } from "../helpers/other";
 import {
   shown,
   hidden,
@@ -33,6 +36,7 @@ import {
   jumpLink,
   optionsRow,
 } from "../helpers/styles";
+import { WorldCoords } from "@darkforest_eth/types";
 
 type RowProps = {
   revealRequest: RevealRequest;
@@ -47,7 +51,13 @@ function timeFromNow() {
 }
 
 const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onReveal }) => {
-  const { x, y, location, payout, requester, cancelCompleteBlock } = revealRequest;
+  const { location, payout, requester, cancelCompleteBlock } = revealRequest;
+
+  const planet = getLocatablePlanetByLocationId(location);
+  let coords;
+  if (planet) {
+    coords = planet.location.coords;
+  }
 
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
 
@@ -60,7 +70,9 @@ const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onRe
   }, [cancelCompleteBlock]);
 
   function centerPlanet() {
-    centerCoords({ x, y });
+    if (coords) {
+      centerCoords({ x: coords.x, y: coords.y });
+    }
   }
 
   const cancelWarning =
@@ -77,9 +89,11 @@ const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onRe
       <div style={muted}>
         <div>
           Broadcast{" "}
-          <span style={jumpLink} onClick={centerPlanet}>
-            {planetName(location)} ({x}, {y})
-          </span>
+          {coords ? (
+            <span style={jumpLink} onClick={centerPlanet}>
+              {planetName(location)} ({coords.x}, {coords.y})
+            </span>
+          ) : null}
         </div>
         <div>
           and receive <span style={bold}>{payout} xDai</span> from {playerName(requester)}
@@ -137,7 +151,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
   }
 
   const rows = revealRequests
-    .filter(({ paid, refunded, requester, cancelCompleteBlock }) => {
+    .filter(({ paid, refunded, requester, cancelCompleteBlock, location, isKnown }) => {
       if (paid || refunded) {
         return false;
       }
@@ -152,17 +166,44 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
       }
       if (hideMyRequests) {
         return requester !== getAccount();
-      } else {
+      }
+
+      if (isKnown) {
         return true;
       }
+
+      const planet = getPlanetByLocationId(location);
+      return isLocatable(planet);
     })
     .map((revealRequest) => {
       async function revealPlanet() {
         setPending(true);
         setCanReveal(false);
         onStatus({ message: "Attempting to broadcast... Please wait...", color: colors.dfyellow });
+        let coords: WorldCoords;
+        if (revealRequest.isKnown) {
+          try {
+            coords = decodeCoords(await contract.getCoords(revealRequest.location));
+          } catch (err) {
+            console.error("[BroadcastMarketPlugin] Error fetching known coords", err);
+            setPending(false);
+            onStatus({ message: "Error broadcasting location. Try again.", color: colors.dfred });
+            return;
+          }
+        } else {
+          const planet = getLocatablePlanetByLocationId(revealRequest.location);
+          if (planet) {
+            coords = planet.location.coords;
+          }
+        }
+        if (!coords) {
+          console.error("[BroadcastMarketPlugin] Unable to get coords for planet", revealRequest.location);
+          setPending(false);
+          onStatus({ message: "Error broadcasting location. Try again.", color: colors.dfred });
+          return;
+        }
         try {
-          await revealLocation(revealRequest.x, revealRequest.y);
+          await revealLocation(coords.x, coords.y);
         } catch (err) {
           console.error("[BroadcastMarketPlugin] Error broadcasting location", err);
           setPending(false);
@@ -181,7 +222,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
         }
       }
 
-      const planet = getPlanetByCoords({ x: revealRequest.x, y: revealRequest.y });
+      const planet = getPlanetByLocationId(revealRequest.location);
 
       // TODO(#58): Once revealer is exposed in the client, we need to check if the player is the revealer
       // otherwise they will pay the gas for a claim of someone else.
