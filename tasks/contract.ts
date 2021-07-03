@@ -51,7 +51,7 @@ async function rugPull({}: { address: string }, hre: HardhatRuntimeEnvironment) 
   console.log(`${formatEther(ownerNewBalance)} in owner now, ${formatEther(ownerNewBalance.sub(ownerBalance))} `);
 }
 
-task("list").setDescription("print all brodacast requests").setAction(list);
+task("list").setDescription("print all broadcast requests").setAction(list);
 
 async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
@@ -68,8 +68,8 @@ async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
 }
 
 task("generate", "generate a valid proof for an x,y pair")
-  .addParam("x", "x value", undefined, types.int)
-  .addParam("y", "y value", undefined, types.int)
+  .addParam("x", "x value", undefined, types.string)
+  .addParam("y", "y value", undefined, types.string)
   .setAction(generate);
 
 async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
@@ -99,8 +99,8 @@ async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeE
 }
 
 task("request:coords", "request a reveal")
-  .addParam("x", "x value", undefined, types.int)
-  .addParam("y", "y value", undefined, types.int)
+  .addParam("x", "x value", undefined, types.string)
+  .addParam("y", "y value", undefined, types.string)
   .setAction(requestCoords);
 
 async function requestCoords({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
