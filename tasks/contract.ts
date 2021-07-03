@@ -1,6 +1,15 @@
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
-import { task } from "hardhat/config";
+import type { RevealSnarkInput, RevealSnarkContractCallArgs, SnarkJSProofAndSignals } from "@darkforest_eth/snarks";
+
+import { task, types } from "hardhat/config";
 import { formatEther } from "ethers/lib/utils";
+
+import { buildContractCallArgs, revealSnarkWasmPath, revealSnarkZkeyPath } from "@darkforest_eth/snarks";
+import { DarkForestCore__factory } from "@darkforest_eth/contracts/typechain";
+import { CORE_CONTRACT_ADDRESS } from "@darkforest_eth/contracts";
+
+// @ts-ignore
+import * as snarkjs from "snarkjs";
 
 import { BROADCAST_MARKET_ADDRESS } from "../plugins/generated/contract";
 
@@ -54,4 +63,34 @@ async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
   for (const r of requests) {
     if (!r.paid && !r.refunded) console.log(r.location, r.paid, r.refunded);
   }
+}
+
+task("generate", "generate a valid proof for an x,y pair")
+  .addParam("x", "x value", undefined, types.string)
+  .addParam("y", "y value", undefined, types.string)
+  .setAction(generate);
+
+async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
+  const darkForestCore = DarkForestCore__factory.connect(CORE_CONTRACT_ADDRESS, hre.ethers.provider);
+  const constants = await darkForestCore.snarkConstants();
+
+  const input: RevealSnarkInput = {
+    x: x.toString(),
+    y: y.toString(),
+    PLANETHASH_KEY: constants.PLANETHASH_KEY.toString(),
+    SPACETYPE_KEY: constants.SPACETYPE_KEY.toString(),
+    SCALE: constants.PERLIN_LENGTH_SCALE.toString(),
+    xMirror: constants.PERLIN_MIRROR_X ? "1" : "0",
+    yMirror: constants.PERLIN_MIRROR_Y ? "1" : "0",
+  };
+
+  const { proof, publicSignals }: SnarkJSProofAndSignals = (await snarkjs.groth16.fullProve(
+    input,
+    revealSnarkWasmPath,
+    revealSnarkZkeyPath
+  )) as SnarkJSProofAndSignals;
+
+  const ret = buildContractCallArgs(proof, publicSignals) as RevealSnarkContractCallArgs;
+
+  console.log(ret);
 }
