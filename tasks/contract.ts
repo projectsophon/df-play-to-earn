@@ -66,8 +66,8 @@ async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
 }
 
 task("generate", "generate a valid proof for an x,y pair")
-  .addParam("x", "x value", undefined, types.string)
-  .addParam("y", "y value", undefined, types.string)
+  .addParam("x", "x value", undefined, types.int)
+  .addParam("y", "y value", undefined, types.int)
   .setAction(generate);
 
 async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeEnvironment) {
@@ -91,6 +91,7 @@ async function generate({ x, y }: { x: number; y: number }, hre: HardhatRuntimeE
   )) as SnarkJSProofAndSignals;
 
   const ret = buildContractCallArgs(proof, publicSignals) as RevealSnarkContractCallArgs;
-
   console.log(ret);
+
+  return ret;
 }
