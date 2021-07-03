@@ -500,8 +500,6 @@ describe("BroadcastMarket", function () {
     await revealRequestReceipt.wait();
 
     const locationID = validRevealProof[3][0];
-    const x = validRevealProof[3][2];
-    const y = validRevealProof[3][3];
 
     const revealRequest = await broadcastMarket.getRevealRequest(locationID);
 
