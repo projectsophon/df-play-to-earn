@@ -37,12 +37,26 @@ const row = {
   margin: "7px 0",
 };
 
-const paymentInput = {
+const inpt = {
   color: "#080808",
   padding: "0 0 0 7px",
+  borderRadius: "3px",
+};
+
+const paymentInput = {
+  ...inpt,
   width: "100px",
   marginRight: "5px",
-  borderRadius: "3px",
+};
+
+const locationInput = {
+  ...inpt,
+  width: "170px",
+};
+
+const btn = {
+  width: "170px",
+  marginLeft: "auto",
 };
 
 function isRevealed(locationId: LocationId | undefined) {
@@ -116,7 +130,8 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
   }
 
   function onUseSelected() {
-    setSelectedLocationId(getSelectedLocationId());
+    const locationId = getSelectedLocationId() || ("" as LocationId);
+    setSelectedLocationId(locationId);
   }
 
   function onChangeLocationId(evt: h.JSX.TargetedEvent<HTMLInputElement>) {
@@ -172,15 +187,17 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
         <span style={beware}>Beware:</span> You will be spending actual xDai here!
       </div>
       <div style={row}>
-        <span>Your xDai Balance:</span>
-        <span>{balance} xDai</span>
+        <span>Location ID:</span>
+        <input style={locationInput} type="text" value={selectedLocationId} onKeyUp={onChangeLocationId} />
       </div>
       <div style={row}>
-        <span>Location ID:</span>
-        <span>
-          <input style={paymentInput} type="text" value={selectedLocationId} onKeyUp={onChangeLocationId} />
-          <button onClick={onUseSelected}>Selected planet</button>
-        </span>
+        <button style={btn} onClick={onUseSelected}>
+          Use Selected Planet
+        </button>
+      </div>
+      <div style={row}>
+        <span>Your xDai Balance:</span>
+        <span>{balance} xDai</span>
       </div>
       <div style={row}>
         <span>Paying:</span>
