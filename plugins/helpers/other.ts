@@ -10,7 +10,7 @@ import { locationIdFromDecStr, locationIdToDecStr, address } from "@darkforest_e
 //@ts-ignore
 import { default as stableSort } from "stable";
 
-import { getContract, getPlanetByLocationId, revealSnarkArgs } from "./df";
+import { getContract, getPlanetByLocationId, revealSnarkArgs, isLocatable } from "./df";
 
 export type RawRevealRequest = Awaited<ReturnType<BroadcastMarket["getRevealRequest"]>>;
 export type RawConstants = Awaited<ReturnType<BroadcastMarket["getConstants"]>>;
@@ -124,39 +124,49 @@ export async function getRevealRequests(contract: BroadcastMarket): Promise<Map<
 }
 
 export async function getCoords(contract: BroadcastMarket, locationId: LocationId) {
-  return decodeCoords(await contract.getCoords(locationIdToDecStr(locationId)))
+  return decodeCoords(await contract.getCoords(locationIdToDecStr(locationId)));
 }
 
 export async function requestReveal(locationId: LocationId, xdai: string): Promise<void> {
   const planet = getPlanetByLocationId(locationId);
-  if (!planet) {
-    throw new Error("No planet selected.");
-  }
-  if (planet.coordsRevealed) {
-    throw new Error("Planet is already revealed.");
-  }
-  //@ts-expect-error Because we don't have isLocatable
-  if (!planet?.location?.coords) {
-    throw new Error("Unable to locate that planet.");
-  }
-
-  //@ts-expect-error Because we don't have isLocatable
-  const { x, y } = planet.location.coords;
-  try {
-    const contract = await getContract();
-    const snarkArgs = await revealSnarkArgs(x, y);
-    const receipt = await contract.requestReveal(...snarkArgs, {
-      value: parseEther(xdai),
-    });
-    await receipt.wait();
-  } catch (err) {
-    const subErr2 = err?.error?.error;
-    if (subErr2) {
-      console.error("[BroadcastMarketPlugin] Error submitting request", subErr2.message);
-    } else {
-      console.error("[BroadcastMarketPlugin] Error submitting request", err);
+  if (planet && isLocatable(planet)) {
+    if (planet.coordsRevealed) {
+      throw new Error("Planet is already revealed.");
     }
-    throw new Error("Error submitting request. See console for details.");
+
+    const { x, y } = planet.location.coords;
+    try {
+      const contract = await getContract();
+      const snarkArgs = await revealSnarkArgs(x, y);
+      const receipt = await contract.requestReveal(...snarkArgs, {
+        value: parseEther(xdai),
+      });
+      await receipt.wait();
+    } catch (err) {
+      const subErr2 = err?.error?.error;
+      if (subErr2) {
+        console.error("[BroadcastMarketPlugin] Error submitting request", subErr2.message);
+      } else {
+        console.error("[BroadcastMarketPlugin] Error submitting request", err);
+      }
+      throw new Error("Error submitting request. See console for details.");
+    }
+  } else {
+    try {
+      const contract = await getContract();
+      const receipt = await contract.requestRevealPlanetId(locationIdToDecStr(locationId), {
+        value: parseEther(xdai),
+      });
+      await receipt.wait();
+    } catch (err) {
+      const subErr2 = err?.error?.error;
+      if (subErr2) {
+        console.error("[BroadcastMarketPlugin] Error submitting request", subErr2.message);
+      } else {
+        console.error("[BroadcastMarketPlugin] Error submitting request", err);
+      }
+      throw new Error("Error submitting request. See console for details.");
+    }
   }
 }
 
