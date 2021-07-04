@@ -167,7 +167,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
       }
       if (hideMyRequests) {
         if (requester === getAccount()) {
-          return true;
+          return false;
         }
       }
 
