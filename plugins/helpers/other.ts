@@ -6,7 +6,7 @@ import bigInt from "big-integer";
 import { LOCATION_ID_UB } from "@darkforest_eth/constants";
 import { parseEther, formatEther } from "@ethersproject/units";
 import { BigNumber } from "@ethersproject/bignumber";
-import { locationIdFromDecStr, address } from "@darkforest_eth/serde";
+import { locationIdFromDecStr, locationIdToDecStr, address } from "@darkforest_eth/serde";
 //@ts-ignore
 import { default as stableSort } from "stable";
 
@@ -14,17 +14,23 @@ import { getContract, getPlanetByLocationId, revealSnarkArgs } from "./df";
 
 export type RawRevealRequest = Awaited<ReturnType<BroadcastMarket["getRevealRequest"]>>;
 export type RawConstants = Awaited<ReturnType<BroadcastMarket["getConstants"]>>;
+export type RawCoords = Awaited<ReturnType<BroadcastMarket["getCoords"]>>;
 
 export type RevealRequest = {
   requester: EthAddress;
   collector: EthAddress;
   location: LocationId;
-  x: number;
-  y: number;
   payout: string;
   paid: boolean;
   refunded: boolean;
   cancelCompleteBlock: number;
+  isKnown: boolean;
+};
+
+export type Coords = {
+  x: number;
+  y: number;
+  isSubmitted: boolean;
 };
 
 export type Constants = {
@@ -58,7 +64,7 @@ export function sortByValue(revealRequests: Map<LocationId, RevealRequest>) {
   });
 }
 
-export function decodeRevealRequest(raw: RawRevealRequest): RevealRequest {
+export function decodeCoords(raw: RawCoords): Coords {
   // Stolen from @darkforest_eth/serde `decodeRevealedCoords`
   let xBI = bigInt(raw.x.toString()); // nonnegative residue mod p
   let yBI = bigInt(raw.y.toString()); // nonnegative residue mod p
@@ -74,15 +80,22 @@ export function decodeRevealRequest(raw: RawRevealRequest): RevealRequest {
   y = yBI.toJSNumber();
 
   return {
+    x: x,
+    y: y,
+    isSubmitted: raw.isSubmitted,
+  };
+}
+
+export function decodeRevealRequest(raw: RawRevealRequest): RevealRequest {
+  return {
     requester: address(raw.requester),
     collector: address(raw.collector),
     location: locationIdFromDecStr(raw.location.toString()),
-    x: x,
-    y: y,
     payout: formatEther(raw.payout.toString()),
     paid: raw.paid,
     refunded: raw.refunded,
     cancelCompleteBlock: raw.cancelCompleteBlock.toNumber(),
+    isKnown: raw.isKnown,
   };
 }
 
@@ -108,6 +121,10 @@ export async function getRevealRequests(contract: BroadcastMarket): Promise<Map<
     console.log("[BroadcastMarketPlugin] Error getting RevealRequests", err);
     throw new Error("Unable to load broadcast requests. Please reload.");
   }
+}
+
+export async function getCoords(contract: BroadcastMarket, locationId: LocationId) {
+  return decodeCoords(await contract.getCoords(locationIdToDecStr(locationId)))
 }
 
 export async function requestReveal(locationId: LocationId, xdai: string): Promise<void> {
