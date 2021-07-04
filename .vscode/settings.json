@@ -1,7 +1,5 @@
 {
-  "eslint.workingDirectories": [
-    "./"
-  ],
+  "eslint.workingDirectories": ["./"],
   "solidity.compileUsingRemoteVersion": "v0.8.4+commit.c7e474f2",
   "solidity.solhintRules": {},
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -13,7 +11,7 @@
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/**": true,
-    "cache/**": true,
+    "cache/**": true
   },
   "git.autoRepositoryDetection": "openEditors"
 }
