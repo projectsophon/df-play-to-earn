@@ -6,7 +6,7 @@ import bigInt from "big-integer";
 import { LOCATION_ID_UB } from "@darkforest_eth/constants";
 import { parseEther, formatEther } from "@ethersproject/units";
 import { BigNumber } from "@ethersproject/bignumber";
-import { locationIdFromDecStr, address } from "@darkforest_eth/serde";
+import { locationIdFromDecStr, locationIdToDecStr, address } from "@darkforest_eth/serde";
 //@ts-ignore
 import { default as stableSort } from "stable";
 
@@ -121,6 +121,10 @@ export async function getRevealRequests(contract: BroadcastMarket): Promise<Map<
     console.log("[BroadcastMarketPlugin] Error getting RevealRequests", err);
     throw new Error("Unable to load broadcast requests. Please reload.");
   }
+}
+
+export async function getCoords(contract: BroadcastMarket, locationId: LocationId) {
+  return decodeCoords(await contract.getCoords(locationIdToDecStr(locationId)))
 }
 
 export async function requestReveal(locationId: LocationId, xdai: string): Promise<void> {

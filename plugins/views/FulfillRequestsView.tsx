@@ -21,7 +21,7 @@ import {
   isLocatable,
   getLocatablePlanetByLocationId,
 } from "../helpers/df";
-import { decodeCoords, RevealRequest, ViewProps } from "../helpers/other";
+import { decodeCoords, getCoords, RevealRequest, ViewProps } from "../helpers/other";
 import {
   shown,
   hidden,
@@ -92,7 +92,9 @@ const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onRe
             <span style={jumpLink} onClick={centerPlanet}>
               {planetName(location)} ({coords.x}, {coords.y})
             </span>
-          ) : <span style={bold}>{planetName(location)}</span>}
+          ) : (
+            <span style={bold}>{planetName(location)}</span>
+          )}
         </div>
         <div>
           and receive <span style={bold}>{payout} xDai</span> from {playerName(requester)}
@@ -184,7 +186,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
         let coords: WorldCoords;
         if (revealRequest.isKnown) {
           try {
-            coords = decodeCoords(await contract.getCoords(revealRequest.location));
+            coords = await getCoords(contract, revealRequest.location);
           } catch (err) {
             console.error("[BroadcastMarketPlugin] Error fetching known coords", err);
             setPending(false);
