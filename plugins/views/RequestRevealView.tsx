@@ -9,9 +9,7 @@ import { Button } from "../components/Button";
 import {
   getSelectedLocationId,
   getMyBalance,
-  subscribeToSelectedLocationId,
   subscribeToMyBalance,
-  planetName,
   getPlanetByLocationId,
   colors,
 } from "../helpers/df";
@@ -23,7 +21,7 @@ import {
   sumEtherStrings,
   ViewProps,
 } from "../helpers/other";
-import { flex, hidden, beware, warning, fullWidth, shown as baseShown } from "../helpers/styles";
+import { flex, hidden, beware, warning, shown as baseShown } from "../helpers/styles";
 import { EMPTY_LOCATION_ID } from "@darkforest_eth/constants";
 import { locationIdToDecStr, locationIdFromDecStr } from "@darkforest_eth/serde";
 

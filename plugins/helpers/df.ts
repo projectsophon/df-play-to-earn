@@ -5,7 +5,6 @@ import type { BroadcastMarket } from "../../types";
 
 import { BROADCAST_MARKET_ABI } from "../generated/abi";
 import { BROADCAST_MARKET_ADDRESS } from "../generated/contract";
-import { EMPTY_LOCATION_ID } from "@darkforest_eth/constants";
 
 //@ts-expect-error
 const { LOCATION_REVEAL_COOLDOWN }: { LOCATION_REVEAL_COOLDOWN: number } = ui.getContractConstants();
@@ -158,5 +157,14 @@ export function getLocatablePlanetByLocationId(locationId?: LocationId): Locatab
   const planet = getPlanetByLocationId(locationId);
   if (planet && isLocatable(planet)) {
     return planet;
+  }
+}
+
+export function getCoordsByLocationId(locationId: LocationId): WorldCoords | undefined {
+  const planet = getLocatablePlanetByLocationId(locationId);
+  if (planet) {
+    return planet.location.coords;
+  } else {
+    return undefined;
   }
 }

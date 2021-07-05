@@ -28,6 +28,7 @@ import {
   jumpLink,
   optionsRow,
 } from "../helpers/styles";
+import { PlanetName } from "../components/PlanetName";
 
 type RowProps = {
   revealRequest: RevealRequest;
@@ -45,20 +46,13 @@ type CancelRowProps = RefundRowProps & {
 };
 
 const PaidRow: FunctionComponent<RowProps> = ({ revealRequest }) => {
-  const { x, y, payout, location, collector } = revealRequest;
-
-  function centerPlanet() {
-    centerCoords({ x, y });
-  }
+  const { payout, location, collector } = revealRequest;
 
   return (
     <div style={scrollListItem}>
       <div style={muted}>
         <div>
-          <span style={jumpLink} onClick={centerPlanet}>
-            {planetName(location)} ({x}, {y})
-          </span>{" "}
-          was broadcasted!
+          <PlanetName locationId={location} /> was broadcasted!
         </div>
         <div>
           {playerName(collector)} claimed <span style={bold}>{payout} xDai</span>.
@@ -69,20 +63,13 @@ const PaidRow: FunctionComponent<RowProps> = ({ revealRequest }) => {
 };
 
 const RefundedRow: FunctionComponent<RowProps> = ({ revealRequest }) => {
-  const { x, y, payout, location } = revealRequest;
-
-  function centerPlanet() {
-    centerCoords({ x, y });
-  }
+  const { payout, location } = revealRequest;
 
   return (
     <div style={scrollListItem}>
       <div style={muted}>
         <div>
-          <span style={jumpLink} onClick={centerPlanet}>
-            {planetName(location)} ({x}, {y})
-          </span>{" "}
-          request refunded.
+          <PlanetName locationId={location} /> request refunded.
         </div>
         <div>
           You got <span style={bold}>{payout} xDai</span> back.
@@ -100,11 +87,8 @@ const CancelRow: FunctionComponent<CancelRowProps> = ({
   pending,
   setPending,
 }) => {
-  const { x, y, payout, location } = revealRequest;
+  const { payout, location } = revealRequest;
 
-  function centerPlanet() {
-    centerCoords({ x, y });
-  }
   async function cancelReveal() {
     setPending(true);
     onStatus({ message: "Attempting to cancel request... Please wait...", color: colors.dfyellow });
@@ -130,10 +114,7 @@ const CancelRow: FunctionComponent<CancelRowProps> = ({
     <div style={scrollListItem}>
       <div style={muted}>
         <div>
-          Cancel{" "}
-          <span style={jumpLink} onClick={centerPlanet}>
-            {planetName(location)} ({x}, {y})
-          </span>
+          Cancel <PlanetName locationId={location} />
         </div>
         <div>
           and claim <span style={bold}>{payout} xDai</span> refund in
@@ -148,13 +129,10 @@ const CancelRow: FunctionComponent<CancelRowProps> = ({
 };
 
 const RefundRow: FunctionComponent<RefundRowProps> = ({ revealRequest, contract, onStatus, pending, setPending }) => {
-  const { x, y, payout, location, cancelCompleteBlock } = revealRequest;
+  const { payout, location, cancelCompleteBlock } = revealRequest;
 
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
 
-  function centerPlanet() {
-    centerCoords({ x, y });
-  }
   async function claimRefund() {
     setPending(true);
     onStatus({ message: "Attempting to claim refund... Please wait...", color: colors.dfyellow });
@@ -188,11 +166,7 @@ const RefundRow: FunctionComponent<RefundRowProps> = ({ revealRequest, contract,
           <span style={bold}> {remainingBlocks > 0 ? remainingBlocks : 0}</span> blocks
         </div>
         <div>
-          for{" "}
-          <span style={jumpLink} onClick={centerPlanet}>
-            {planetName(location)} ({x}, {y})
-          </span>
-          .
+          for <PlanetName locationId={location} />.
         </div>
       </div>
       <Button onClick={claimRefund} enabled={remainingBlocks <= 0 && !pending}>

@@ -20,8 +20,9 @@ import {
   getPlanetByLocationId,
   isLocatable,
   getLocatablePlanetByLocationId,
+  getCoordsByLocationId,
 } from "../helpers/df";
-import { decodeCoords, getCoords, RevealRequest, ViewProps } from "../helpers/other";
+import { getCoords, RevealRequest, ViewProps } from "../helpers/other";
 import {
   shown,
   hidden,
@@ -36,6 +37,7 @@ import {
   optionsRow,
 } from "../helpers/styles";
 import { WorldCoords } from "@darkforest_eth/types";
+import { PlanetName } from "../components/PlanetName";
 
 type RowProps = {
   revealRequest: RevealRequest;
@@ -52,12 +54,6 @@ function timeFromNow() {
 const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onReveal }) => {
   const { location, payout, requester, cancelCompleteBlock } = revealRequest;
 
-  const planet = getLocatablePlanetByLocationId(location);
-  let coords;
-  if (planet) {
-    coords = planet.location.coords;
-  }
-
   const [remainingBlocks, setRemainingBlocks] = useState(() => cancelCompleteBlock - getBlockNumber());
 
   useEffect(() => {
@@ -67,12 +63,6 @@ const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onRe
 
     return sub.unsubscribe;
   }, [cancelCompleteBlock]);
-
-  function centerPlanet() {
-    if (coords) {
-      centerCoords({ x: coords.x, y: coords.y });
-    }
-  }
 
   const cancelWarning =
     cancelCompleteBlock !== 0 ? (
@@ -87,14 +77,7 @@ const Row: FunctionComponent<RowProps> = ({ text, revealRequest, canReveal, onRe
     <div style={scrollListItem}>
       <div style={muted}>
         <div>
-          Broadcast{" "}
-          {coords ? (
-            <span style={jumpLink} onClick={centerPlanet}>
-              {planetName(location)} ({coords.x}, {coords.y})
-            </span>
-          ) : (
-            <span style={bold}>{planetName(location)}</span>
-          )}
+          Broadcast <PlanetName locationId={location} />
         </div>
         <div>
           and receive <span style={bold}>{payout} xDai</span> from {playerName(requester)}
@@ -194,10 +177,7 @@ export function FulfillRequestsView({ active, contract, revealRequests, onStatus
             return;
           }
         } else {
-          const planet = getLocatablePlanetByLocationId(revealRequest.location);
-          if (planet) {
-            coords = planet.location.coords;
-          }
+          coords = getCoordsByLocationId(revealRequest.location);
         }
         if (!coords) {
           console.error("[BroadcastMarketPlugin] Unable to get coords for planet", revealRequest.location);
