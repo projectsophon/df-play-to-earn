@@ -82,10 +82,10 @@ export async function revealLocation(x: number, y: number): Promise<void> {
   });
 }
 
-export function getSelectedLocationId(): LocationId {
+export function getSelectedLocationId(): LocationId | undefined {
   //@ts-expect-error
   const planet = ui.getSelectedPlanet();
-  return planet?.locationId || EMPTY_LOCATION_ID;
+  return planet?.locationId;
 }
 
 export function getMyBalance(): number {
