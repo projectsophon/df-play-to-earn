@@ -1,0 +1,1533 @@
+directive @entity on OBJECT
+
+directive @derivedFrom(field: String) on FIELD_DEFINITION
+
+directive @subgraphId(id: String) on OBJECT
+
+"""
+Direct the client to resolve this field locally, either from the cache or local resolvers.
+"""
+directive @client(
+  """
+  When true, the client will never use the cache for this value. See
+  https://www.apollographql.com/docs/react/essentials/local-state/#forcing-resolvers-with-clientalways-true
+  """
+  always: Boolean
+) on FIELD | FRAGMENT_DEFINITION | INLINE_FRAGMENT
+
+"""
+Export this locally resolved field as a variable to be used in the remainder of this query. See
+https://www.apollographql.com/docs/react/essentials/local-state/#using-client-fields-as-variables
+"""
+directive @export(
+  """The variable name to export this field as."""
+  as: String!
+) on FIELD
+
+"""
+Specify a custom store key for this result. See
+https://www.apollographql.com/docs/react/advanced/caching/#the-connection-directive
+"""
+directive @connection(
+  """Specify the store key."""
+  key: String!
+
+  """
+  An array of query argument names to include in the generated custom store key.
+  """
+  filter: [String!]
+) on FIELD
+
+type Arrival {
+  """decimal arrivalid as a string"""
+  id: ID!
+
+  """same as id, but sortable because its an int"""
+  arrivalId: Int!
+  player: Player!
+  fromPlanet: Planet!
+  toPlanet: Planet!
+
+  """NOTE: This needs to be divided by 1000"""
+  milliEnergyArriving: BigInt!
+
+  """NOTE: This needs to be divided by 1000"""
+  milliSilverMoved: BigInt!
+
+  """
+  Seconds since epoch, needs to be multiplied by 1000 for javascript representation
+  """
+  departureTime: Int!
+
+  """
+  Seconds since epoch, needs to be multiplied by 1000 for javascript representation
+  """
+  arrivalTime: Int!
+
+  """Type of the arrival"""
+  arrivalType: ArrivalType!
+
+  """Distance traveled"""
+  distance: Int!
+  carriedArtifact: Artifact
+
+  """whether this arrival has already been applied"""
+  arrived: Boolean!
+}
+
+"""Scheduled arrivals by arrival blocktime"""
+type ArrivalQueue {
+  """decimal arrivalTime in seconds as a string"""
+  id: ID!
+  arrivals(skip: Int = 0, first: Int = 100, orderBy: Arrival_orderBy, orderDirection: OrderDirection, where: Arrival_filter): [Arrival!]!
+}
+
+input ArrivalQueue_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  arrivals: [String!]
+  arrivals_not: [String!]
+  arrivals_contains: [String!]
+  arrivals_not_contains: [String!]
+}
+
+enum ArrivalQueue_orderBy {
+  id
+  arrivals
+}
+
+enum ArrivalType {
+  UNKNOWN
+  NORMAL
+  PHOTOID
+  WORMHOLE
+}
+
+input Arrival_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  arrivalId: Int
+  arrivalId_not: Int
+  arrivalId_gt: Int
+  arrivalId_lt: Int
+  arrivalId_gte: Int
+  arrivalId_lte: Int
+  arrivalId_in: [Int!]
+  arrivalId_not_in: [Int!]
+  player: String
+  player_not: String
+  player_gt: String
+  player_lt: String
+  player_gte: String
+  player_lte: String
+  player_in: [String!]
+  player_not_in: [String!]
+  player_contains: String
+  player_not_contains: String
+  player_starts_with: String
+  player_not_starts_with: String
+  player_ends_with: String
+  player_not_ends_with: String
+  fromPlanet: String
+  fromPlanet_not: String
+  fromPlanet_gt: String
+  fromPlanet_lt: String
+  fromPlanet_gte: String
+  fromPlanet_lte: String
+  fromPlanet_in: [String!]
+  fromPlanet_not_in: [String!]
+  fromPlanet_contains: String
+  fromPlanet_not_contains: String
+  fromPlanet_starts_with: String
+  fromPlanet_not_starts_with: String
+  fromPlanet_ends_with: String
+  fromPlanet_not_ends_with: String
+  toPlanet: String
+  toPlanet_not: String
+  toPlanet_gt: String
+  toPlanet_lt: String
+  toPlanet_gte: String
+  toPlanet_lte: String
+  toPlanet_in: [String!]
+  toPlanet_not_in: [String!]
+  toPlanet_contains: String
+  toPlanet_not_contains: String
+  toPlanet_starts_with: String
+  toPlanet_not_starts_with: String
+  toPlanet_ends_with: String
+  toPlanet_not_ends_with: String
+  milliEnergyArriving: BigInt
+  milliEnergyArriving_not: BigInt
+  milliEnergyArriving_gt: BigInt
+  milliEnergyArriving_lt: BigInt
+  milliEnergyArriving_gte: BigInt
+  milliEnergyArriving_lte: BigInt
+  milliEnergyArriving_in: [BigInt!]
+  milliEnergyArriving_not_in: [BigInt!]
+  milliSilverMoved: BigInt
+  milliSilverMoved_not: BigInt
+  milliSilverMoved_gt: BigInt
+  milliSilverMoved_lt: BigInt
+  milliSilverMoved_gte: BigInt
+  milliSilverMoved_lte: BigInt
+  milliSilverMoved_in: [BigInt!]
+  milliSilverMoved_not_in: [BigInt!]
+  departureTime: Int
+  departureTime_not: Int
+  departureTime_gt: Int
+  departureTime_lt: Int
+  departureTime_gte: Int
+  departureTime_lte: Int
+  departureTime_in: [Int!]
+  departureTime_not_in: [Int!]
+  arrivalTime: Int
+  arrivalTime_not: Int
+  arrivalTime_gt: Int
+  arrivalTime_lt: Int
+  arrivalTime_gte: Int
+  arrivalTime_lte: Int
+  arrivalTime_in: [Int!]
+  arrivalTime_not_in: [Int!]
+  arrivalType: ArrivalType
+  arrivalType_not: ArrivalType
+  distance: Int
+  distance_not: Int
+  distance_gt: Int
+  distance_lt: Int
+  distance_gte: Int
+  distance_lte: Int
+  distance_in: [Int!]
+  distance_not_in: [Int!]
+  carriedArtifact: String
+  carriedArtifact_not: String
+  carriedArtifact_gt: String
+  carriedArtifact_lt: String
+  carriedArtifact_gte: String
+  carriedArtifact_lte: String
+  carriedArtifact_in: [String!]
+  carriedArtifact_not_in: [String!]
+  carriedArtifact_contains: String
+  carriedArtifact_not_contains: String
+  carriedArtifact_starts_with: String
+  carriedArtifact_not_starts_with: String
+  carriedArtifact_ends_with: String
+  carriedArtifact_not_ends_with: String
+  arrived: Boolean
+  arrived_not: Boolean
+  arrived_in: [Boolean!]
+  arrived_not_in: [Boolean!]
+}
+
+enum Arrival_orderBy {
+  id
+  arrivalId
+  player
+  fromPlanet
+  toPlanet
+  milliEnergyArriving
+  milliSilverMoved
+  departureTime
+  arrivalTime
+  arrivalType
+  distance
+  carriedArtifact
+  arrived
+}
+
+type Artifact {
+  """0 padded hex, no 0x prefix, recommend sorting using mintedAtTimestamp"""
+  id: ID!
+
+  """decimal version of artifact ID"""
+  idDec: BigInt!
+  planetDiscoveredOn: Planet
+  rarity: ArtifactRarity!
+  planetBiome: Biome!
+
+  """
+  Seconds since epoch, needs to be multiplied by 1000 for javascript representation
+  """
+  mintedAtTimestamp: Int!
+  discoverer: Player!
+  artifactType: ArtifactType!
+  lastActivated: Int!
+  lastDeactivated: Int!
+  isActivated: Boolean!
+  wormholeTo: Planet
+
+  """Modifier applied to natural planet variable. Less than 100 is negative"""
+  energyCapMultiplier: Int!
+
+  """Modifier applied to natural planet variable. Less than 100 is negative"""
+  energyGrowthMultiplier: Int!
+
+  """Modifier applied to natural planet variable. Less than 100 is negative"""
+  rangeMultiplier: Int!
+
+  """Modifier applied to natural planet variable. Less than 100 is negative"""
+  speedMultiplier: Int!
+
+  """Modifier applied to natural planet variable. Less than 100 is negative"""
+  defenseMultiplier: Int!
+  owner: Player!
+  onPlanet: Planet
+  onVoyage: Arrival
+}
+
+enum ArtifactRarity {
+  UNKNOWN
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+  MYTHIC
+}
+
+enum ArtifactType {
+  UNKNOWN
+  MONOLITH
+  COLOSSUS
+  SPACESHIP
+  PYRAMID
+  WORMHOLE
+  PLANETARYSHIELD
+  PHOTOIDCANNON
+  BLOOMFILTER
+  BLACKDOMAIN
+}
+
+input Artifact_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  idDec: BigInt
+  idDec_not: BigInt
+  idDec_gt: BigInt
+  idDec_lt: BigInt
+  idDec_gte: BigInt
+  idDec_lte: BigInt
+  idDec_in: [BigInt!]
+  idDec_not_in: [BigInt!]
+  planetDiscoveredOn: String
+  planetDiscoveredOn_not: String
+  planetDiscoveredOn_gt: String
+  planetDiscoveredOn_lt: String
+  planetDiscoveredOn_gte: String
+  planetDiscoveredOn_lte: String
+  planetDiscoveredOn_in: [String!]
+  planetDiscoveredOn_not_in: [String!]
+  planetDiscoveredOn_contains: String
+  planetDiscoveredOn_not_contains: String
+  planetDiscoveredOn_starts_with: String
+  planetDiscoveredOn_not_starts_with: String
+  planetDiscoveredOn_ends_with: String
+  planetDiscoveredOn_not_ends_with: String
+  rarity: ArtifactRarity
+  rarity_not: ArtifactRarity
+  planetBiome: Biome
+  planetBiome_not: Biome
+  mintedAtTimestamp: Int
+  mintedAtTimestamp_not: Int
+  mintedAtTimestamp_gt: Int
+  mintedAtTimestamp_lt: Int
+  mintedAtTimestamp_gte: Int
+  mintedAtTimestamp_lte: Int
+  mintedAtTimestamp_in: [Int!]
+  mintedAtTimestamp_not_in: [Int!]
+  discoverer: String
+  discoverer_not: String
+  discoverer_gt: String
+  discoverer_lt: String
+  discoverer_gte: String
+  discoverer_lte: String
+  discoverer_in: [String!]
+  discoverer_not_in: [String!]
+  discoverer_contains: String
+  discoverer_not_contains: String
+  discoverer_starts_with: String
+  discoverer_not_starts_with: String
+  discoverer_ends_with: String
+  discoverer_not_ends_with: String
+  artifactType: ArtifactType
+  artifactType_not: ArtifactType
+  lastActivated: Int
+  lastActivated_not: Int
+  lastActivated_gt: Int
+  lastActivated_lt: Int
+  lastActivated_gte: Int
+  lastActivated_lte: Int
+  lastActivated_in: [Int!]
+  lastActivated_not_in: [Int!]
+  lastDeactivated: Int
+  lastDeactivated_not: Int
+  lastDeactivated_gt: Int
+  lastDeactivated_lt: Int
+  lastDeactivated_gte: Int
+  lastDeactivated_lte: Int
+  lastDeactivated_in: [Int!]
+  lastDeactivated_not_in: [Int!]
+  isActivated: Boolean
+  isActivated_not: Boolean
+  isActivated_in: [Boolean!]
+  isActivated_not_in: [Boolean!]
+  wormholeTo: String
+  wormholeTo_not: String
+  wormholeTo_gt: String
+  wormholeTo_lt: String
+  wormholeTo_gte: String
+  wormholeTo_lte: String
+  wormholeTo_in: [String!]
+  wormholeTo_not_in: [String!]
+  wormholeTo_contains: String
+  wormholeTo_not_contains: String
+  wormholeTo_starts_with: String
+  wormholeTo_not_starts_with: String
+  wormholeTo_ends_with: String
+  wormholeTo_not_ends_with: String
+  energyCapMultiplier: Int
+  energyCapMultiplier_not: Int
+  energyCapMultiplier_gt: Int
+  energyCapMultiplier_lt: Int
+  energyCapMultiplier_gte: Int
+  energyCapMultiplier_lte: Int
+  energyCapMultiplier_in: [Int!]
+  energyCapMultiplier_not_in: [Int!]
+  energyGrowthMultiplier: Int
+  energyGrowthMultiplier_not: Int
+  energyGrowthMultiplier_gt: Int
+  energyGrowthMultiplier_lt: Int
+  energyGrowthMultiplier_gte: Int
+  energyGrowthMultiplier_lte: Int
+  energyGrowthMultiplier_in: [Int!]
+  energyGrowthMultiplier_not_in: [Int!]
+  rangeMultiplier: Int
+  rangeMultiplier_not: Int
+  rangeMultiplier_gt: Int
+  rangeMultiplier_lt: Int
+  rangeMultiplier_gte: Int
+  rangeMultiplier_lte: Int
+  rangeMultiplier_in: [Int!]
+  rangeMultiplier_not_in: [Int!]
+  speedMultiplier: Int
+  speedMultiplier_not: Int
+  speedMultiplier_gt: Int
+  speedMultiplier_lt: Int
+  speedMultiplier_gte: Int
+  speedMultiplier_lte: Int
+  speedMultiplier_in: [Int!]
+  speedMultiplier_not_in: [Int!]
+  defenseMultiplier: Int
+  defenseMultiplier_not: Int
+  defenseMultiplier_gt: Int
+  defenseMultiplier_lt: Int
+  defenseMultiplier_gte: Int
+  defenseMultiplier_lte: Int
+  defenseMultiplier_in: [Int!]
+  defenseMultiplier_not_in: [Int!]
+  owner: String
+  owner_not: String
+  owner_gt: String
+  owner_lt: String
+  owner_gte: String
+  owner_lte: String
+  owner_in: [String!]
+  owner_not_in: [String!]
+  owner_contains: String
+  owner_not_contains: String
+  owner_starts_with: String
+  owner_not_starts_with: String
+  owner_ends_with: String
+  owner_not_ends_with: String
+  onPlanet: String
+  onPlanet_not: String
+  onPlanet_gt: String
+  onPlanet_lt: String
+  onPlanet_gte: String
+  onPlanet_lte: String
+  onPlanet_in: [String!]
+  onPlanet_not_in: [String!]
+  onPlanet_contains: String
+  onPlanet_not_contains: String
+  onPlanet_starts_with: String
+  onPlanet_not_starts_with: String
+  onPlanet_ends_with: String
+  onPlanet_not_ends_with: String
+  onVoyage: String
+  onVoyage_not: String
+  onVoyage_gt: String
+  onVoyage_lt: String
+  onVoyage_gte: String
+  onVoyage_lte: String
+  onVoyage_in: [String!]
+  onVoyage_not_in: [String!]
+  onVoyage_contains: String
+  onVoyage_not_contains: String
+  onVoyage_starts_with: String
+  onVoyage_not_starts_with: String
+  onVoyage_ends_with: String
+  onVoyage_not_ends_with: String
+}
+
+enum Artifact_orderBy {
+  id
+  idDec
+  planetDiscoveredOn
+  rarity
+  planetBiome
+  mintedAtTimestamp
+  discoverer
+  artifactType
+  lastActivated
+  lastDeactivated
+  isActivated
+  wormholeTo
+  energyCapMultiplier
+  energyGrowthMultiplier
+  rangeMultiplier
+  speedMultiplier
+  defenseMultiplier
+  owner
+  onPlanet
+  onVoyage
+}
+
+scalar BigDecimal
+
+scalar BigInt
+
+enum Biome {
+  UNKNOWN
+  OCEAN
+  FOREST
+  GRASSLAND
+  TUNDRA
+  SWAMP
+  DESERT
+  ICE
+  WASTELAND
+  LAVA
+  CORRUPTED
+}
+
+input Block_height {
+  hash: Bytes
+  number: Int
+}
+
+scalar Bytes
+
+type Hat {
+  """0 padded hex version of locationDec, no 0x prefix"""
+  id: ID!
+
+  """same as id, but linked to planets entity"""
+  planet: Planet!
+  hatLevel: Int!
+
+  """
+  Seconds since epoch, needs to be multiplied by 1000 for javascript representation
+  """
+  purchaseTimestamps: [Int!]!
+  purchasers: [ID!]!
+}
+
+input Hat_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  planet: String
+  planet_not: String
+  planet_gt: String
+  planet_lt: String
+  planet_gte: String
+  planet_lte: String
+  planet_in: [String!]
+  planet_not_in: [String!]
+  planet_contains: String
+  planet_not_contains: String
+  planet_starts_with: String
+  planet_not_starts_with: String
+  planet_ends_with: String
+  planet_not_ends_with: String
+  hatLevel: Int
+  hatLevel_not: Int
+  hatLevel_gt: Int
+  hatLevel_lt: Int
+  hatLevel_gte: Int
+  hatLevel_lte: Int
+  hatLevel_in: [Int!]
+  hatLevel_not_in: [Int!]
+  purchaseTimestamps: [Int!]
+  purchaseTimestamps_not: [Int!]
+  purchaseTimestamps_contains: [Int!]
+  purchaseTimestamps_not_contains: [Int!]
+  purchasers: [ID!]
+  purchasers_not: [ID!]
+  purchasers_contains: [ID!]
+  purchasers_not_contains: [ID!]
+}
+
+enum Hat_orderBy {
+  id
+  planet
+  hatLevel
+  purchaseTimestamps
+  purchasers
+}
+
+"""Internal type to store internal variables"""
+type Meta {
+  id: ID!
+
+  """the last block timestamp in seconds that was processed"""
+  lastProcessed: Int!
+
+  """last block number processed"""
+  blockNumber: Int!
+
+  """
+  Internal use only: the planet IDs we need to refresh with contract data
+  """
+  _currentlyRefreshingPlanets: [BigInt!]!
+
+  """
+  Internal use only: the artifact IDs we need to refresh with contract data
+  """
+  _currentlyRefreshingArtifacts: [BigInt!]!
+
+  """
+  Internal use only: the voyage IDs we need to refresh with contract data
+  """
+  _currentlyAddingVoyages: [BigInt!]!
+}
+
+input Meta_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  lastProcessed: Int
+  lastProcessed_not: Int
+  lastProcessed_gt: Int
+  lastProcessed_lt: Int
+  lastProcessed_gte: Int
+  lastProcessed_lte: Int
+  lastProcessed_in: [Int!]
+  lastProcessed_not_in: [Int!]
+  blockNumber: Int
+  blockNumber_not: Int
+  blockNumber_gt: Int
+  blockNumber_lt: Int
+  blockNumber_gte: Int
+  blockNumber_lte: Int
+  blockNumber_in: [Int!]
+  blockNumber_not_in: [Int!]
+  _currentlyRefreshingPlanets: [BigInt!]
+  _currentlyRefreshingPlanets_not: [BigInt!]
+  _currentlyRefreshingPlanets_contains: [BigInt!]
+  _currentlyRefreshingPlanets_not_contains: [BigInt!]
+  _currentlyRefreshingArtifacts: [BigInt!]
+  _currentlyRefreshingArtifacts_not: [BigInt!]
+  _currentlyRefreshingArtifacts_contains: [BigInt!]
+  _currentlyRefreshingArtifacts_not_contains: [BigInt!]
+  _currentlyAddingVoyages: [BigInt!]
+  _currentlyAddingVoyages_not: [BigInt!]
+  _currentlyAddingVoyages_contains: [BigInt!]
+  _currentlyAddingVoyages_not_contains: [BigInt!]
+}
+
+enum Meta_orderBy {
+  id
+  lastProcessed
+  blockNumber
+  _currentlyRefreshingPlanets
+  _currentlyRefreshingArtifacts
+  _currentlyAddingVoyages
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+type Planet {
+  """locationId: 0 padded hex value of locationDec, no 0x prefix"""
+  id: ID!
+
+  """decimal version of locationid"""
+  locationDec: BigInt!
+  owner: Player!
+  isInitialized: Boolean!
+
+  """
+  Seconds since epoch, needs to be multiplied by 1000 for javascript representation
+  """
+  createdAt: Int!
+
+  """
+  Seconds since epoch, needs to be multiplied by 1000 for javascript representation
+  """
+  lastUpdated: Int!
+  perlin: Int!
+  range: Int!
+
+  """Value divided by 100 for percentage. Less than 100 is negative"""
+  speed: Int!
+
+  """Value divided by 100 for percentage. Less than 100 is negative"""
+  defense: Int!
+
+  """
+  NOTE: This needs to be divided by 1000. NOTE: This is stored lazily and needs to be updated from lastUpdated to current time
+  """
+  milliEnergyLazy: BigInt!
+
+  """NOTE: This needs to be divided by 1000"""
+  milliEnergyCap: BigInt!
+
+  """NOTE: This needs to be divided by 1000"""
+  milliEnergyGrowth: BigInt!
+
+  """
+  NOTE: This needs to be divided by 1000. NOTE: This is stored lazily and needs to be updated from lastUpdated to current time
+  """
+  milliSilverLazy: BigInt!
+
+  """NOTE: This needs to be divided by 1000"""
+  milliSilverCap: BigInt!
+
+  """NOTE: This needs to be divided by 1000"""
+  milliSilverGrowth: BigInt!
+  planetLevel: Int!
+  defenseUpgrades: Int!
+  rangeUpgrades: Int!
+  speedUpgrades: Int!
+  isEnergyCapBoosted: Boolean!
+  isEnergyGrowthBoosted: Boolean!
+  isRangeBoosted: Boolean!
+  isSpeedBoosted: Boolean!
+  isDefenseBoosted: Boolean!
+  hatLevel: Int!
+  planetType: PlanetType!
+  spaceType: SpaceType!
+  destroyed: Boolean!
+  isHomePlanet: Boolean!
+  hat: Hat
+
+  """Whether this planet's location has been revealed"""
+  isRevealed: Boolean!
+
+  """planet's x coordinate, if revealed"""
+  x: Int
+
+  """planet's y coordinate, if revealed"""
+  y: Int
+  revealer: Player
+  hasTriedFindingArtifact: Boolean!
+  prospectedBlockNumber: Int
+  artifacts(skip: Int = 0, first: Int = 100, orderBy: Artifact_orderBy, orderDirection: OrderDirection, where: Artifact_filter): [Artifact!]!
+  activatedArtifact: Artifact
+  incomingWormholes(skip: Int = 0, first: Int = 100, orderBy: Artifact_orderBy, orderDirection: OrderDirection, where: Artifact_filter): [Artifact!]!
+  voyagesFrom(skip: Int = 0, first: Int = 100, orderBy: Arrival_orderBy, orderDirection: OrderDirection, where: Arrival_filter): [Arrival!]!
+  voyagesTo(skip: Int = 0, first: Int = 100, orderBy: Arrival_orderBy, orderDirection: OrderDirection, where: Arrival_filter): [Arrival!]!
+}
+
+enum PlanetEventType {
+  ARRIVAL
+}
+
+enum PlanetType {
+  PLANET
+  SILVER_MINE
+  RUINS
+  TRADING_POST
+  SILVER_BANK
+}
+
+input Planet_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  locationDec: BigInt
+  locationDec_not: BigInt
+  locationDec_gt: BigInt
+  locationDec_lt: BigInt
+  locationDec_gte: BigInt
+  locationDec_lte: BigInt
+  locationDec_in: [BigInt!]
+  locationDec_not_in: [BigInt!]
+  owner: String
+  owner_not: String
+  owner_gt: String
+  owner_lt: String
+  owner_gte: String
+  owner_lte: String
+  owner_in: [String!]
+  owner_not_in: [String!]
+  owner_contains: String
+  owner_not_contains: String
+  owner_starts_with: String
+  owner_not_starts_with: String
+  owner_ends_with: String
+  owner_not_ends_with: String
+  isInitialized: Boolean
+  isInitialized_not: Boolean
+  isInitialized_in: [Boolean!]
+  isInitialized_not_in: [Boolean!]
+  createdAt: Int
+  createdAt_not: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_not_in: [Int!]
+  lastUpdated: Int
+  lastUpdated_not: Int
+  lastUpdated_gt: Int
+  lastUpdated_lt: Int
+  lastUpdated_gte: Int
+  lastUpdated_lte: Int
+  lastUpdated_in: [Int!]
+  lastUpdated_not_in: [Int!]
+  perlin: Int
+  perlin_not: Int
+  perlin_gt: Int
+  perlin_lt: Int
+  perlin_gte: Int
+  perlin_lte: Int
+  perlin_in: [Int!]
+  perlin_not_in: [Int!]
+  range: Int
+  range_not: Int
+  range_gt: Int
+  range_lt: Int
+  range_gte: Int
+  range_lte: Int
+  range_in: [Int!]
+  range_not_in: [Int!]
+  speed: Int
+  speed_not: Int
+  speed_gt: Int
+  speed_lt: Int
+  speed_gte: Int
+  speed_lte: Int
+  speed_in: [Int!]
+  speed_not_in: [Int!]
+  defense: Int
+  defense_not: Int
+  defense_gt: Int
+  defense_lt: Int
+  defense_gte: Int
+  defense_lte: Int
+  defense_in: [Int!]
+  defense_not_in: [Int!]
+  milliEnergyLazy: BigInt
+  milliEnergyLazy_not: BigInt
+  milliEnergyLazy_gt: BigInt
+  milliEnergyLazy_lt: BigInt
+  milliEnergyLazy_gte: BigInt
+  milliEnergyLazy_lte: BigInt
+  milliEnergyLazy_in: [BigInt!]
+  milliEnergyLazy_not_in: [BigInt!]
+  milliEnergyCap: BigInt
+  milliEnergyCap_not: BigInt
+  milliEnergyCap_gt: BigInt
+  milliEnergyCap_lt: BigInt
+  milliEnergyCap_gte: BigInt
+  milliEnergyCap_lte: BigInt
+  milliEnergyCap_in: [BigInt!]
+  milliEnergyCap_not_in: [BigInt!]
+  milliEnergyGrowth: BigInt
+  milliEnergyGrowth_not: BigInt
+  milliEnergyGrowth_gt: BigInt
+  milliEnergyGrowth_lt: BigInt
+  milliEnergyGrowth_gte: BigInt
+  milliEnergyGrowth_lte: BigInt
+  milliEnergyGrowth_in: [BigInt!]
+  milliEnergyGrowth_not_in: [BigInt!]
+  milliSilverLazy: BigInt
+  milliSilverLazy_not: BigInt
+  milliSilverLazy_gt: BigInt
+  milliSilverLazy_lt: BigInt
+  milliSilverLazy_gte: BigInt
+  milliSilverLazy_lte: BigInt
+  milliSilverLazy_in: [BigInt!]
+  milliSilverLazy_not_in: [BigInt!]
+  milliSilverCap: BigInt
+  milliSilverCap_not: BigInt
+  milliSilverCap_gt: BigInt
+  milliSilverCap_lt: BigInt
+  milliSilverCap_gte: BigInt
+  milliSilverCap_lte: BigInt
+  milliSilverCap_in: [BigInt!]
+  milliSilverCap_not_in: [BigInt!]
+  milliSilverGrowth: BigInt
+  milliSilverGrowth_not: BigInt
+  milliSilverGrowth_gt: BigInt
+  milliSilverGrowth_lt: BigInt
+  milliSilverGrowth_gte: BigInt
+  milliSilverGrowth_lte: BigInt
+  milliSilverGrowth_in: [BigInt!]
+  milliSilverGrowth_not_in: [BigInt!]
+  planetLevel: Int
+  planetLevel_not: Int
+  planetLevel_gt: Int
+  planetLevel_lt: Int
+  planetLevel_gte: Int
+  planetLevel_lte: Int
+  planetLevel_in: [Int!]
+  planetLevel_not_in: [Int!]
+  defenseUpgrades: Int
+  defenseUpgrades_not: Int
+  defenseUpgrades_gt: Int
+  defenseUpgrades_lt: Int
+  defenseUpgrades_gte: Int
+  defenseUpgrades_lte: Int
+  defenseUpgrades_in: [Int!]
+  defenseUpgrades_not_in: [Int!]
+  rangeUpgrades: Int
+  rangeUpgrades_not: Int
+  rangeUpgrades_gt: Int
+  rangeUpgrades_lt: Int
+  rangeUpgrades_gte: Int
+  rangeUpgrades_lte: Int
+  rangeUpgrades_in: [Int!]
+  rangeUpgrades_not_in: [Int!]
+  speedUpgrades: Int
+  speedUpgrades_not: Int
+  speedUpgrades_gt: Int
+  speedUpgrades_lt: Int
+  speedUpgrades_gte: Int
+  speedUpgrades_lte: Int
+  speedUpgrades_in: [Int!]
+  speedUpgrades_not_in: [Int!]
+  isEnergyCapBoosted: Boolean
+  isEnergyCapBoosted_not: Boolean
+  isEnergyCapBoosted_in: [Boolean!]
+  isEnergyCapBoosted_not_in: [Boolean!]
+  isEnergyGrowthBoosted: Boolean
+  isEnergyGrowthBoosted_not: Boolean
+  isEnergyGrowthBoosted_in: [Boolean!]
+  isEnergyGrowthBoosted_not_in: [Boolean!]
+  isRangeBoosted: Boolean
+  isRangeBoosted_not: Boolean
+  isRangeBoosted_in: [Boolean!]
+  isRangeBoosted_not_in: [Boolean!]
+  isSpeedBoosted: Boolean
+  isSpeedBoosted_not: Boolean
+  isSpeedBoosted_in: [Boolean!]
+  isSpeedBoosted_not_in: [Boolean!]
+  isDefenseBoosted: Boolean
+  isDefenseBoosted_not: Boolean
+  isDefenseBoosted_in: [Boolean!]
+  isDefenseBoosted_not_in: [Boolean!]
+  hatLevel: Int
+  hatLevel_not: Int
+  hatLevel_gt: Int
+  hatLevel_lt: Int
+  hatLevel_gte: Int
+  hatLevel_lte: Int
+  hatLevel_in: [Int!]
+  hatLevel_not_in: [Int!]
+  planetType: PlanetType
+  planetType_not: PlanetType
+  spaceType: SpaceType
+  spaceType_not: SpaceType
+  destroyed: Boolean
+  destroyed_not: Boolean
+  destroyed_in: [Boolean!]
+  destroyed_not_in: [Boolean!]
+  isHomePlanet: Boolean
+  isHomePlanet_not: Boolean
+  isHomePlanet_in: [Boolean!]
+  isHomePlanet_not_in: [Boolean!]
+  hat: String
+  hat_not: String
+  hat_gt: String
+  hat_lt: String
+  hat_gte: String
+  hat_lte: String
+  hat_in: [String!]
+  hat_not_in: [String!]
+  hat_contains: String
+  hat_not_contains: String
+  hat_starts_with: String
+  hat_not_starts_with: String
+  hat_ends_with: String
+  hat_not_ends_with: String
+  isRevealed: Boolean
+  isRevealed_not: Boolean
+  isRevealed_in: [Boolean!]
+  isRevealed_not_in: [Boolean!]
+  x: Int
+  x_not: Int
+  x_gt: Int
+  x_lt: Int
+  x_gte: Int
+  x_lte: Int
+  x_in: [Int!]
+  x_not_in: [Int!]
+  y: Int
+  y_not: Int
+  y_gt: Int
+  y_lt: Int
+  y_gte: Int
+  y_lte: Int
+  y_in: [Int!]
+  y_not_in: [Int!]
+  revealer: String
+  revealer_not: String
+  revealer_gt: String
+  revealer_lt: String
+  revealer_gte: String
+  revealer_lte: String
+  revealer_in: [String!]
+  revealer_not_in: [String!]
+  revealer_contains: String
+  revealer_not_contains: String
+  revealer_starts_with: String
+  revealer_not_starts_with: String
+  revealer_ends_with: String
+  revealer_not_ends_with: String
+  hasTriedFindingArtifact: Boolean
+  hasTriedFindingArtifact_not: Boolean
+  hasTriedFindingArtifact_in: [Boolean!]
+  hasTriedFindingArtifact_not_in: [Boolean!]
+  prospectedBlockNumber: Int
+  prospectedBlockNumber_not: Int
+  prospectedBlockNumber_gt: Int
+  prospectedBlockNumber_lt: Int
+  prospectedBlockNumber_gte: Int
+  prospectedBlockNumber_lte: Int
+  prospectedBlockNumber_in: [Int!]
+  prospectedBlockNumber_not_in: [Int!]
+  activatedArtifact: String
+  activatedArtifact_not: String
+  activatedArtifact_gt: String
+  activatedArtifact_lt: String
+  activatedArtifact_gte: String
+  activatedArtifact_lte: String
+  activatedArtifact_in: [String!]
+  activatedArtifact_not_in: [String!]
+  activatedArtifact_contains: String
+  activatedArtifact_not_contains: String
+  activatedArtifact_starts_with: String
+  activatedArtifact_not_starts_with: String
+  activatedArtifact_ends_with: String
+  activatedArtifact_not_ends_with: String
+}
+
+enum Planet_orderBy {
+  id
+  locationDec
+  owner
+  isInitialized
+  createdAt
+  lastUpdated
+  perlin
+  range
+  speed
+  defense
+  milliEnergyLazy
+  milliEnergyCap
+  milliEnergyGrowth
+  milliSilverLazy
+  milliSilverCap
+  milliSilverGrowth
+  planetLevel
+  defenseUpgrades
+  rangeUpgrades
+  speedUpgrades
+  isEnergyCapBoosted
+  isEnergyGrowthBoosted
+  isRangeBoosted
+  isSpeedBoosted
+  isDefenseBoosted
+  hatLevel
+  planetType
+  spaceType
+  destroyed
+  isHomePlanet
+  hat
+  isRevealed
+  x
+  y
+  revealer
+  hasTriedFindingArtifact
+  prospectedBlockNumber
+  artifacts
+  activatedArtifact
+  incomingWormholes
+  voyagesFrom
+  voyagesTo
+}
+
+type Player {
+  """0x prefixed hex string, zero padded"""
+  id: ID!
+  initTimestamp: Int!
+
+  """
+  allows null because 0x0000000000000000000000000000000000000000 has no homeWorld
+  """
+  homeWorld: Planet
+  milliWithdrawnSilver: BigInt!
+  totalArtifactPoints: BigInt!
+  score: BigInt!
+  lastRevealTimestamp: Int!
+  planets(skip: Int = 0, first: Int = 100, orderBy: Planet_orderBy, orderDirection: OrderDirection, where: Planet_filter): [Planet!]!
+  sentVoyages(skip: Int = 0, first: Int = 100, orderBy: Arrival_orderBy, orderDirection: OrderDirection, where: Arrival_filter): [Arrival!]!
+
+  """NOTE: Does not reflect current ownership"""
+  artifactsDiscovered(skip: Int = 0, first: Int = 100, orderBy: Artifact_orderBy, orderDirection: OrderDirection, where: Artifact_filter): [Artifact!]!
+
+  """
+  NOTE: Does not reflect deposited artifacts now 'owned' by the game contract
+  """
+  artifactsWithdrawn(skip: Int = 0, first: Int = 100, orderBy: Artifact_orderBy, orderDirection: OrderDirection, where: Artifact_filter): [Artifact!]!
+}
+
+input Player_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  initTimestamp: Int
+  initTimestamp_not: Int
+  initTimestamp_gt: Int
+  initTimestamp_lt: Int
+  initTimestamp_gte: Int
+  initTimestamp_lte: Int
+  initTimestamp_in: [Int!]
+  initTimestamp_not_in: [Int!]
+  homeWorld: String
+  homeWorld_not: String
+  homeWorld_gt: String
+  homeWorld_lt: String
+  homeWorld_gte: String
+  homeWorld_lte: String
+  homeWorld_in: [String!]
+  homeWorld_not_in: [String!]
+  homeWorld_contains: String
+  homeWorld_not_contains: String
+  homeWorld_starts_with: String
+  homeWorld_not_starts_with: String
+  homeWorld_ends_with: String
+  homeWorld_not_ends_with: String
+  milliWithdrawnSilver: BigInt
+  milliWithdrawnSilver_not: BigInt
+  milliWithdrawnSilver_gt: BigInt
+  milliWithdrawnSilver_lt: BigInt
+  milliWithdrawnSilver_gte: BigInt
+  milliWithdrawnSilver_lte: BigInt
+  milliWithdrawnSilver_in: [BigInt!]
+  milliWithdrawnSilver_not_in: [BigInt!]
+  totalArtifactPoints: BigInt
+  totalArtifactPoints_not: BigInt
+  totalArtifactPoints_gt: BigInt
+  totalArtifactPoints_lt: BigInt
+  totalArtifactPoints_gte: BigInt
+  totalArtifactPoints_lte: BigInt
+  totalArtifactPoints_in: [BigInt!]
+  totalArtifactPoints_not_in: [BigInt!]
+  score: BigInt
+  score_not: BigInt
+  score_gt: BigInt
+  score_lt: BigInt
+  score_gte: BigInt
+  score_lte: BigInt
+  score_in: [BigInt!]
+  score_not_in: [BigInt!]
+  lastRevealTimestamp: Int
+  lastRevealTimestamp_not: Int
+  lastRevealTimestamp_gt: Int
+  lastRevealTimestamp_lt: Int
+  lastRevealTimestamp_gte: Int
+  lastRevealTimestamp_lte: Int
+  lastRevealTimestamp_in: [Int!]
+  lastRevealTimestamp_not_in: [Int!]
+}
+
+enum Player_orderBy {
+  id
+  initTimestamp
+  homeWorld
+  milliWithdrawnSilver
+  totalArtifactPoints
+  score
+  lastRevealTimestamp
+  planets
+  sentVoyages
+  artifactsDiscovered
+  artifactsWithdrawn
+}
+
+type Query {
+  player(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Player
+  players(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Player_orderBy
+    orderDirection: OrderDirection
+    where: Player_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Player!]!
+  planet(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Planet
+  planets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Planet_orderBy
+    orderDirection: OrderDirection
+    where: Planet_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Planet!]!
+  arrivalQueue(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): ArrivalQueue
+  arrivalQueues(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: ArrivalQueue_orderBy
+    orderDirection: OrderDirection
+    where: ArrivalQueue_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [ArrivalQueue!]!
+  meta(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Meta
+  metas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Meta_orderBy
+    orderDirection: OrderDirection
+    where: Meta_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Meta!]!
+  arrival(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Arrival
+  arrivals(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Arrival_orderBy
+    orderDirection: OrderDirection
+    where: Arrival_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Arrival!]!
+  hat(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Hat
+  hats(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Hat_orderBy
+    orderDirection: OrderDirection
+    where: Hat_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Hat!]!
+  artifact(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Artifact
+  artifacts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Artifact_orderBy
+    orderDirection: OrderDirection
+    where: Artifact_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Artifact!]!
+
+  """Access to subgraph metadata"""
+  _meta(block: Block_height): _Meta_
+}
+
+enum SpaceType {
+  NEBULA
+  SPACE
+  DEEP_SPACE
+  DEAD_SPACE
+}
+
+type Subscription {
+  player(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Player
+  players(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Player_orderBy
+    orderDirection: OrderDirection
+    where: Player_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Player!]!
+  planet(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Planet
+  planets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Planet_orderBy
+    orderDirection: OrderDirection
+    where: Planet_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Planet!]!
+  arrivalQueue(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): ArrivalQueue
+  arrivalQueues(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: ArrivalQueue_orderBy
+    orderDirection: OrderDirection
+    where: ArrivalQueue_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [ArrivalQueue!]!
+  meta(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Meta
+  metas(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Meta_orderBy
+    orderDirection: OrderDirection
+    where: Meta_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Meta!]!
+  arrival(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Arrival
+  arrivals(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Arrival_orderBy
+    orderDirection: OrderDirection
+    where: Arrival_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Arrival!]!
+  hat(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Hat
+  hats(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Hat_orderBy
+    orderDirection: OrderDirection
+    where: Hat_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Hat!]!
+  artifact(
+    id: ID!
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): Artifact
+  artifacts(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Artifact_orderBy
+    orderDirection: OrderDirection
+    where: Artifact_filter
+
+    """
+    The block at which the query should be executed. Can either be an `{ number: Int }` containing the block number or a `{ hash: Bytes }` value containing a block hash. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+  ): [Artifact!]!
+
+  """Access to subgraph metadata"""
+  _meta(block: Block_height): _Meta_
+}
+
+type _Block_ {
+  """The hash of the block"""
+  hash: Bytes
+
+  """The block number"""
+  number: Int!
+}
+
+"""The type for the top-level _meta field"""
+type _Meta_ {
+  """
+  Information about a specific subgraph block. The hash of the block
+  will be null if the _meta field has a block constraint that asks for
+  a block number. It will be filled if the _meta field has no block constraint
+  and therefore asks for the latest  block
+  """
+  block: _Block_!
+
+  """The deployment ID"""
+  deployment: String!
+
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum _SubgraphErrorPolicy_ {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow
+
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny
+}

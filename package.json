@@ -15,9 +15,13 @@
     "test": "hardhat compile && hardhat test",
     "deploy": "hardhat deploy --network xdai",
     "format": "prettier --write .",
-    "website": "esbuild plugins/*.tsx --bundle --outdir=website --format=esm --target=es2020"
+    "website": "esbuild plugins/*.tsx --bundle --outdir=website --format=esm --target=es2020",
+    "schema": "apollo client:download-schema plugins/generated/schema.graphql --endpoint https://api.thegraph.com/subgraphs/name/darkforest-eth/dark-forest-v06-round-2",
+    "codegen": "apollo client:codegen plugins/generated --outputFlat --includes 'plugins/**/*.tsx' --localSchemaFile plugins/generated/schema.graphql --target typescript"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@apollo/client": "^3.3.20"
+  },
   "devDependencies": {
     "@darkforest_eth/constants": "^6.2.7",
     "@darkforest_eth/contracts": "^6.2.7",
@@ -34,12 +38,12 @@
     "@projectsophon/eslint-config": "0.0.2",
     "@projectsophon/prettier-config": "0.0.0",
     "@projectsophon/tsconfig": "^0.0.0",
-    "snarkjs": "^0.3.60",
     "@typechain/ethers-v5": "^7.0.0",
     "@typechain/hardhat": "^2.0.1",
     "@types/chai": "^4.2.18",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.3.0",
+    "apollo": "^2.33.4",
     "big-integer": "^1.6.48",
     "chai": "^4.3.4",
     "dotenv": "^10.0.0",
@@ -50,6 +54,7 @@
     "hardhat": "^2.4.0",
     "htm": "3.0.4",
     "preact": "^10.5.13",
+    "snarkjs": "^0.3.60",
     "solhint": "^3.3.4",
     "stable": "^0.1.8",
     "ts-node": "^9.1.1",
