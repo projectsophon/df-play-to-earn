@@ -15,7 +15,7 @@
     "test": "hardhat compile && hardhat test",
     "deploy": "hardhat deploy --network xdai",
     "format": "prettier --write .",
-    "website": "esbuild plugins/*.tsx --bundle --outdir=website --format=esm --target=es2020"
+    "website": "df-plugin-dev-server bundle --glob plugins/*.tsx --outdir=website --preact"
   },
   "dependencies": {},
   "devDependencies": {
@@ -30,7 +30,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@openzeppelin/contracts": "^4.1.0",
     "@openzeppelin/hardhat-upgrades": "^1.8.2",
-    "@projectsophon/df-plugin-dev-server": "^1.3.1",
+    "@projectsophon/df-plugin-dev-server": "^1.4.0",
     "@projectsophon/eslint-config": "0.0.2",
     "@projectsophon/prettier-config": "0.0.0",
     "@projectsophon/tsconfig": "^0.0.0",
@@ -49,7 +49,7 @@
     "ethers": "^5.0.0",
     "hardhat": "^2.4.0",
     "htm": "3.0.4",
-    "preact": "^10.5.13",
+    "preact": "^10.5.14",
     "solhint": "^3.3.4",
     "stable": "^0.1.8",
     "ts-node": "^9.1.1",
