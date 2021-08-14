@@ -104,7 +104,7 @@ const config: HardhatUserConfig = {
       forking: {
         enabled: true,
         url: "https://xdai-archive.blockscout.com/",
-        blockNumber: 16820046,
+        blockNumber: 17562135,
       },
     },
   },
