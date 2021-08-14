@@ -38,7 +38,7 @@ Once you've cloned the project, you need to get all the dependencies. In the pro
 yarn
 ```
 
-If you started playing after block 16240564 (the morning of May 25th, 2021), you'll need to change the forking `blockNumber` in `hardhat.config.ts` to a block **after** your wallet address was whitelisted in the production game, or the game will keep asking you for a whitelist key.
+If you started playing after `blockNumber` in `hardhat.config.ts` you'll need to update it to a block **after** your wallet address was whitelisted in the production game, or the game will keep asking you for a whitelist key.
 
 _Note:_ You probably want to edit the `hardhat.config.ts` to include your own player. See [Setting up a new user](#setting-up-a-new-user) for details.
 
