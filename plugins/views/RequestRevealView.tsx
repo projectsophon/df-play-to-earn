@@ -103,13 +103,8 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
   const [selectedLocationId, setSelectedLocationId] = useState<LocationId>(undefined);
 
   const [balance, setBalance] = useState(getMyBalance);
-  const [canRequest, setCanRequest] = useState(() => canRequestReveal(selectedLocationId, revealRequests));
   const [xdai, setXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
   const [minXdai] = useState(() => minWithoutFee(constants.REQUEST_MINIMUM, constants.FEE_PERCENT));
-
-  useEffect(() => {
-    setCanRequest(canRequestReveal(selectedLocationId, revealRequests));
-  }, [selectedLocationId, revealRequests]);
 
   useEffect(() => {
     const sub = subscribeToMyBalance(setBalance);
@@ -147,17 +142,14 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
 
   async function onClick() {
     setPending(true);
-    setCanRequest(false);
     onStatus({ message: "Sending broadcast request... Please wait...", color: colors.dfyellow });
     try {
       await requestReveal(selectedLocationId, totalEther);
       setPending(false);
-      setCanRequest(canRequestReveal(selectedLocationId, revealRequests));
       onStatus({ message: "Successfully posted broadcast request!", color: colors.dfgreen, timeout: 5000 });
     } catch (err) {
       console.error("[BroadcastMarketPlugin] Error requesting broadcast", err);
       setPending(false);
-      setCanRequest(canRequestReveal(selectedLocationId, revealRequests));
       onStatus({ message: "Error requesting broadcast. Try again.", color: colors.dfred });
     }
   }
@@ -221,7 +213,7 @@ export function RequestRevealView({ active, revealRequests, constants, onStatus,
         <span>Total:</span>
         <span>{totalEther} xDai</span>
       </div>
-      <Button onClick={onClick} enabled={!pending && canRequest}>
+      <Button onClick={onClick} enabled={!pending && canRequestReveal(selectedLocationId, revealRequests)}>
         {btnMessage}
       </Button>
     </div>
