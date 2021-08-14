@@ -26,8 +26,6 @@ That command will clone the project and the [projectsophon/hardhat-network-fork]
 
 The submodule contains a cache of the Dark Forest v0.6 Round 1 contract on the xDai network at block 16240564. The cache is pre-seeded from the `0xa9fcdf168759fbe712a651323b2f98d9ae141215` address, so your mileage may vary with loading the cache.
 
-_Note: This project uses a fork of Hardhat until [nomiclabs/hardhat#1483](https://github.com/nomiclabs/hardhat/pull/1483) is merged._
-
 If you need to refetch or update the cache submodule (such as after cleaning the project), you can run the command:
 
 ```bash
