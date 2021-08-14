@@ -14,7 +14,7 @@ class BroadcastMarketPlugin {
   async render(container: HTMLDivElement) {
     this.container = container;
 
-    container.style.width = "470px";
+    container.style.width = "480px";
 
     try {
       const contract = await getContract();

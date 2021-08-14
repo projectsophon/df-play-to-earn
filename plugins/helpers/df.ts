@@ -89,7 +89,7 @@ export function getSelectedLocationId(): LocationId | undefined {
 
 export function getMyBalance(): number {
   //@ts-expect-error
-  return df.getMyBalance();
+  return df.getMyBalanceEth();
 }
 
 export type Subscription = {
