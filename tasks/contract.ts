@@ -61,7 +61,17 @@ async function list({}: { address: string }, hre: HardhatRuntimeEnvironment) {
   console.log("Outstanding refunds or claims (if any):");
 
   for (const r of requests) {
-    if (!r.paid && !r.refunded) console.log(r.location, r.paid, r.refunded);
+    if (!r.paid && !r.refunded)
+      console.log(
+        "from:",
+        r.requester.toString(),
+        "payout",
+        hre.ethers.utils.formatEther(r.payout.toString()).toString(),
+        "cancelComplete",
+        r.cancelCompleteBlock.toString(),
+        "location",
+        r.location.toString()
+      );
   }
 }
 
