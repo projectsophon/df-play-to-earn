@@ -35,51 +35,52 @@
   resolved "https://registry.yarnpkg.com/@cto.af/textdecoder/-/textdecoder-0.0.0.tgz#e1e8d84c936c30a0f4619971f19ca41941af9fdc"
   integrity sha512-sJpx3F5xcVV/9jNYJQtvimo4Vfld/nD3ph+ZWtQzZ03Zo8rJC7QKQTRcIGS13Rcz80DwFNthCWMrd58vpY4ZAQ==
 
-"@darkforest_eth/constants@6.2.9", "@darkforest_eth/constants@^6.2.7":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/constants/-/constants-6.2.9.tgz#9a7145fa78e486bad554075e6e066a4d0c9a5a1f"
-  integrity sha512-AlaCmxIFOsHFPQ1BXph+s7/RrLndp3HwzskPAKe1bjtNWLw7sb8EmNJyAuLgfVuJfyiKlJF6QCobuz3h5T/g3Q==
+"@darkforest_eth/constants@6.5.1", "@darkforest_eth/constants@^6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/constants/-/constants-6.5.1.tgz#e83eed0d7f79dcca6f09fdee049d58f5e12133f3"
+  integrity sha512-DO+A+2KrKV5iNnVyrs2rEsAU3onkcOx/nSK61WHwCFZVzCqU5cwlk37XqBWzUMb4gNHUg0u8kfbuSaH2WgstDw==
   dependencies:
-    "@darkforest_eth/types" "6.2.9"
+    "@darkforest_eth/types" "6.5.1"
     big-integer "^1.6.48"
 
-"@darkforest_eth/contracts@6.2.9", "@darkforest_eth/contracts@^6.2.7":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-6.2.9.tgz#c1f723590bce30fb2bbd388c5099afad8975023a"
-  integrity sha512-3FM+yIpuhauLxeD+/to8eJ4pUz6aUIS2FqseIoYG9LYnszUnP/qwwqFimEFWbXz27sjYWiQqZtV9RC61IJrchw==
+"@darkforest_eth/contracts@6.5.1", "@darkforest_eth/contracts@^6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/contracts/-/contracts-6.5.1.tgz#5deedb3752f4e0065162d7f30b291c4d41fd283a"
+  integrity sha512-AGgqXyY6C5ygQtg8b/sMWfl2vmYRv8GOJPMfRVcAejler8p3v9zp27jwY8yT2AL5JMQiBVtyxg78VSjbO0IIGA==
 
-"@darkforest_eth/hexgen@6.2.9":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/hexgen/-/hexgen-6.2.9.tgz#065d8fee2a5039c01c51c630b2a89385b315d6bc"
-  integrity sha512-CNAUKQDhkzgyq+0gTleGfX4eBiRVGXiWK+rUPZqu4qS9JAMqf4rPJCSHDqv1Cmyo1C4MSDXfYFbZn0CXSdjc6g==
+"@darkforest_eth/hexgen@6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/hexgen/-/hexgen-6.5.1.tgz#2cc0eb954e5614ee967a6785359e3b1d03aebb63"
+  integrity sha512-egMnWw25EDRwPTHN/vJX5RW13d/jq2uxDlpZaoLdHvRzjw8uR04eqL4V9teOPJbeNenO7UE1piHafZWnafzn2w==
   dependencies:
-    "@darkforest_eth/types" "6.2.9"
+    "@darkforest_eth/types" "6.5.1"
     big-integer "^1.6.48"
 
-"@darkforest_eth/serde@^6.2.7":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/serde/-/serde-6.2.9.tgz#97e1763e204b60275a08135c15b55af9895f8eaf"
-  integrity sha512-U55NXzSbw37+M8llEaygtbheFS2C670j0Fp/a6Of+fWR55NU6ARa98a0oKKMpZ5IYsuhJfyTGUMhz/boxPJhgw==
+"@darkforest_eth/serde@^6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/serde/-/serde-6.5.1.tgz#dc65b33dfb13efdeb4db875c8f2b307ef0fda49a"
+  integrity sha512-MH2t2r7tBvl2iNTKmNIdp5dvcyv6O/qkCre4TFgOyk8pVdH9StCmV+gTahBO0XrPNCdMZU1zsg/8PeDwx5QwBg==
   dependencies:
-    "@darkforest_eth/constants" "6.2.9"
-    "@darkforest_eth/contracts" "6.2.9"
-    "@darkforest_eth/hexgen" "6.2.9"
-    "@darkforest_eth/types" "6.2.9"
-    big-integer "^1.6.48"
-    ethers "^5.0.7"
-
-"@darkforest_eth/snarks@^6.2.7":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-6.2.9.tgz#048995fd151c6f06d7a661167d880562a60f67c7"
-  integrity sha512-AMo2w+ZdiqVCk0yI9jtNV5lgp9DadSWUqUi9f4yU1QFIB6tzFXJf0Zjyw4PAo7vjuQ8n1k2BYrm5gR3bZOntwA==
-
-"@darkforest_eth/types@6.2.9", "@darkforest_eth/types@^6.2.7":
-  version "6.2.9"
-  resolved "https://registry.yarnpkg.com/@darkforest_eth/types/-/types-6.2.9.tgz#06dc75186dc3b517fd87baa751d6ad8e081ca6c0"
-  integrity sha512-GqdZy9q2AujnrfdQeCd8xMZvfp7rKgLSKbvJ4gCT+LPZUFFE2GSQh1Brw/FJa0pYrFnzbuemHieSjTT9iYM1CQ==
-  dependencies:
+    "@darkforest_eth/constants" "6.5.1"
+    "@darkforest_eth/contracts" "6.5.1"
+    "@darkforest_eth/hexgen" "6.5.1"
+    "@darkforest_eth/types" "6.5.1"
     big-integer "^1.6.48"
     ethers "^5.0.7"
+
+"@darkforest_eth/snarks@^6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/snarks/-/snarks-6.5.1.tgz#8149f5f2a57235118808f768f083be202d3945e8"
+  integrity sha512-rwx6I+izA0HCSdIZ+d3orCATm6V0F7Cf1joc8PQ5oom9tQAFLvDqFtZlfpuxVbesgc3qkH6s4uPc+DJuIsZjXw==
+
+"@darkforest_eth/types@6.5.1", "@darkforest_eth/types@^6.5.1":
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/@darkforest_eth/types/-/types-6.5.1.tgz#b079b5e857326fdbc5ed6dfeef533ec36594da64"
+  integrity sha512-DF3z+B0aqlqcIpuG60PUMZeywIe2WKMvVKN3VW0vRvkK1wy+JX+nConUeKQsbJrtm63cAhINQa8UQ0WPWARmMg==
+  dependencies:
+    big-integer "^1.6.48"
+    ethers "^5.0.7"
+    ts-toolbelt "^9.6.0"
 
 "@ensdomains/ens@^0.4.4":
   version "0.4.5"
@@ -8326,6 +8327,11 @@ ts-node@^9.1.1:
     make-error "^1.1.1"
     source-map-support "^0.5.17"
     yn "3.1.1"
+
+ts-toolbelt@^9.6.0:
+  version "9.6.0"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-9.6.0.tgz#50a25426cfed500d4a09bd1b3afb6f28879edfd5"
+  integrity sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==
 
 tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.14.1"
