@@ -21,11 +21,9 @@ async function getEndTime({}: { address: string }, hre: HardhatRuntimeEnvironmen
   const BroadcastMarketFactory = await hre.ethers.getContractFactory("BroadcastMarket");
   const broadcastMarket = BroadcastMarketFactory.attach(BROADCAST_MARKET_ADDRESS);
 
-  const endTime = await broadcastMarket.MARKET_CLOSE_COUNTDOWN_TIMESTAMP();
-  const endDate = new Date(endTime.toNumber() * 1000);
-  console.log(`Market Closes at ${endDate}`);
-
   const constants = await broadcastMarket.getConstants();
+  const endDate = new Date(constants.MARKET_CLOSE_COUNTDOWN_TIMESTAMP.toNumber() * 1000);
+  console.log(`Market Closes at ${endDate}`);
   console.log("FEE_PERCENT", constants.FEE_PERCENT);
   console.log("CANCELLED_COUNTDOWN_BLOCKS", constants.CANCELLED_COUNTDOWN_BLOCKS.toNumber());
   console.log("REQUEST_MAXIMUM", formatEther(constants.REQUEST_MAXIMUM));
