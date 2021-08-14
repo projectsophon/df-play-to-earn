@@ -47,8 +47,7 @@ extendEnvironment((env: HardhatRuntimeEnvironment) => {
   ];
 
   // Marketplace contract setup
-  const oneWeekInHours = 24 * 7;
-  env.MARKET_OPEN_FOR_HOURS = oneWeekInHours;
+  env.MARKET_OPEN_FOR_HOURS = 188;
   // The timeout countdown after which the RevealRequest is successfuly cancelled
   // and users can no longer reveal AND/OR collect their reward!
   env.CANCELLED_COUNTDOWN_BLOCKS = 512;
