@@ -103,7 +103,7 @@ export function subscribeToSelectedLocationId(cb: (loc: LocationId) => void): Su
 
 export function subscribeToMyBalance(cb: (balance: number) => void): Subscription {
   //@ts-expect-error
-  return df.myBalance$.subscribe(cb);
+  return df.getMyBalance$().subscribe(cb);
 }
 
 export function subscribeToBlockNumber(cb: (blockNumber: number) => void): Subscription {
