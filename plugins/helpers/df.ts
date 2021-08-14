@@ -1,6 +1,7 @@
 // This file solely exists for @ts-expect-error because DF doesn't provide the global object as types
 import type { Planet, LocationId, EthAddress, WorldCoords, LocatablePlanet } from "@darkforest_eth/types";
 import type { RevealSnarkContractCallArgs } from "@darkforest_eth/snarks";
+import type { BigNumber } from "ethers";
 import type { BroadcastMarket } from "../../types";
 
 import { BROADCAST_MARKET_ABI } from "../generated/abi";
@@ -101,9 +102,11 @@ export function subscribeToSelectedLocationId(cb: (loc: LocationId) => void): Su
   return ui.selectedPlanetId$.subscribe(cb);
 }
 
+// This contains a terrible hack around bad APIs
+// getMyBalance$() emitter emits BigNumbers instead of the same type as returned by getMyBalance()
 export function subscribeToMyBalance(cb: (balance: number) => void): Subscription {
   //@ts-expect-error
-  return df.getMyBalance$().subscribe(cb);
+  return df.getMyBalance$().subscribe(() => cb(getMyBalance()));
 }
 
 export function subscribeToBlockNumber(cb: (blockNumber: number) => void): Subscription {
