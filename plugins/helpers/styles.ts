@@ -22,7 +22,7 @@ export const beware = {
 
 export const warning = {
   textAlign: "center",
-  marginBottom: "10px"
+  marginBottom: "10px",
 };
 
 export const muted = {

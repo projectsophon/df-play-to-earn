@@ -2,3 +2,5 @@
 artifacts/
 cache/
 types/
+website/
+plugins/generated/
